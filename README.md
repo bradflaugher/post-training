@@ -4,7 +4,7 @@
 
 A 90s comic-gore word connection game powered by a tiny on-device Small Language Model (`Xenova/albert-base-v2`, 11.8M parameters, ~22 MB fp16 ONNX) running **100% client-side in your browser** via WebAssembly.
 
-Inspired by NYT Connections, edge keyboard next-word prediction models, and the visceral black-ink / crimson / acid-green comic book aesthetic of Kevin Eastman & Simon Bisley's 1996 *TMNT: Bodycount*.
+Inspired by classic 4×4 word-grouping puzzles, edge keyboard next-word prediction models, and the visceral black-ink / crimson / acid-green aesthetic of 1990s underground splatter comics.
 
 ---
 
@@ -12,7 +12,7 @@ Inspired by NYT Connections, edge keyboard next-word prediction models, and the 
 
 Our patient — a compact 11.8M-parameter transformer running inside your browser — has suffered catastrophic synaptic entanglement. Four **Cortical Sentence Probes** (each with a `[MASK]` slot) are firing at once, and **16 vocabulary tokens** are floating loose on the operating table.
 
-1. **Select 4 Tokens & Amputate:** Just like NYT Connections, group the 4 tokens on the 4×4 grid that belong to one category and hit **🩸 AMPUTATE** (or press `Enter`).
+1. **Select 4 Tokens & Amputate:** Group the 4 tokens on the 4×4 grid that belong to one category and hit **🩸 AMPUTATE** (or press `Enter`).
 2. **Declassify the Hidden SLM Probes:** While you solve, the 4 cortical sentence probes and token probabilities are encrypted. Each time you amputate a category, its cortical lobe banner rips open to reveal the exact **sentence completion probe** (for example: `"the best ice cream flavor is [MASK]."`) along with the language model's **softmax probability (`%`)** and **raw logit (`z`)** for each of the 4 words!
 3. **One Token Off Warning:** If 3 of your 4 selected tokens belong to the same lobe, the cranial monitor flashes **"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"**.
 4. **Two Operating Modes:**

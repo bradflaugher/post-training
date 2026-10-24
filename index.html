@@ -95,13 +95,14 @@
     background-size: 16px 16px, 32px 32px;
     background-position: 0 0, 8px 8px;
     color: var(--bone);
+    min-height: 100dvh;
     height: 100dvh;
-    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: max(env(safe-area-inset-top), 0.4rem) 0.55rem max(env(safe-area-inset-bottom), 0.4rem) 0.55rem;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     -webkit-user-select: none;
     user-select: none;
     position: relative;
@@ -190,6 +191,14 @@
     flex-direction: column;
     gap: 0.36rem;
     z-index: 10;
+  }
+  @media (max-height: 560px) {
+    body {
+      height: auto;
+    }
+    .console-wrap {
+      height: auto;
+    }
   }
 
   /* ── Header Bar: Title + Neural Telemetry ── */
@@ -985,7 +994,7 @@
     <p><strong>WELCOME TO POST-TRAINING.</strong> Our patient — a compact 11.8M-parameter on-device Small Language Model (<code>Xenova/albert-base-v2</code>, an edge next-word / masked-token prediction engine sharing the same transformer architecture as frontier LLMs) — has suffered catastrophic synaptic entanglement. Four cortical sentence probes are firing at once, and 16 vocabulary tokens are floating loose in the cranium.</p>
     <p><strong>HOW TO OPERATE:</strong></p>
     <ul style="margin-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;">
-      <li><strong>Select 4 Tokens &amp; Amputate:</strong> Just like NYT Connections, group the 4 tokens that belong to one cortical category and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
+      <li><strong>Select 4 Tokens &amp; Amputate:</strong> Group the 4 tokens that belong to one cortical category and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
       <li><strong>Declassify the LLM Probes:</strong> The 4 cortical sentence probes and token probabilities are encrypted while you solve. Every time you amputate a category, its hidden LLM sentence probe (e.g. <code>"the best ice cream flavor is [MASK]."</code>) rips open along with the model's <strong>live softmax probabilities (%)</strong> and raw logits for each word!</li>
       <li><strong>One Away Warning:</strong> If 3 of your 4 tokens belong to the same lobe, the cranial monitor flashes <strong>"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"</strong></li>
       <li><strong>Live LLM Mode vs. Pre-Dissected Ward:</strong> In <strong>LIVE LLM SURGERY</strong>, every seed procedurally selects compatible neural lobes, runs live forward passes in WebAssembly, and lets the LLM pick its own top-scoring tokens on the fly. In <strong>PRE-DISSECTED WARD</strong> (`?lite=1`), instant verified logit tables let you play with zero model wait.</li>
@@ -994,7 +1003,7 @@
     <div style="display:flex;flex-direction:column;gap:0.5rem;">
       <label for="seed-input" style="font-family:var(--font-mono);font-size:0.74rem;color:var(--acid);font-weight:800;">SURGICAL SEED / CASE NUMBER (SHARE WITH A FRIEND):</label>
       <div class="lab-input-row">
-        <input type="text" class="lab-input" id="seed-input" placeholder="Enter seed number or word (e.g. 1996 or BODYCOUNT)"/>
+        <input type="text" class="lab-input" id="seed-input" placeholder="Enter seed number or word (e.g. 1996 or LOBOTOMY)"/>
         <button type="button" class="act-btn primary" id="seed-load-btn" style="padding:0.45rem 0.9rem;min-height:40px;">LOAD SEED</button>
       </div>
     </div>
@@ -1421,26 +1430,26 @@
     if (initModelPromise) return initModelPromise;
 
     initModelPromise = (async () => {
-      // Check crash-loop sentinel
       try {
-        if (sessionStorage.getItem(LOADING_SENTINEL) === '1') {
-          const crashes = parseInt(sessionStorage.getItem(CRASH_COUNT_KEY) || '0', 10) + 1;
-          sessionStorage.setItem(CRASH_COUNT_KEY, String(crashes));
-          sessionStorage.removeItem(LOADING_SENTINEL);
-          if (crashes >= MAX_CRASHES_BEFORE_WARD) {
-            wardMode = true;
-            errorBanner.classList.add('visible');
-            updateModeIndicator();
-            return false;
+        // Check crash-loop sentinel
+        try {
+          if (sessionStorage.getItem(LOADING_SENTINEL) === '1') {
+            const crashes = parseInt(sessionStorage.getItem(CRASH_COUNT_KEY) || '0', 10) + 1;
+            sessionStorage.setItem(CRASH_COUNT_KEY, String(crashes));
+            sessionStorage.removeItem(LOADING_SENTINEL);
+            if (crashes >= MAX_CRASHES_BEFORE_WARD) {
+              wardMode = true;
+              errorBanner.classList.add('visible');
+              updateModeIndicator();
+              return false;
+            }
           }
+          sessionStorage.setItem(LOADING_SENTINEL, '1');
+        } catch {
+          // Ignore sessionStorage restrictions
         }
-        sessionStorage.setItem(LOADING_SENTINEL, '1');
-      } catch {
-        // Ignore sessionStorage restrictions
-      }
 
-      updateModeIndicator();
-      try {
+        updateModeIndicator();
         const t0 = performance.now();
         const { AutoTokenizer, AutoModelForMaskedLM, env } = await import(TRANSFORMERS_CDN);
         env.allowLocalModels = true;
