@@ -1981,16 +1981,131 @@
     return Math.max(0.05, Math.min(0.99, 1 - maxPairCos));
   }
 
-  function matchesGradeBand(probeCosDist, targetGrade) {
-    if (targetGrade === 'hard') return probeCosDist < 0.62;
-    if (targetGrade === 'medium') return probeCosDist >= 0.62 && probeCosDist < 0.80;
-    return probeCosDist >= 0.80;
+  function matchesGradeBand(cosDist, targetGrade) {
+    if (targetGrade === 'hard') return cosDist < 0.62;
+    if (targetGrade === 'medium') return cosDist >= 0.62 && cosDist < 0.80;
+    return cosDist >= 0.80;
+  }
+
+  function gradeFromCosDist(cosDist) {
+    if (cosDist < 0.62) return 'hard';
+    if (cosDist < 0.80) return 'medium';
+    return 'easy';
   }
 
   function gradeTargetCenter(targetGrade) {
-    if (targetGrade === 'hard') return 0.38;
-    if (targetGrade === 'medium') return 0.70;
-    return 0.90;
+    if (targetGrade === 'hard') return 0.45;
+    if (targetGrade === 'medium') return 0.71;
+    return 0.86;
+  }
+
+  // Select 4 words per lobe and compute pairwise word cosine distance strictly against the 16 selected board words
+  function selectQuadWordsFromPools(pools, targetGrade, rng, isCanonicalSeed1) {
+    const initialRivalVecs = pools.map(items => {
+      const valid = items.filter(w => w.margin > 0.35);
+      const ref = valid.length >= 4 ? valid : items.slice(0, 4);
+      return ref.map(w => w.wordVec);
+    });
+
+    const chosen = new Array(4);
+    for (let i = 0; i < 4; i++) {
+      const scoredPool = pools[i];
+      for (const item of scoredPool) {
+        item.wordCosDist = computeWordCosineDistance(item.wordVec, i, initialRivalVecs);
+      }
+      const validCands = scoredPool.filter(w => w.margin > 0.35);
+      if (validCands.length >= 4) {
+        validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
+        if (!isCanonicalSeed1 && targetGrade === 'hard') {
+          chosen[i] = validCands.slice(-4);
+        } else if (!isCanonicalSeed1 && targetGrade === 'medium') {
+          chosen[i] = seededShuffle(validCands, rng).slice(0, 4);
+        } else {
+          chosen[i] = validCands.slice(0, 4);
+        }
+      } else {
+        chosen[i] = scoredPool.slice(0, 4);
+      }
+    }
+
+    // Refine selection and measure final wordCosDist strictly against the selected 16 board words
+    const selectedVecs = chosen.map(list => list.map(w => w.wordVec));
+    if (!isCanonicalSeed1 && (targetGrade === 'easy' || targetGrade === 'hard')) {
+      for (let i = 0; i < 4; i++) {
+        const scoredPool = pools[i];
+        for (const item of scoredPool) {
+          item.wordCosDist = computeWordCosineDistance(item.wordVec, i, selectedVecs);
+        }
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
+        if (validCands.length >= 4) {
+          validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
+          chosen[i] = targetGrade === 'hard' ? validCands.slice(-4) : validCands.slice(0, 4);
+          selectedVecs[i] = chosen[i].map(w => w.wordVec);
+        }
+      }
+    }
+
+    let totalWordCosDist = 0;
+    let wordCosCount = 0;
+    for (let i = 0; i < 4; i++) {
+      for (const w of chosen[i]) {
+        w.wordCosDist = computeWordCosineDistance(w.wordVec, i, selectedVecs);
+        totalWordCosDist += w.wordCosDist;
+        wordCosCount += 1;
+      }
+    }
+    return {
+      chosen,
+      avgWordCosDist: wordCosCount > 0 ? totalWordCosDist / wordCosCount : 0.75,
+    };
+  }
+
+  function buildWardPoolsForQuad(quadIds) {
+    return quadIds.map((cid, i) => {
+      const cat = corpus.categories[cid];
+      const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+      const items = pool.map(we => {
+        const pIdx = corpus.poolWordIndex[we.word];
+        const lobeVals = [0, 1, 2, 3].map(k => {
+          const rowK = corpus.poolLogits[quadIds[k]];
+          return (rowK && pIdx !== undefined) ? rowK[pIdx] : (k === i ? (we.ownLogit ?? 10) : -5);
+        });
+        const ownL = lobeVals[i];
+        let maxOther = -Infinity;
+        for (let j = 0; j < 4; j++) {
+          if (j !== i && lobeVals[j] > maxOther) maxOther = lobeVals[j];
+        }
+        return {
+          word: we.word,
+          tokenId: we.tokenId,
+          tokenStr: we.tokenStr,
+          ownLogit: ownL,
+          margin: ownL - maxOther,
+          wordVec: buildWordEmbeddingVec(we.word, lobeVals, quadIds),
+          wordCosDist: 0.75,
+        };
+      });
+      items.sort((a, b) => b.margin - a.margin);
+      return items;
+    });
+  }
+
+  function computeBoardWordsCosDistFromLobes(lobes, wordLogitMap, quadIds) {
+    const selectedVecs = lobes.map(lobe =>
+      lobe.words.map(we => {
+        const lobeVals = [0, 1, 2, 3].map(k => wordLogitMap[k].get(we.word) ?? 0);
+        return buildWordEmbeddingVec(we.word, lobeVals, quadIds);
+      })
+    );
+    let total = 0;
+    let count = 0;
+    for (let i = 0; i < selectedVecs.length; i++) {
+      for (const vec of selectedVecs[i]) {
+        total += computeWordCosineDistance(vec, i, selectedVecs);
+        count += 1;
+      }
+    }
+    return count > 0 ? total / count : 0.75;
   }
 
   function rollRandomSeed() {
@@ -2025,6 +2140,7 @@
       let bestQuadDistVal = probeCosDist;
       let bestDiffFromCenter = Infinity;
       const idealCenter = gradeTargetCenter(targetGrade);
+      const hasPoolMatrixForSearch = Boolean(corpus.poolLogits && corpus.poolWordIndex);
 
       for (let attempt = 0; attempt < 320; attempt++) {
         const c0 = allIds[Math.floor(rng() * allIds.length)];
@@ -2053,13 +2169,21 @@
         const cDist = evaluateCandidateQuad(picked);
         if (cDist === null) continue;
 
-        if (matchesGradeBand(cDist, targetGrade)) {
+        let combinedCandDist = cDist;
+        if (hasPoolMatrixForSearch) {
+          const candPools = buildWardPoolsForQuad(picked);
+          const candRng = mulberry32(Math.imul(uSeed ^ (attempt + 1), 2654435761) >>> 0);
+          const candWords = selectQuadWordsFromPools(candPools, targetGrade, candRng, false);
+          combinedCandDist = Math.max(0.12, Math.min(0.98, cDist * 0.65 + candWords.avgWordCosDist * 0.35));
+        }
+
+        if (matchesGradeBand(combinedCandDist, targetGrade)) {
           catIds = picked;
           probeCosDist = cDist;
           bestQuad = null;
           break;
         }
-        const diff = Math.abs(cDist - idealCenter);
+        const diff = Math.abs(combinedCandDist - idealCenter);
         if (diff < bestDiffFromCenter) {
           bestDiffFromCenter = diff;
           bestQuad = picked;
@@ -2076,8 +2200,7 @@
     const lobes = [];
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     const useLive = !forceWard && !wardMode && modelReady;
-    let totalWordCosDist = 0;
-    let wordCosCount = 0;
+    let avgWordCosDist = 0.75;
 
     // In Live SLM mode, pick a prompt variant per lobe; in Ward mode (or canonical seed 1), use the scored primary prompt!
     const chosenPrompts = catIds.map(cid => {
@@ -2124,101 +2247,14 @@
         }
       }
 
-      // Recompute 6-pair probe cosine distance from the actual completed live passes (including any retried prompts)
-      const liveDist = computeLiveProbeCosDist(passes);
-      if (typeof liveDist === 'number') {
-        probeCosDist = liveDist;
-      }
-
-      const livePools = catIds.map((cid, i) => {
-        const cat = corpus.categories[cid];
-        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
-        const items = pool.map(we => {
-          const lobeVals = [0, 1, 2, 3].map(k => passes[k].logits[we.tokenId]);
-          const ownL = lobeVals[i];
-          let maxOther = -Infinity;
-          for (let j = 0; j < 4; j++) {
-            if (j !== i && lobeVals[j] > maxOther) maxOther = lobeVals[j];
-          }
-          return {
-            word: we.word,
-            tokenId: we.tokenId,
-            tokenStr: we.tokenStr,
-            ownLogit: ownL,
-            margin: ownL - maxOther,
-            wordVec: buildWordEmbeddingVec(we.word, lobeVals, catIds),
-            wordCosDist: 0.75,
-          };
-        });
-        // Rank by separation margin first so any <4 fallback uses the best-separated candidates
-        items.sort((a, b) => b.margin - a.margin);
-        return items;
-      });
-
-      const liveRivalVecs = livePools.map(items => {
-        const valid = items.filter(w => w.margin > 0.35);
-        const ref = valid.length >= 4 ? valid : items.slice(0, 4);
-        return ref.map(w => w.wordVec);
-      });
-
-      for (let i = 0; i < 4; i++) {
-        const cid = catIds[i];
-        const cat = corpus.categories[cid];
-        const scoredPool = livePools[i];
-        for (const item of scoredPool) {
-          item.wordCosDist = computeWordCosineDistance(item.wordVec, i, liveRivalVecs);
-        }
-        const validCands = scoredPool.filter(w => w.margin > 0.35);
-        let chosen4;
-        if (validCands.length >= 4) {
-          validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
-          chosen4 = validCands.slice(0, 4);
-          if (!isCanonicalSeed1) {
-            if (targetGrade === 'hard') {
-              chosen4 = validCands.slice(-4);
-            } else if (targetGrade === 'medium') {
-              chosen4 = seededShuffle(validCands, rng).slice(0, 4);
-            }
-          }
-        } else {
-          // Margin-ranked fallback when fewer than 4 candidates exceed the margin threshold
-          chosen4 = scoredPool.slice(0, 4);
-        }
-        chosen4.forEach(w => {
-          totalWordCosDist += w.wordCosDist;
-          wordCosCount += 1;
-        });
-        lobes.push({
-          id: cid,
-          label: cat.label,
-          lobe: cat.lobe,
-          prompt: chosenPrompts[i],
-          words: chosen4,
-        });
-      }
-
-      for (let i = 0; i < 4; i++) {
-        for (const lobe of lobes) {
-          for (const we of lobe.words) {
-            wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
-          }
-        }
-      }
-      const elapsed = Math.round(performance.now() - t0);
-      inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
-    } else {
-      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
-      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
-      if (hasPoolMatrix && !isCanonicalSeed1) {
-        const wardPools = catIds.map((cid, i) => {
+      const buildLiveSelection = () => {
+        const liveDist = computeLiveProbeCosDist(passes);
+        const pDist = typeof liveDist === 'number' ? liveDist : probeCosDist;
+        const livePools = catIds.map((cid, i) => {
           const cat = corpus.categories[cid];
           const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
           const items = pool.map(we => {
-            const pIdx = corpus.poolWordIndex[we.word];
-            const lobeVals = [0, 1, 2, 3].map(k => {
-              const rowK = corpus.poolLogits[catIds[k]];
-              return (rowK && pIdx !== undefined) ? rowK[pIdx] : (k === i ? (we.ownLogit ?? 10) : -5);
-            });
+            const lobeVals = [0, 1, 2, 3].map(k => passes[k].logits[we.tokenId]);
             const ownL = lobeVals[i];
             let maxOther = -Infinity;
             for (let j = 0; j < 4; j++) {
@@ -2237,43 +2273,70 @@
           items.sort((a, b) => b.margin - a.margin);
           return items;
         });
+        const selRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
+        const sel = selectQuadWordsFromPools(livePools, targetGrade, selRng, isCanonicalSeed1);
+        const bDist = Math.max(0.12, Math.min(0.98, pDist * 0.65 + sel.avgWordCosDist * 0.35));
+        return { pDist, sel, bDist };
+      };
 
-        const wardRivalVecs = wardPools.map(items => {
-          const valid = items.filter(w => w.margin > 0.35);
-          const ref = valid.length >= 4 ? valid : items.slice(0, 4);
-          return ref.map(w => w.wordVec);
+      let liveEval = buildLiveSelection();
+      // If a non-primary prompt variant pushed the live board outside the target grade band, retry primary prompts
+      if (!isCanonicalSeed1 && !matchesGradeBand(liveEval.bDist, targetGrade)) {
+        let retriedAny = false;
+        for (let i = 0; i < 4; i++) {
+          const cat = corpus.categories[catIds[i]];
+          if (chosenPrompts[i] !== cat.prompt) {
+            chosenPrompts[i] = cat.prompt;
+            const retryRes = await runMaskedForwardPass(cat.prompt, () => myGen !== buildGeneration);
+            if (myGen !== buildGeneration || !retryRes) return false;
+            passes[i] = retryRes;
+            retriedAny = true;
+          }
+        }
+        if (retriedAny) {
+          liveEval = buildLiveSelection();
+        }
+      }
+
+      probeCosDist = liveEval.pDist;
+      avgWordCosDist = liveEval.sel.avgWordCosDist;
+      for (let i = 0; i < 4; i++) {
+        const cid = catIds[i];
+        const cat = corpus.categories[cid];
+        lobes.push({
+          id: cid,
+          label: cat.label,
+          lobe: cat.lobe,
+          prompt: chosenPrompts[i],
+          words: liveEval.sel.chosen[i],
         });
+      }
 
+      for (let i = 0; i < 4; i++) {
+        for (const lobe of lobes) {
+          for (const we of lobe.words) {
+            wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
+          }
+        }
+      }
+      const elapsed = Math.round(performance.now() - t0);
+      inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
+    } else {
+      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
+      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
+      if (hasPoolMatrix && !isCanonicalSeed1) {
+        const wardPools = buildWardPoolsForQuad(catIds);
+        const sel = selectQuadWordsFromPools(wardPools, targetGrade, rng, false);
+        avgWordCosDist = sel.avgWordCosDist;
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
           const cat = corpus.categories[cid];
-          const scoredPool = wardPools[i];
-          for (const item of scoredPool) {
-            item.wordCosDist = computeWordCosineDistance(item.wordVec, i, wardRivalVecs);
-          }
-          const validCands = scoredPool.filter(w => w.margin > 0.35);
-          let chosen4;
-          if (validCands.length >= 4) {
-            validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
-            chosen4 = validCands.slice(0, 4);
-            if (targetGrade === 'hard') {
-              chosen4 = validCands.slice(-4);
-            } else if (targetGrade === 'medium') {
-              chosen4 = seededShuffle(validCands, rng).slice(0, 4);
-            }
-          } else {
-            chosen4 = scoredPool.slice(0, 4);
-          }
-          chosen4.forEach(w => {
-            totalWordCosDist += w.wordCosDist;
-            wordCosCount += 1;
-          });
           lobes.push({
             id: cid,
             label: cat.label,
             lobe: cat.lobe,
             prompt: cat.prompt,
-            words: chosen4,
+            words: sel.chosen[i],
           });
         }
         for (let i = 0; i < 4; i++) {
@@ -2307,16 +2370,15 @@
             wordLogitMap[i].set(all16Words[wIdx], row[wIdx]);
           }
         }
-        totalWordCosDist = 0.86 * 16;
-        wordCosCount = 16;
+        avgWordCosDist = computeBoardWordsCosDistFromLobes(lobes, wordLogitMap, catIds);
       }
       inferenceTiming.textContent = `WARD LOGITS // INSTANT`;
     }
 
     if (myGen !== buildGeneration) return false;
 
-    const avgWordCosDist = wordCosCount > 0 ? totalWordCosDist / wordCosCount : 0.75;
     const boardCosDist = Math.max(0.12, Math.min(0.98, probeCosDist * 0.65 + avgWordCosDist * 0.35));
+    const finalGrade = isCanonicalSeed1 ? 'easy' : gradeFromCosDist(boardCosDist);
 
     // Flatten 16 tokens and shuffle deterministically using seed RNG
     const tokens = [];
@@ -2342,7 +2404,7 @@
     currentCase = {
       seed: uSeed,
       mode: useLive ? 'live' : 'ward',
-      grade: targetGrade,
+      grade: finalGrade,
       cosDist: boardCosDist,
       title: `CASE #${String(baseIdx + 1).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
       symptom: basePuzzle.symptom,
@@ -2937,11 +2999,16 @@
       [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
     }
 
+    const customProbeDist = computeLiveProbeCosDist(passes) ?? 0.55;
+    const customWordDist = computeBoardWordsCosDistFromLobes(lobes, wordLogitMap, null);
+    const customBoardDist = Math.max(0.12, Math.min(0.98, customProbeDist * 0.65 + customWordDist * 0.35));
+    const customGrade = gradeFromCosDist(customBoardDist);
+
     currentCase = {
       seed: currentSeed,
       mode: 'live',
-      grade: 'hard',
-      cosDist: 0.35,
+      grade: customGrade,
+      cosDist: customBoardDist,
       title: `CUSTOM VIVISECTION // LIVE 30K-VOCAB SYNTHESIS`,
       symptom: 'USER-AUTHORED SENTENCE PROBES',
       lobes,
