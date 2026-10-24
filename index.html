@@ -1884,17 +1884,16 @@
     for (let k = 0; k < lobeVals.length; k++) {
       raw.push(lobeVals[k]);
     }
-    // Include full corpus category-by-word logit column so word-to-word cosine reflects cortical profile
-    if (corpus && corpus.poolLogits && corpus.poolWordIndex) {
+    // For corpus quads, include the remaining 44 category logits so all corpus word vectors share a fixed 48-D space;
+    // for custom boards (quadIds === null), keep all word vectors in the common 4-D custom-probe space.
+    if (Array.isArray(quadIds) && quadIds.length === 4 && corpus && corpus.poolLogits && corpus.poolWordIndex) {
       const pIdx = corpus.poolWordIndex[word];
-      if (pIdx !== undefined) {
-        const allCatIds = Object.keys(corpus.poolLogits);
-        for (let c = 0; c < allCatIds.length; c++) {
-          const cid = allCatIds[c];
-          if (!quadIds || !quadIds.includes(cid)) {
-            const row = corpus.poolLogits[cid];
-            if (row && typeof row[pIdx] === 'number') raw.push(row[pIdx]);
-          }
+      const allCatIds = Object.keys(corpus.poolLogits);
+      for (let c = 0; c < allCatIds.length; c++) {
+        const cid = allCatIds[c];
+        if (!quadIds.includes(cid)) {
+          const row = corpus.poolLogits[cid];
+          raw.push((row && pIdx !== undefined && typeof row[pIdx] === 'number') ? row[pIdx] : 0);
         }
       }
     }
@@ -2172,7 +2171,7 @@
         let combinedCandDist = cDist;
         if (hasPoolMatrixForSearch) {
           const candPools = buildWardPoolsForQuad(picked);
-          const candRng = mulberry32(Math.imul(uSeed ^ (attempt + 1), 2654435761) >>> 0);
+          const candRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
           const candWords = selectQuadWordsFromPools(candPools, targetGrade, candRng, false);
           combinedCandDist = Math.max(0.12, Math.min(0.98, cDist * 0.65 + candWords.avgWordCosDist * 0.35));
         }
@@ -2326,7 +2325,8 @@
       const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
       if (hasPoolMatrix && !isCanonicalSeed1) {
         const wardPools = buildWardPoolsForQuad(catIds);
-        const sel = selectQuadWordsFromPools(wardPools, targetGrade, rng, false);
+        const wardSelRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
+        const sel = selectQuadWordsFromPools(wardPools, targetGrade, wardSelRng, false);
         avgWordCosDist = sel.avgWordCosDist;
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
@@ -2405,6 +2405,7 @@
       seed: uSeed,
       mode: useLive ? 'live' : 'ward',
       grade: finalGrade,
+      requestedGrade: targetGrade,
       cosDist: boardCosDist,
       title: `CASE #${String(baseIdx + 1).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
       symptom: basePuzzle.symptom,
@@ -2815,10 +2816,11 @@
     const isWardCase = !currentCase || currentCase.mode === 'ward';
     const modeTag = isWardCase ? 'WARD-MODE' : 'LIVE-ALBERT-V2';
     const activeGrade = normalizeGrade(currentCase?.grade || 'easy');
+    const replayGrade = normalizeGrade(currentCase?.requestedGrade || activeGrade);
     const gradeTag = formatGradeBadge(activeGrade, currentCase?.cosDist);
     const shareUrl = isWardCase
-      ? `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}&mode=ward`
-      : `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}`;
+      ? `https://post-training.win/?seed=${currentCase.seed}&grade=${replayGrade}&mode=ward`
+      : `https://post-training.win/?seed=${currentCase.seed}&grade=${replayGrade}`;
     const reportText = [
       `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} [${modeTag} · ${gradeTag}]`,
       won
