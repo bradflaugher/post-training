@@ -13,9 +13,9 @@
   Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
 
-# Long-lived immutable assets — model weights + tokenizer files (~22 MB).
+# Model weights + tokenizer files (~22 MB) — revalidate via ETag so updated models take effect cleanly.
 /models/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, must-revalidate
 
 # Puzzle & neural lobe corpus. index.html appends `?v=…` to bust on changes.
 /puzzles.json

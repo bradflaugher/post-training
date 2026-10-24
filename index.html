@@ -957,13 +957,13 @@
     </div>
   </section>
 
-  <!-- Cortical Probes (4 Masked Sentences) -->
+  <!-- Cortical Probes (4 Masked Sentences — Classified Until Solved) -->
   <section class="scanner-box" aria-label="Cortical sentence probes">
     <div class="scanner-head">
-      <span id="active-probe-title">CORTICAL PROBE OSCILLOSCOPE // TAP A PROBE TO SCAN</span>
+      <span id="active-probe-title">CORTICAL PROBE OSCILLOSCOPE // 4 ENCRYPTED SIGNALS</span>
       <span class="scanner-sub" id="inference-timing">LOGITS: READY</span>
     </div>
-    <div class="probes-list" id="probes-list" role="radiogroup" aria-label="Select cortical sentence probe"></div>
+    <div class="probes-list" id="probes-list" role="region" aria-label="Cortical sentence probes"></div>
   </section>
 
   <!-- Solved Lobes Stack -->
@@ -975,14 +975,14 @@
   <!-- Surgical Action Bar -->
   <section class="action-bar" aria-label="Surgical controls">
     <button type="button" class="act-btn" id="shuffle-btn" title="Jolt and shuffle remaining tokens (S)">🔀 JOLT</button>
-    <button type="button" class="act-btn" id="hint-btn" title="Pulse the LLM's highest-probability token for the active probe (H)">⚡ STIMULATE</button>
+    <button type="button" class="act-btn" id="hint-btn" title="Pulse a high-affinity token from an unsolved cortical lobe (H)">⚡ STIMULATE</button>
     <button type="button" class="act-btn" id="clear-btn" disabled title="Deselect all tokens (Esc)">✕ SUTURE</button>
     <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 selected tokens (Enter)">🩸 AMPUTATE (0/4)</button>
   </section>
 
   <!-- Bottom Telemetry Ticker -->
   <div class="telemetry-bar">
-    <span class="telemetry-msg" id="telemetry-msg">SELECT 4 TOKENS THAT COMPLETE ONE CORTICAL PROBE. TAP ANY PROBE ABOVE TO INSPECT ITS LIVE LLM PROBABILITIES.</span>
+    <span class="telemetry-msg" id="telemetry-msg">SORT THE 16 BLEEDING TOKENS INTO 4 CORTICAL CATEGORIES. EACH AMPUTATED LOBE DECLASSIFIES ITS HIDDEN LLM SENTENCE PROBE &amp; PROBABILITIES!</span>
   </div>
 
   <footer class="footer-nav">
@@ -1043,8 +1043,8 @@
     <p><strong>WELCOME TO POST-TRAINING.</strong> Our patient — a compact 11.8M-parameter on-device Small Language Model (<code>Xenova/albert-base-v2</code>, an edge next-word / masked-token prediction engine sharing the same transformer architecture as frontier LLMs) — has suffered catastrophic synaptic entanglement. Four cortical sentence probes are firing at once, and 16 vocabulary tokens are floating loose in the cranium.</p>
     <p><strong>HOW TO OPERATE:</strong></p>
     <ul style="margin-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;">
-      <li><strong>Inspect the 4 Cortical Probes:</strong> Tap any of the 4 masked sentences in the oscilloscope at the top. Each token tile on the 4×4 grid will immediately display the LLM's <strong>live probability (%)</strong> and raw logit for filling that sentence's <code>[MASK]</code>!</li>
-      <li><strong>Select 4 Tokens &amp; Amputate:</strong> Group the 4 tokens that belong to one cortical lobe and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
+      <li><strong>Select 4 Tokens &amp; Amputate:</strong> Just like NYT Connections, group the 4 tokens that belong to one cortical category and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
+      <li><strong>Declassify the LLM Probes:</strong> The 4 cortical sentence probes and token probabilities are encrypted while you solve. Every time you amputate a category, its hidden LLM sentence probe (e.g. <code>"the best ice cream flavor is [MASK]."</code>) rips open along with the model's <strong>live softmax probabilities (%)</strong> and raw logits for each word!</li>
       <li><strong>One Away Warning:</strong> If 3 of your 4 tokens belong to the same lobe, the cranial monitor flashes <strong>"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"</strong></li>
       <li><strong>Live LLM Mode vs. Pre-Dissected Ward:</strong> In <strong>LIVE LLM SURGERY</strong>, every seed procedurally selects compatible neural lobes, runs live forward passes in WebAssembly, and lets the LLM pick its own top-scoring tokens on the fly. In <strong>PRE-DISSECTED WARD</strong> (`?lite=1`), instant verified logit tables let you play with zero model wait.</li>
     </ul>
@@ -1080,25 +1080,7 @@
 </dialog>
 
 <script type="module">
-  import { AutoTokenizer, AutoModelForMaskedLM, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
-
-  // ───────────────────────────────────────────────────────────────────────
-  // Local ONNX Configuration (mirrors divid3's iOS-safe WASM setup)
-  // ───────────────────────────────────────────────────────────────────────
-  env.allowLocalModels = true;
-  env.allowRemoteModels = false;
-  env.localModelPath = '/models/';
-  env.useBrowserCache = true;
-
-  try {
-    if (env.backends && env.backends.onnx && env.backends.onnx.wasm) {
-      env.backends.onnx.wasm.numThreads = 1;
-      env.backends.onnx.wasm.proxy = false;
-    }
-  } catch (e) {
-    console.warn('ONNX backend tuning warning:', e);
-  }
-
+  const TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
   const MODEL_ID = 'Xenova/albert-base-v2';
   const MODEL_DTYPE = 'fp16';
   const PUZZLES_VERSION = '2';
@@ -1373,6 +1355,15 @@
     return exps;
   }
 
+  function seededShuffle(list, rng) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   // ───────────────────────────────────────────────────────────────────────
   // Game & Model State
   // ───────────────────────────────────────────────────────────────────────
@@ -1381,17 +1372,24 @@
   let maskedModel = null;
   let idToTokenMap = null;
   let modelReady = false;
+  let initModelPromise = null;
   let wardMode = false; // true = Pre-Dissected Ward (instant/fallback), false = Live LLM Surgery
-  let inferenceBusy = false;
+  let buildGeneration = 0; // Monotonic counter to cancel stale overlapping builds
+  let inferenceQueue = Promise.resolve(); // Serializes WASM forward passes
+
+  function enqueueInference(taskFn) {
+    const next = inferenceQueue.then(taskFn, taskFn);
+    inferenceQueue = next.catch(() => {});
+    return next;
+  }
 
   let currentSeed = 1;
   let currentCase = null;
   // currentCase structure:
   // {
-  //   seed, title, symptom,
+  //   seed, title, symptom, mode: 'live' | 'ward',
   //   lobes: [ { id, label, lobe, prompt, words: [ { word, tokenId, tokenStr } ] } ], // 4 lobes
   //   tokens: [ { word, tokenId, tokenStr, lobeId } ], // 16 tokens in current grid order
-  //   logitMatrix: [ Float32Array(16), ... ], // 4x16 logits indexed by [probeIdx][tokenOriginalIdx]
   //   wordLogitMap: [ Map<word, logit>, ... ], // 4 maps from word -> raw logit
   // }
   let activeProbeIdx = 0;
@@ -1445,7 +1443,7 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Load Corpus & Initialize ONNX Model
+  // Load Corpus & Initialize ONNX Model (Dynamic CDN Import After Initial Render)
   // ───────────────────────────────────────────────────────────────────────
   async function loadCorpusOnce() {
     if (corpus) return corpus;
@@ -1461,9 +1459,15 @@
       statusLed.dataset.state = 'ward';
       modeLabel.textContent = 'WARD MODE (PRE-DISSECTED)';
     } else if (modelReady) {
-      modeBtn.dataset.mode = 'live';
-      statusLed.dataset.state = 'ready';
-      modeLabel.textContent = 'LIVE LLM SURGERY (ON-DEVICE)';
+      if (currentCase && currentCase.mode === 'ward') {
+        modeBtn.dataset.mode = 'ward';
+        statusLed.dataset.state = 'ward';
+        modeLabel.textContent = 'WARD CASE (TAP FOR LIVE)';
+      } else {
+        modeBtn.dataset.mode = 'live';
+        statusLed.dataset.state = 'ready';
+        modeLabel.textContent = 'LIVE LLM SURGERY (ON-DEVICE)';
+      }
     } else {
       modeBtn.dataset.mode = 'loading';
       statusLed.dataset.state = 'loading';
@@ -1472,6 +1476,9 @@
   }
 
   async function initModel() {
+    if (modelReady) return true;
+    if (initModelPromise) return initModelPromise;
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('lite') === '1' || params.get('mode') === 'ward') {
       wardMode = true;
@@ -1479,104 +1486,127 @@
       return false;
     }
 
-    // Check crash-loop sentinel
-    try {
-      if (sessionStorage.getItem(LOADING_SENTINEL) === '1') {
-        const crashes = parseInt(sessionStorage.getItem(CRASH_COUNT_KEY) || '0', 10) + 1;
-        sessionStorage.setItem(CRASH_COUNT_KEY, String(crashes));
-        sessionStorage.removeItem(LOADING_SENTINEL);
-        if (crashes >= MAX_CRASHES_BEFORE_WARD) {
-          wardMode = true;
-          errorBanner.classList.add('visible');
-          updateModeIndicator();
-          return false;
-        }
-      }
-      sessionStorage.setItem(LOADING_SENTINEL, '1');
-    } catch {
-      // Ignore sessionStorage restrictions
-    }
-
-    updateModeIndicator();
-    try {
-      const t0 = performance.now();
-      tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID);
-      maskedModel = await AutoModelForMaskedLM.from_pretrained(MODEL_ID, {
-        dtype: MODEL_DTYPE,
-        device: 'wasm',
-      });
-      // Build reverse vocab map for the Live Lobotomy Lab directly from tokenizer.json
+    initModelPromise = (async () => {
+      // Check crash-loop sentinel
       try {
-        const tokRes = await fetch(`/models/${MODEL_ID}/tokenizer.json`);
-        if (tokRes.ok) {
-          const tokJson = await tokRes.json();
-          const vocabArr = tokJson?.model?.vocab;
-          if (Array.isArray(vocabArr)) {
-            idToTokenMap = new Map();
-            vocabArr.forEach((entry, idx) => {
-              const str = Array.isArray(entry) ? entry[0] : entry;
-              if (typeof str === 'string') idToTokenMap.set(idx, str);
-            });
+        if (sessionStorage.getItem(LOADING_SENTINEL) === '1') {
+          const crashes = parseInt(sessionStorage.getItem(CRASH_COUNT_KEY) || '0', 10) + 1;
+          sessionStorage.setItem(CRASH_COUNT_KEY, String(crashes));
+          sessionStorage.removeItem(LOADING_SENTINEL);
+          if (crashes >= MAX_CRASHES_BEFORE_WARD) {
+            wardMode = true;
+            errorBanner.classList.add('visible');
+            updateModeIndicator();
+            return false;
           }
         }
-      } catch (e) {
-        console.warn('Vocab map load warning:', e);
+        sessionStorage.setItem(LOADING_SENTINEL, '1');
+      } catch {
+        // Ignore sessionStorage restrictions
       }
+
+      updateModeIndicator();
       try {
-        sessionStorage.removeItem(LOADING_SENTINEL);
-        sessionStorage.removeItem(CRASH_COUNT_KEY);
-      } catch {}
-      modelReady = true;
-      const ms = Math.round(performance.now() - t0);
-      inferenceTiming.textContent = `ALBERT-V2 ONLINE (${ms}ms)`;
-      updateModeIndicator();
-      return true;
-    } catch (err) {
-      console.error('Model init failed, switching to Ward mode:', err);
-      try { sessionStorage.removeItem(LOADING_SENTINEL); } catch {}
-      wardMode = true;
-      errorText.textContent = 'Model load fallback: operating in Pre-Dissected Ward mode.';
-      errorBanner.classList.add('visible');
-      updateModeIndicator();
-      return false;
-    }
+        const t0 = performance.now();
+        const { AutoTokenizer, AutoModelForMaskedLM, env } = await import(TRANSFORMERS_CDN);
+        env.allowLocalModels = true;
+        env.allowRemoteModels = false;
+        env.localModelPath = '/models/';
+        env.useBrowserCache = true;
+        try {
+          if (env.backends && env.backends.onnx && env.backends.onnx.wasm) {
+            env.backends.onnx.wasm.numThreads = 1;
+            env.backends.onnx.wasm.proxy = false;
+          }
+        } catch (e) {
+          console.warn('ONNX backend tuning warning:', e);
+        }
+
+        tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID);
+        maskedModel = await AutoModelForMaskedLM.from_pretrained(MODEL_ID, {
+          dtype: MODEL_DTYPE,
+          device: 'wasm',
+        });
+        // Build reverse vocab map for the Live Lobotomy Lab directly from tokenizer.json
+        try {
+          const tokRes = await fetch(`/models/${MODEL_ID}/tokenizer.json`);
+          if (tokRes.ok) {
+            const tokJson = await tokRes.json();
+            const vocabArr = tokJson?.model?.vocab;
+            if (Array.isArray(vocabArr)) {
+              idToTokenMap = new Map();
+              vocabArr.forEach((entry, idx) => {
+                const str = Array.isArray(entry) ? entry[0] : entry;
+                if (typeof str === 'string') idToTokenMap.set(idx, str);
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Vocab map load warning:', e);
+        }
+        try {
+          sessionStorage.removeItem(LOADING_SENTINEL);
+          sessionStorage.removeItem(CRASH_COUNT_KEY);
+        } catch {}
+        modelReady = true;
+        const ms = Math.round(performance.now() - t0);
+        inferenceTiming.textContent = `ALBERT-V2 ONLINE (${ms}ms)`;
+        updateModeIndicator();
+        return true;
+      } catch (err) {
+        console.error('Model init failed, switching to Ward mode:', err);
+        try { sessionStorage.removeItem(LOADING_SENTINEL); } catch {}
+        wardMode = true;
+        errorText.textContent = 'Model load fallback: operating in Pre-Dissected Ward mode.';
+        errorBanner.classList.add('visible');
+        updateModeIndicator();
+        return false;
+      } finally {
+        initModelPromise = null;
+      }
+    })();
+
+    return initModelPromise;
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Live ONNX Masked-Language-Model Forward Pass
+  // Live ONNX Masked-Language-Model Forward Pass (Serialized on WASM Queue)
   // ───────────────────────────────────────────────────────────────────────
-  async function runMaskedForwardPass(promptText) {
-    if (!modelReady || !tokenizer || !maskedModel) return null;
-    const raw = promptText.toLowerCase().replace(/\[mask\]/g, '[MASK]');
-    const normalized = raw.includes('[MASK]')
-      ? raw
-      : `${raw.trim().replace(/[.?!]+$/, '')} [MASK].`;
-    const inputs = await tokenizer(normalized);
-    const maskId = corpus ? corpus.maskTokenId : 4;
-    const idList = Array.from(inputs.input_ids.data, x => Number(x));
-    let maskIdx = idList.indexOf(maskId);
-    if (maskIdx < 0) maskIdx = Math.max(0, idList.length - 2);
+  function runMaskedForwardPass(promptText) {
+    if (!modelReady || !tokenizer || !maskedModel) return Promise.resolve(null);
+    return enqueueInference(async () => {
+      if (!modelReady || !tokenizer || !maskedModel) return null;
+      const raw = promptText.toLowerCase().replace(/\[mask\]/g, '[MASK]');
+      const normalized = raw.includes('[MASK]')
+        ? raw
+        : `${raw.trim().replace(/[.?!]+$/, '')} [MASK].`;
+      const inputs = await tokenizer(normalized);
+      const maskId = corpus ? corpus.maskTokenId : 4;
+      const idList = Array.from(inputs.input_ids.data, x => Number(x));
+      let maskIdx = idList.indexOf(maskId);
+      if (maskIdx < 0) maskIdx = Math.max(0, idList.length - 2);
 
-    const out = await maskedModel(inputs);
-    const dims = out.logits.dims; // [1, seq_len, vocab_size]
-    const vocabSize = dims[2];
-    const start = maskIdx * vocabSize;
-    const rawData = out.logits.data;
-    const slice = new Float32Array(vocabSize);
-    for (let i = 0; i < vocabSize; i++) {
-      slice[i] = rawData[start + i];
-    }
-    out.logits.dispose();
-    return { logits: slice, prompt: normalized };
+      const out = await maskedModel(inputs);
+      const dims = out.logits.dims; // [1, seq_len, vocab_size]
+      const vocabSize = dims[2];
+      const start = maskIdx * vocabSize;
+      const rawData = out.logits.data;
+      const slice = new Float32Array(vocabSize);
+      for (let i = 0; i < vocabSize; i++) {
+        slice[i] = rawData[start + i];
+      }
+      out.logits.dispose();
+      return { logits: slice, prompt: normalized };
+    });
   }
 
   // ───────────────────────────────────────────────────────────────────────
   // Build a Surgical Case (Live Procedural LLM Synthesis OR Pre-Dissected Ward)
   // ───────────────────────────────────────────────────────────────────────
-  async function buildCaseFromSeed(seedNum) {
+  async function buildCaseFromSeed(seedNum, forceWard = false) {
+    const myGen = ++buildGeneration;
     await loadCorpusOnce();
-    currentSeed = seedNum;
-    writeSaveState();
+    if (myGen !== buildGeneration) return false;
 
     const puzzles = corpus.puzzles;
     const basePuzzle = puzzles[(seedNum - 1) % puzzles.length];
@@ -1592,7 +1622,7 @@
         const c0 = allIds[Math.floor(rng() * allIds.length)];
         const compat0 = corpus.compatibility[c0] || [];
         const picked = [c0];
-        for (const cand of compat0.slice().sort(() => rng() - 0.5)) {
+        for (const cand of seededShuffle(compat0, rng)) {
           if (picked.every(p => (corpus.compatibility[p] || []).includes(cand))) {
             picked.push(cand);
             if (picked.length === 4) break;
@@ -1608,73 +1638,71 @@
     const t0 = performance.now();
     const lobes = [];
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
+    const useLive = !forceWard && !wardMode && modelReady;
 
-    if (!wardMode && modelReady && !inferenceBusy) {
-      inferenceBusy = true;
-      try {
-        // LIVE LLM PROCEDURAL MODE:
-        // 1. Pick a prompt template for each lobe based on the seed.
-        // 2. Run 4 real ONNX forward passes in the browser.
-        // 3. Score the full candidate wordPool of all 4 lobes and pick the 4 words per lobe
-        //    with the strongest synaptic margin!
-        const chosenPrompts = catIds.map(cid => {
-          const cat = corpus.categories[cid];
-          const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
-          return plist[Math.floor(rng() * plist.length)];
-        });
+    if (useLive) {
+      // LIVE LLM PROCEDURAL MODE:
+      // 1. Pick a prompt template for each lobe based on the seed.
+      // 2. Run 4 real ONNX forward passes in the browser (serialized via enqueueInference).
+      // 3. Score the full candidate wordPool of all 4 lobes and pick the 4 words per lobe
+      //    with the strongest synaptic margin!
+      const chosenPrompts = catIds.map(cid => {
+        const cat = corpus.categories[cid];
+        const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
+        return plist[Math.floor(rng() * plist.length)];
+      });
 
-        const passes = [];
-        for (let i = 0; i < 4; i++) {
-          passes.push(await runMaskedForwardPass(chosenPrompts[i]));
-        }
+      const passes = [];
+      for (let i = 0; i < 4; i++) {
+        const passRes = await runMaskedForwardPass(chosenPrompts[i]);
+        if (myGen !== buildGeneration || !passRes) return false;
+        passes.push(passRes);
+      }
 
-        for (let i = 0; i < 4; i++) {
-          const cid = catIds[i];
-          const cat = corpus.categories[cid];
-          const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
-          // Rank candidate words in this lobe's pool by live margin:
-          // own_logit(word, prompt_i) - max_{j != i} logit(word, prompt_j)
-          const scoredPool = pool.map(we => {
-            const ownL = passes[i].logits[we.tokenId];
-            let maxOther = -Infinity;
-            for (let j = 0; j < 4; j++) {
-              if (j !== i) {
-                const ol = passes[j].logits[we.tokenId];
-                if (ol > maxOther) maxOther = ol;
-              }
-            }
-            return {
-              word: we.word,
-              tokenId: we.tokenId,
-              tokenStr: we.tokenStr,
-              ownLogit: ownL,
-              margin: ownL - maxOther,
-            };
-          });
-          scoredPool.sort((a, b) => b.margin - a.margin);
-          const chosen4 = scoredPool.slice(0, 4);
-          lobes.push({
-            id: cid,
-            label: cat.label,
-            lobe: cat.lobe,
-            prompt: chosenPrompts[i],
-            words: chosen4,
-          });
-        }
-
-        // Fill the 4x16 live logit lookup table for all 16 chosen words across all 4 prompts
-        for (let i = 0; i < 4; i++) {
-          for (const lobe of lobes) {
-            for (const we of lobe.words) {
-              wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
+      for (let i = 0; i < 4; i++) {
+        const cid = catIds[i];
+        const cat = corpus.categories[cid];
+        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+        // Rank candidate words in this lobe's pool by live margin:
+        // own_logit(word, prompt_i) - max_{j != i} logit(word, prompt_j)
+        const scoredPool = pool.map(we => {
+          const ownL = passes[i].logits[we.tokenId];
+          let maxOther = -Infinity;
+          for (let j = 0; j < 4; j++) {
+            if (j !== i) {
+              const ol = passes[j].logits[we.tokenId];
+              if (ol > maxOther) maxOther = ol;
             }
           }
-        }
-        const elapsed = Math.round(performance.now() - t0);
-        inferenceTiming.textContent = `LIVE LLM SYNTHESIS: ${elapsed}ms (4 PASSES)`;
-      } finally {
-        inferenceBusy = false;
+          return {
+            word: we.word,
+            tokenId: we.tokenId,
+            tokenStr: we.tokenStr,
+            ownLogit: ownL,
+            margin: ownL - maxOther,
+          };
+        });
+        scoredPool.sort((a, b) => b.margin - a.margin);
+        const chosen4 = scoredPool.slice(0, 4);
+        lobes.push({
+          id: cid,
+          label: cat.label,
+          lobe: cat.lobe,
+          prompt: chosenPrompts[i],
+          words: chosen4,
+        });
       }
+
+      // Fill the 4x16 live logit lookup table for all 16 chosen words across all 4 prompts
+      for (let i = 0; i < 4; i++) {
+        for (const lobe of lobes) {
+          for (const we of lobe.words) {
+            wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
+          }
+        }
+      }
+      const elapsed = Math.round(performance.now() - t0);
+      inferenceTiming.textContent = `LIVE LLM SYNTHESIS: ${elapsed}ms (4 PASSES)`;
     } else {
       // PRE-DISSECTED WARD MODE (Instant fallback using verified logit matrix)
       catIds = basePuzzle.categories.slice();
@@ -1701,6 +1729,8 @@
       inferenceTiming.textContent = `WARD LOGITS // INSTANT`;
     }
 
+    if (myGen !== buildGeneration) return false;
+
     // Flatten 16 tokens and shuffle deterministically using seed RNG
     const tokens = [];
     lobes.forEach((lobe, lobeIdx) => {
@@ -1719,8 +1749,12 @@
       [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
     }
 
+    currentSeed = seedNum;
+    writeSaveState();
+
     currentCase = {
       seed: seedNum,
+      mode: useLive ? 'live' : 'ward',
       title: `CASE #${String(seedNum).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
       symptom: basePuzzle.symptom,
       lobes,
@@ -1734,7 +1768,9 @@
     mistakesMade = 0;
     moveHistory = [];
 
+    updateModeIndicator();
     renderFullSurgicalBoard();
+    return true;
   }
 
   // ───────────────────────────────────────────────────────────────────────
@@ -1765,50 +1801,61 @@
 
   function renderProbes() {
     probesListEl.replaceChildren();
+    const solvedCount = solvedLobeIds.length;
     currentCase.lobes.forEach((lobe, idx) => {
       const isSolved = solvedLobeIds.includes(lobe.id);
-      const isActive = idx === activeProbeIdx;
+      const isActive = idx === activeProbeIdx && isSolved;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = `probe-card${isActive ? ' active' : ''}${isSolved ? ' solved' : ''}`;
       btn.dataset.probeIndex = String(idx);
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      btn.disabled = !isSolved;
 
       const eye = document.createElement('div');
       eye.className = 'probe-eyebrow';
       const leftSpan = document.createElement('span');
-      leftSpan.textContent = isSolved ? `✓ ${lobe.label}` : `PROBE 0${idx + 1} // ${lobe.lobe}`;
+      leftSpan.textContent = isSolved
+        ? `✓ ${lobe.label} // ${lobe.lobe}`
+        : `PROBE 0${idx + 1} // [CLASSIFIED CORTICAL REGION]`;
       const rightSpan = document.createElement('span');
-      rightSpan.textContent = isActive ? '◉ SCANNING' : 'TAP TO SCAN';
+      rightSpan.textContent = isSolved ? '◉ DECLASSIFIED' : '🔒 ENCRYPTED';
       eye.append(leftSpan, rightSpan);
 
       const sent = document.createElement('div');
       sent.className = 'probe-sentence';
-      const parts = lobe.prompt.split('[MASK]');
-      sent.append(document.createTextNode(parts[0] || ''));
-      const slot = document.createElement('span');
-      slot.className = 'mask-slot';
-      slot.textContent = isSolved ? lobe.words.map(w => w.word.toUpperCase()).join(' / ') : '[MASK]';
-      sent.append(slot);
-      if (parts[1]) sent.append(document.createTextNode(parts[1]));
+      if (isSolved) {
+        const parts = lobe.prompt.split('[MASK]');
+        sent.append(document.createTextNode(parts[0] || ''));
+        const slot = document.createElement('span');
+        slot.className = 'mask-slot';
+        slot.textContent = lobe.words.map(w => w.word.toUpperCase()).join(' / ');
+        sent.append(slot);
+        if (parts[1]) sent.append(document.createTextNode(parts[1]));
+      } else {
+        sent.append(document.createTextNode('████████ ████ ███████ '));
+        const slot = document.createElement('span');
+        slot.className = 'mask-slot';
+        slot.textContent = '[MASK]';
+        sent.append(slot);
+        sent.append(document.createTextNode(' — AMPUTATE 4 MATCHING TOKENS TO DECLASSIFY'));
+      }
 
       btn.append(eye, sent);
-      btn.addEventListener('click', () => {
-        if (activeProbeIdx !== idx) {
+      if (isSolved) {
+        btn.addEventListener('click', () => {
           activeProbeIdx = idx;
           playSound('probe');
           renderProbes();
-          renderTokenGrid();
-          telemetryMsg.textContent = `SCANNING PROBE 0${idx + 1}: "${lobe.prompt}" — TILE PROBABILITIES UPDATED LIVE.`;
-        }
-      });
+          telemetryMsg.textContent = `DECLASSIFIED PROBE 0${idx + 1}: "${lobe.prompt}"`;
+        });
+      }
       probesListEl.appendChild(btn);
     });
 
-    const activeLobe = currentCase.lobes[activeProbeIdx];
-    if (activeLobe) {
-      activeProbeTitle.textContent = `ACTIVE PROBE 0${activeProbeIdx + 1} // ${activeLobe.lobe}`;
+    if (solvedCount === 0) {
+      activeProbeTitle.textContent = 'CORTICAL PROBE OSCILLOSCOPE // 4 ENCRYPTED SIGNALS';
+    } else {
+      activeProbeTitle.textContent = `CORTICAL PROBE OSCILLOSCOPE // ${solvedCount}/4 LOBES DECLASSIFIED`;
     }
   }
 
@@ -1834,7 +1881,7 @@
       promptEl.textContent = `"${lobe.prompt}"`;
       head.append(title, promptEl);
 
-      // Compute softmax across the 4 solved words on their own probe
+      // Compute softmax across the 4 solved words on their own declassified probe
       const rawLogits = lobe.words.map(w => logitMap[lobeIdx].get(w.word) ?? 10);
       const probs = softmaxArray(rawLogits);
 
@@ -1845,7 +1892,8 @@
         chip.className = 'solved-chip';
         chip.textContent = `${we.word} `;
         const pct = document.createElement('span');
-        pct.textContent = `${(probs[wi] * 100).toFixed(1)}%`;
+        const z = rawLogits[wi];
+        pct.textContent = `${(probs[wi] * 100).toFixed(1)}% (z=${z >= 0 ? '+' : ''}${z.toFixed(1)})`;
         chip.appendChild(pct);
         wordsWrap.appendChild(chip);
       });
@@ -1860,15 +1908,8 @@
     const remainingTokens = currentCase.tokens.filter(t => !solvedLobeIds.includes(t.lobeId));
     if (remainingTokens.length === 0) return;
 
-    // Compute live softmax probabilities across the remaining tokens on the currently active probe!
-    const activeMap = currentCase.wordLogitMap[activeProbeIdx];
-    const rawLogits = remainingTokens.map(t => activeMap.get(t.word) ?? 0);
-    const probs = softmaxArray(rawLogits);
-
-    remainingTokens.forEach((tok, idx) => {
+    remainingTokens.forEach(tok => {
       const isSelected = selectedWords.has(tok.word);
-      const probPct = probs[idx] * 100;
-      const rawLogit = rawLogits[idx];
 
       const tile = document.createElement('button');
       tile.type = 'button';
@@ -1881,9 +1922,9 @@
       topMeta.className = 'token-top-meta';
       const idSpan = document.createElement('span');
       idSpan.textContent = `#${tok.tokenId}`;
-      const logitSpan = document.createElement('span');
-      logitSpan.textContent = `${rawLogit >= 0 ? '+' : ''}${rawLogit.toFixed(1)}`;
-      topMeta.append(idSpan, logitSpan);
+      const subSpan = document.createElement('span');
+      subSpan.textContent = tok.tokenStr || `▁${tok.word}`;
+      topMeta.append(idSpan, subSpan);
 
       const wordEl = document.createElement('div');
       wordEl.className = 'token-word';
@@ -1894,17 +1935,17 @@
       const probRow = document.createElement('div');
       probRow.className = 'token-prob-row';
       const pLabel = document.createElement('span');
-      pLabel.textContent = `P(MASK)`;
+      pLabel.textContent = isSelected ? 'CLAMPED' : 'SYNAPSE';
       const pVal = document.createElement('span');
       pVal.className = 'token-prob-val';
-      pVal.textContent = `${probPct.toFixed(1)}%`;
+      pVal.textContent = isSelected ? 'READY' : 'LOCKED';
       probRow.append(pLabel, pVal);
 
       const track = document.createElement('div');
       track.className = 'prob-bar-track';
       const fill = document.createElement('div');
       fill.className = 'prob-bar-fill';
-      fill.style.width = `${Math.min(100, Math.max(3, probPct * 1.6))}%`;
+      fill.style.width = isSelected ? '100%' : '18%';
       track.appendChild(fill);
 
       botMeta.append(probRow, track);
@@ -1978,12 +2019,11 @@
       const stamps = ['LOBOTOMIZED!', 'CORTEX CLEAVED!', 'SYNAPSE SEVERED!', 'CRANIAL VICTORY!'];
       showComicStamp(stamps[(solvedLobeIds.length - 1) % stamps.length]);
 
-      // Advance activeProbeIdx to next unsolved probe automatically
-      const nextUnsolved = currentCase.lobes.findIndex(l => !solvedLobeIds.includes(l.id));
-      if (nextUnsolved >= 0) activeProbeIdx = nextUnsolved;
+      const solvedIdx = currentCase.lobes.findIndex(l => l.id === matchedLobeId);
+      if (solvedIdx >= 0) activeProbeIdx = solvedIdx;
 
       const solvedLobe = currentCase.lobes.find(l => l.id === matchedLobeId);
-      telemetryMsg.textContent = `EXCISED LOBE: ${solvedLobe.label} — "${solvedLobe.prompt}"`;
+      telemetryMsg.textContent = `DECLASSIFIED LOBE: ${solvedLobe.label} — "${solvedLobe.prompt}"`;
 
       renderProbes();
       renderSolvedLobes();
@@ -2035,18 +2075,22 @@
   // ───────────────────────────────────────────────────────────────────────
   function stimulateHint() {
     if (!currentCase) return;
-    // Ensure activeProbeIdx points to an unsolved lobe
-    let targetProbe = currentCase.lobes[activeProbeIdx];
-    if (!targetProbe || solvedLobeIds.includes(targetProbe.id)) {
-      const nextIdx = currentCase.lobes.findIndex(l => !solvedLobeIds.includes(l.id));
-      if (nextIdx < 0) return;
-      activeProbeIdx = nextIdx;
-      targetProbe = currentCase.lobes[activeProbeIdx];
-      renderProbes();
+    // Target the first unsolved lobe (or the lobe that already has selected tokens)
+    const unsolvedLobes = currentCase.lobes
+      .map((l, idx) => ({ lobe: l, idx }))
+      .filter(entry => !solvedLobeIds.includes(entry.lobe.id));
+    if (unsolvedLobes.length === 0) return;
+
+    let targetEntry = unsolvedLobes[0];
+    for (const entry of unsolvedLobes) {
+      if (entry.lobe.words.some(we => selectedWords.has(we.word))) {
+        targetEntry = entry;
+        break;
+      }
     }
 
-    // Find an unselected word belonging to targetProbe with the highest logit
-    const activeMap = currentCase.wordLogitMap[activeProbeIdx];
+    const targetProbe = targetEntry.lobe;
+    const activeMap = currentCase.wordLogitMap[targetEntry.idx];
     const candidates = targetProbe.words
       .filter(we => !selectedWords.has(we.word))
       .sort((a, b) => (activeMap.get(b.word) ?? 0) - (activeMap.get(a.word) ?? 0));
@@ -2064,7 +2108,7 @@
     const bestWord = candidates[0].word;
     selectedWords.add(bestWord);
     playSound('probe');
-    telemetryMsg.textContent = `⚡ STIMULATED CORTEX PROBE 0${activeProbeIdx + 1}: LOCKED HIGH-AFFINITY TOKEN "${bestWord.toUpperCase()}".`;
+    telemetryMsg.textContent = `⚡ CORTICAL STIMULATION: CLAMPED SYNAPSE "${bestWord.toUpperCase()}".`;
     renderTokenGrid();
     updateActionButtons();
   }
@@ -2090,12 +2134,16 @@
     debriefSummary.textContent = headerLine;
 
     const gridLines = moveHistory.map(row => row.map(idx => emojis[idx % 4]).join(''));
-    const modeTag = wardMode ? 'WARD-MODE' : 'LIVE-ALBERT-V2';
+    const isWardCase = !currentCase || currentCase.mode === 'ward';
+    const modeTag = isWardCase ? 'WARD-MODE' : 'LIVE-ALBERT-V2';
+    const shareUrl = isWardCase
+      ? `https://post-training.win/?seed=${currentCase.seed}&mode=ward`
+      : `https://post-training.win/?seed=${currentCase.seed}`;
     const reportText = [
       `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} (${modeTag})`,
       won ? `STATUS: LOBOTOMIZED (${mistakesMade} mistakes · Streak ${streak})` : `STATUS: FLATLINED`,
       ...(gridLines.length ? gridLines : ['🟥🟥🟥🟥']),
-      `https://post-training.win/?seed=${currentCase.seed}`,
+      shareUrl,
     ].join('\n');
 
     debriefGridText.textContent = reportText;
@@ -2128,19 +2176,18 @@
           .slice(0, 8);
         renderLabRows(labBoardResults, rankedBoard);
 
-        // Also find top 6 across the entire 30,000-token vocabulary!
+        // Normalize probabilities over the full 30,000-token vocabulary before selecting top rows!
+        const fullVocabProbs = softmaxArray(res.logits);
         const indices = Array.from({ length: res.logits.length }, (_, i) => i);
         indices.sort((a, b) => res.logits[b] - res.logits[a]);
         const topIndices = indices.slice(0, 40);
-        const topLogits = topIndices.map(i => res.logits[i]);
-        const topProbs = softmaxArray(topLogits);
         const vocabRows = [];
         for (let k = 0; k < topIndices.length && vocabRows.length < 6; k++) {
           const tid = topIndices[k];
           const rawTok = (idToTokenMap && idToTokenMap.get(tid)) || `tok_${tid}`;
           const cleanTok = rawTok.replace(/^▁/, '');
           if (/^[a-zA-Z]{2,}$/.test(cleanTok)) {
-            vocabRows.push({ word: cleanTok, prob: topProbs[k], logit: topLogits[k] });
+            vocabRows.push({ word: cleanTok, prob: fullVocabProbs[tid], logit: res.logits[tid] });
           }
         }
         renderLabRows(labVocabResults, vocabRows);
@@ -2148,15 +2195,22 @@
       }
     }
 
-    // Fallback when in Pre-Dissected Ward mode: show active probe's distribution
-    const activeMap = currentCase.wordLogitMap[activeProbeIdx];
-    const bLogits = boardWords.map(t => activeMap.get(t.word) ?? 0);
-    const bProbs = softmaxArray(bLogits);
-    const ranked = boardWords
-      .map((t, i) => ({ word: t.word, prob: bProbs[i], logit: bLogits[i] }))
-      .sort((a, b) => b.prob - a.prob)
-      .slice(0, 8);
-    renderLabRows(labBoardResults, ranked);
+    // Fallback when in Pre-Dissected Ward mode: only show declassified probe distribution if solved
+    if (solvedLobeIds.length > 0) {
+      const firstSolvedIdx = currentCase.lobes.findIndex(l => solvedLobeIds.includes(l.id));
+      const solvedMap = currentCase.wordLogitMap[Math.max(0, firstSolvedIdx)];
+      const bLogits = boardWords.map(t => solvedMap.get(t.word) ?? 0);
+      const bProbs = softmaxArray(bLogits);
+      const ranked = boardWords
+        .map((t, i) => ({ word: t.word, prob: bProbs[i], logit: bLogits[i] }))
+        .sort((a, b) => b.prob - a.prob)
+        .slice(0, 8);
+      renderLabRows(labBoardResults, ranked);
+    } else {
+      const wardNote = document.createElement('div');
+      wardNote.textContent = 'Amputate a cortical lobe or switch to LIVE LLM SURGERY mode to inspect live board token probabilities.';
+      labBoardResults.appendChild(wardNote);
+    }
     const note = document.createElement('div');
     note.textContent = 'Switch to LIVE LLM SURGERY mode to probe arbitrary custom sentences across all 30,000 tokens.';
     labVocabResults.appendChild(note);
@@ -2180,6 +2234,7 @@
       telemetryMsg.textContent = 'WAIT FOR THE ON-DEVICE SLM TO FINISH LOADING BEFORE SYNTHESIZING CUSTOM BOARDS.';
       return;
     }
+    const myGen = ++buildGeneration;
     const prompts = rawPrompts.map(p => {
       const clean = (p || '').trim() || 'the best ice cream flavor is [MASK].';
       return clean.includes('[MASK]') ? clean : `${clean.replace(/[.?!]+$/, '')} [MASK].`;
@@ -2188,7 +2243,9 @@
     const t0 = performance.now();
     const passes = [];
     for (let i = 0; i < 4; i++) {
-      passes.push(await runMaskedForwardPass(prompts[i]));
+      const passRes = await runMaskedForwardPass(prompts[i]);
+      if (myGen !== buildGeneration || !passRes) return;
+      passes.push(passRes);
     }
 
     // Collect candidate vocabulary token IDs that are clean English whole words (>=3 chars)
@@ -2260,6 +2317,7 @@
 
     currentCase = {
       seed: currentSeed,
+      mode: 'live',
       title: `CUSTOM VIVISECTION // LIVE 30K-VOCAB SYNTHESIS`,
       symptom: 'USER-AUTHORED SENTENCE PROBES',
       lobes,
@@ -2276,6 +2334,7 @@
     const ms = Math.round(performance.now() - t0);
     inferenceTiming.textContent = `CUSTOM SLM SYNTHESIS: ${ms}ms`;
     telemetryMsg.textContent = `🧠 SYNTHESIZED 16 LIVE TOKENS FROM YOUR 4 SENTENCES IN ${ms}ms!`;
+    updateModeIndicator();
     labDialog.close();
     playSound('cleave');
     renderFullSurgicalBoard();
@@ -2334,11 +2393,14 @@
       }
       updateModeIndicator();
       await buildCaseFromSeed(currentSeed);
+    } else if (modelReady && currentCase && currentCase.mode === 'ward') {
+      // Upgrade a preserved initial Ward case to a Live LLM case
+      await buildCaseFromSeed(currentSeed);
     } else {
       wardMode = true;
       writeSaveState();
       updateModeIndicator();
-      await buildCaseFromSeed(currentSeed);
+      await buildCaseFromSeed(currentSeed, true);
     }
   });
 
@@ -2366,7 +2428,7 @@
   });
 
   function openLab() {
-    if (currentCase && currentCase.lobes[activeProbeIdx]) {
+    if (currentCase && currentCase.lobes[activeProbeIdx] && solvedLobeIds.includes(currentCase.lobes[activeProbeIdx].id)) {
       labInput.value = currentCase.lobes[activeProbeIdx].prompt;
     }
     labDialog.showModal();
@@ -2464,14 +2526,6 @@
     } else if (e.key === '?') {
       e.preventDefault();
       openHelp();
-    } else if (['1', '2', '3', '4'].includes(e.key)) {
-      const idx = parseInt(e.key, 10) - 1;
-      if (currentCase && idx < currentCase.lobes.length) {
-        activeProbeIdx = idx;
-        playSound('probe');
-        renderProbes();
-        renderTokenGrid();
-      }
     }
   });
 
@@ -2490,17 +2544,19 @@
     applyPreferencesUI();
     await loadCorpusOnce();
     // Render immediately using verified fallback logits so the board is playable in <50ms!
-    const initialWard = wardMode;
-    wardMode = true;
-    await buildCaseFromSeed(currentSeed);
-    wardMode = initialWard;
+    await buildCaseFromSeed(currentSeed, true);
+    const bootGen = buildGeneration;
     updateModeIndicator();
 
     // Load the live 22MB ONNX model in the background; once ready, live procedural surgery is active!
     if (!wardMode) {
       const ok = await initModel();
-      if (ok && solvedLobeIds.length === 0 && mistakesMade === 0 && selectedWords.size === 0) {
-        await buildCaseFromSeed(currentSeed);
+      if (ok) {
+        if (buildGeneration === bootGen && solvedLobeIds.length === 0 && mistakesMade === 0 && selectedWords.size === 0) {
+          await buildCaseFromSeed(currentSeed);
+        } else {
+          updateModeIndicator();
+        }
       }
     }
   })();

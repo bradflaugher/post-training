@@ -1,31 +1,28 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
-  test('renders 4 cortical probes and 16 tokens with live probabilities in Ward Mode', async ({ page }) => {
+  test('renders 4 encrypted cortical probes and 16 mystery tokens in Ward Mode', async ({ page }) => {
     await page.goto('/index.html?lite=1&seed=1');
     await expect(page.locator('#mode-btn')).toHaveAttribute('data-mode', 'ward');
     await expect(page.locator('#case-title')).toContainText('CASE #001');
 
     const probes = page.locator('.probe-card');
     await expect(probes).toHaveCount(4);
-    await expect(probes.first()).toContainText('the best ice cream flavor is');
+    await expect(probes.first()).toContainText('ENCRYPTED');
+    await expect(probes.first()).not.toContainText('the best ice cream flavor is');
 
     const tiles = page.locator('.token-tile');
     await expect(tiles).toHaveCount(16);
 
-    // Every tile shows a percentage probability
-    const firstProb = await tiles.first().locator('.token-prob-val').textContent();
-    expect(firstProb).toMatch(/^\d+\.\d%$/);
-
-    // Clicking probe 2 updates active state and recalculates tile probabilities
-    await probes.nth(1).click();
-    await expect(probes.nth(1)).toHaveClass(/active/);
+    // Unsolved tiles keep probabilities locked until their category is solved
+    const firstStatus = await tiles.first().locator('.token-prob-val').textContent();
+    expect(firstStatus).toBe('LOCKED');
   });
 
-  test('can select 4 matching tokens and amputate a cortical lobe, or use STIMULATE hint', async ({ page }) => {
+  test('can select 4 matching tokens, amputate a cortical lobe, and reveal its probe & SLM probabilities', async ({ page }) => {
     await page.goto('/index.html?lite=1&seed=1');
 
-    // Use STIMULATE (Hint) 4 times to select all 4 tokens of Probe 01 (ice_cream)
+    // Use STIMULATE (Hint) 4 times to select all 4 tokens of the first unsolved lobe (ice_cream)
     const hintBtn = page.locator('#hint-btn');
     for (let i = 0; i < 4; i++) {
       await hintBtn.click();
@@ -38,8 +35,12 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(submitBtn).toBeEnabled();
     await submitBtn.click();
 
-    // 1 lobe solved, 12 tokens left on grid
-    await expect(page.locator('.solved-lobe')).toHaveCount(1);
+    // 1 lobe solved, 12 tokens left on grid, and the solved lobe reveals its probe + probabilities + logits
+    const solvedLobe = page.locator('.solved-lobe');
+    await expect(solvedLobe).toHaveCount(1);
+    await expect(solvedLobe.first()).toContainText('the best ice cream flavor is [MASK].');
+    await expect(solvedLobe.first()).toContainText('% (z=');
+    await expect(page.locator('.probe-card.solved')).toHaveCount(1);
     await expect(page.locator('.token-tile')).toHaveCount(12);
   });
 
@@ -77,6 +78,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('.solved-lobe')).toHaveCount(4);
     await expect(page.locator('#debrief-dialog')).toBeVisible();
     await expect(page.locator('#debrief-summary')).toContainText('SURGERY SUCCESSFUL');
+    await expect(page.locator('#debrief-grid-text')).toContainText('mode=ward');
   });
 
   test('opens Live Lobotomy Lab and Surgical Manual dialogs cleanly', async ({ page }) => {
@@ -84,7 +86,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
 
     await page.locator('#lab-btn').click();
     await expect(page.locator('#lab-dialog')).toBeVisible();
-    await expect(page.locator('#lab-board-results .lab-row')).toHaveCount(8);
+    await expect(page.locator('#lab-board-results')).toContainText('Amputate a cortical lobe');
     await page.locator('#lab-close-btn').click();
     await expect(page.locator('#lab-dialog')).toBeHidden();
 

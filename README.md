@@ -12,14 +12,13 @@ Inspired by NYT Connections, edge keyboard next-word prediction models, and the 
 
 Our patient — a compact 11.8M-parameter transformer running inside your browser — has suffered catastrophic synaptic entanglement. Four **Cortical Sentence Probes** (each with a `[MASK]` slot) are firing at once, and **16 vocabulary tokens** are floating loose on the operating table.
 
-1. **Tap any Cortical Probe at the top** (for example: `"the best ice cream flavor is [MASK]."`).
-2. **Inspect the Live SLM Predictions:** Every token tile in the 4×4 grid updates in real time to reveal the model's exact **probability (`%`)** and **raw logit** for filling that sentence's `[MASK]`.
-3. **Select 4 Tokens & Amputate:** Group the 4 tokens that belong to one cortical lobe and hit **🩸 AMPUTATE** (or press `Enter`).
-4. **One Token Off Warning:** If 3 of your 4 selected tokens belong to the same lobe, the cranial monitor flashes **"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"**.
-5. **Two Operating Modes:**
+1. **Select 4 Tokens & Amputate:** Just like NYT Connections, group the 4 tokens on the 4×4 grid that belong to one category and hit **🩸 AMPUTATE** (or press `Enter`).
+2. **Declassify the Hidden SLM Probes:** While you solve, the 4 cortical sentence probes and token probabilities are encrypted. Each time you amputate a category, its cortical lobe banner rips open to reveal the exact **sentence completion probe** (for example: `"the best ice cream flavor is [MASK]."`) along with the language model's **softmax probability (`%`)** and **raw logit (`z`)** for each of the 4 words!
+3. **One Token Off Warning:** If 3 of your 4 selected tokens belong to the same lobe, the cranial monitor flashes **"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"**.
+4. **Two Operating Modes:**
    - **LIVE SLM SURGERY (On-Device Procedural):** Every seed rolls 4 mutually compatible cortical lobes and a prompt variant for each, runs 4 real-time ONNX forward passes in your browser, and lets the language model select its own highest-margin tokens from a 331-word pool on the fly.
    - **PRE-DISSECTED WARD (`?lite=1`):** Instant verified logit tables so you can play immediately while the 22 MB ONNX model boots (or on ultra-low-memory mobile tabs).
-6. **🔬 Live Lobotomy Lab:** Open the Lab at any time to type **any custom sentence** and inspect both the current board's rankings and the model's raw top predictions across its entire **30,000-token vocabulary** — or write **4 custom sentences of your own** and let the SLM synthesize a playable 4×4 board from scratch!
+5. **🔬 Live Lobotomy Lab:** Open the Lab at any time to type **any custom sentence** and inspect both the current board's rankings and the model's raw top predictions across its entire **30,000-token vocabulary** — or write **4 custom sentences of your own** and let the SLM synthesize a playable 4×4 board from scratch!
 
 ---
 
