@@ -95,12 +95,13 @@
     background-size: 16px 16px, 32px 32px;
     background-position: 0 0, 8px 8px;
     color: var(--bone);
-    min-height: 100dvh;
+    height: 100dvh;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: max(env(safe-area-inset-top), 0.6rem) 0.75rem max(env(safe-area-inset-bottom), 0.75rem) 0.75rem;
-    overflow-x: hidden;
+    padding: max(env(safe-area-inset-top), 0.4rem) 0.55rem max(env(safe-area-inset-bottom), 0.4rem) 0.55rem;
+    overflow: hidden;
     -webkit-user-select: none;
     user-select: none;
     position: relative;
@@ -183,9 +184,11 @@
   .console-wrap {
     width: 100%;
     max-width: 780px;
+    height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    gap: 0.36rem;
     z-index: 10;
   }
 
@@ -195,25 +198,26 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.4rem;
     background: var(--panel);
     border: 3px solid var(--bone);
-    box-shadow: 5px 5px 0 var(--crimson), 8px 8px 0 var(--ink);
-    padding: 0.55rem 0.8rem;
+    box-shadow: 4px 4px 0 var(--crimson), 6px 6px 0 var(--ink);
+    padding: 0.38rem 0.65rem;
     position: relative;
+    flex-shrink: 0;
   }
   .brand-left {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.5rem;
   }
   .brand-emblem {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     border: 2px solid var(--bone);
     background: var(--ink);
     flex-shrink: 0;
-    box-shadow: 3px 3px 0 var(--crimson);
+    box-shadow: 2px 2px 0 var(--crimson);
   }
   .brand-titles {
     display: flex;
@@ -221,15 +225,15 @@
   }
   .brand-kicker {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.56rem;
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     color: var(--acid);
     text-transform: uppercase;
   }
   .brand-title {
     font-family: var(--font-comic);
-    font-size: clamp(1.35rem, 4.2vw, 1.85rem);
+    font-size: clamp(1.2rem, 3.8vw, 1.65rem);
     font-weight: 900;
     letter-spacing: 0.03em;
     line-height: 1;
@@ -240,25 +244,25 @@
   .header-controls {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.32rem;
     flex-wrap: wrap;
   }
   .mode-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     background: var(--ink);
     border: 2px solid var(--bone);
     color: var(--bone);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
-    padding: 0.32rem 0.6rem;
+    letter-spacing: 0.05em;
+    padding: 0.24rem 0.5rem;
     cursor: pointer;
     text-transform: uppercase;
-    box-shadow: 3px 3px 0 var(--crimson);
-    min-height: 34px;
+    box-shadow: 2px 2px 0 var(--crimson);
+    min-height: 30px;
     transition: transform 0.1s, border-color 0.15s;
   }
   .mode-pill:hover, .mode-pill:focus-visible {
@@ -269,8 +273,8 @@
     transform: translate(2px, 2px);
   }
   .status-led {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--amber);
     box-shadow: 0 0 6px var(--amber);
@@ -289,18 +293,18 @@
     border: 2px solid var(--bone);
     color: var(--bone);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 800;
-    padding: 0.32rem 0.55rem;
-    min-height: 34px;
-    min-width: 34px;
+    padding: 0.24rem 0.48rem;
+    min-height: 30px;
+    min-width: 30px;
     cursor: pointer;
-    box-shadow: 3px 3px 0 var(--crimson);
+    box-shadow: 2px 2px 0 var(--crimson);
     text-transform: uppercase;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
   }
   .icon-btn:hover, .icon-btn:focus-visible {
     border-color: var(--acid);
@@ -317,36 +321,37 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.45rem;
+    gap: 0.35rem;
     background: var(--panel-alt);
     border: 2px solid var(--bone);
-    box-shadow: 4px 4px 0 var(--ink);
-    padding: 0.45rem 0.75rem;
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.32rem 0.6rem;
     font-family: var(--font-mono);
+    flex-shrink: 0;
   }
   .case-info {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
   .case-badge {
     background: var(--crimson);
     color: var(--bone);
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-weight: 900;
-    padding: 0.15rem 0.45rem;
+    padding: 0.12rem 0.4rem;
     border: 1.5px solid var(--ink);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
   }
   .seed-btn {
     background: rgba(57, 255, 20, 0.1);
     border: 1px solid var(--acid);
     color: var(--acid);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-weight: 700;
-    padding: 0.15rem 0.45rem;
+    padding: 0.12rem 0.4rem;
     cursor: pointer;
   }
   .seed-btn:hover {
@@ -356,23 +361,23 @@
   .vitals-right {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.55rem;
   }
   .volts-wrap {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.7rem;
+    gap: 0.25rem;
+    font-size: 0.66rem;
     font-weight: 800;
     color: var(--bone);
   }
   .volt-pips {
     display: inline-flex;
-    gap: 0.22rem;
+    gap: 0.2rem;
   }
   .volt-pip {
-    width: 12px;
-    height: 14px;
+    width: 11px;
+    height: 13px;
     background: var(--crimson);
     border: 1.5px solid var(--bone);
     display: inline-block;
@@ -387,113 +392,47 @@
     transform: skewX(-12deg) scale(0.82);
   }
 
-  /* ── Cortical Probe Oscilloscope & 4 Target Probes ── */
+  /* ── Compact Oscilloscope Telemetry Strip (No Spoiler Probe List) ── */
   .scanner-box {
     background: var(--panel);
-    border: 3px solid var(--bone);
-    box-shadow: 5px 5px 0 var(--ink);
-    padding: 0.6rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
+    border: 2px solid var(--bone);
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.3rem 0.6rem;
+    flex-shrink: 0;
   }
   .scanner-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.4rem;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: var(--acid);
     text-transform: uppercase;
   }
   .scanner-sub {
     color: var(--bone-dim);
     font-weight: 600;
-    font-size: 0.64rem;
-  }
-  .probes-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.38rem;
-  }
-  @media (min-width: 680px) {
-    .probes-list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  .probe-card {
-    background: var(--ink);
-    border: 2px solid rgba(244, 238, 224, 0.38);
-    padding: 0.45rem 0.6rem;
-    text-align: left;
-    color: var(--bone);
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-  .probe-card:hover, .probe-card:focus-visible {
-    border-color: var(--bone);
-    outline: none;
-  }
-  .probe-card.active {
-    border-color: var(--acid);
-    background: rgba(57, 255, 20, 0.08);
-    box-shadow: 3px 3px 0 var(--crimson);
-  }
-  .probe-card.solved {
-    border-color: var(--amber);
-    background: rgba(255, 190, 11, 0.12);
-    cursor: default;
-  }
-  .probe-eyebrow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: var(--font-mono);
     font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--pink);
-    text-transform: uppercase;
-  }
-  .probe-card.active .probe-eyebrow {
-    color: var(--acid);
-  }
-  .probe-card.solved .probe-eyebrow {
-    color: var(--amber);
-  }
-  .probe-sentence {
-    font-family: var(--font-mono);
-    font-size: 0.76rem;
-    line-height: 1.35;
-    color: var(--bone);
-  }
-  .mask-slot {
-    display: inline-block;
-    background: var(--crimson);
-    color: var(--bone);
-    font-weight: 900;
-    padding: 0 0.3rem;
-    border: 1px solid var(--bone);
-    font-size: 0.72rem;
-  }
-  .probe-card.active .mask-slot {
-    background: var(--acid);
-    color: var(--ink);
-    border-color: var(--ink);
   }
 
-  /* ── Solved Cortical Lobes Banner Stack ── */
+  /* ── Surgical Board Area (Solved Lobes + Remaining 4x4 Token Grid = Always 4 Rows) ── */
+  .board-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.38rem;
+  }
+
+  /* ── Solved Cortical Lobes Banner Stack (Reveals Category, Probe & SLM Probabilities) ── */
   .solved-stack {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.38rem;
+    flex-shrink: 0;
   }
   .solved-stack:empty {
     display: none;
@@ -501,11 +440,12 @@
   .solved-lobe {
     background: linear-gradient(90deg, #3a000d 0%, #1c0916 100%);
     border: 3px solid var(--amber);
-    box-shadow: 5px 5px 0 var(--ink);
-    padding: 0.55rem 0.75rem;
+    box-shadow: 4px 4px 0 var(--ink);
+    padding: 0.38rem 0.6rem;
     display: flex;
     flex-direction: column;
-    gap: 0.28rem;
+    justify-content: center;
+    gap: 0.18rem;
     animation: lobeSlam 0.25s cubic-bezier(0.18, 1.3, 0.4, 1);
   }
   @keyframes lobeSlam {
@@ -516,12 +456,12 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
   .solved-title {
     font-family: var(--font-comic);
-    font-size: 1.05rem;
+    font-size: clamp(0.84rem, 2.6vw, 1.02rem);
     font-weight: 900;
     letter-spacing: 0.04em;
     color: var(--amber);
@@ -530,45 +470,52 @@
   }
   .solved-prompt {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--bone-dim);
+    font-size: clamp(0.6rem, 1.9vw, 0.7rem);
+    color: var(--bone);
+    font-weight: 700;
   }
   .solved-words {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.15rem;
+    gap: 0.3rem;
   }
   .solved-chip {
     background: var(--ink);
     border: 1.5px solid var(--acid);
-    padding: 0.18rem 0.5rem;
+    padding: 0.12rem 0.4rem;
     font-family: var(--font-mono);
-    font-size: 0.74rem;
+    font-size: clamp(0.62rem, 2vw, 0.72rem);
     font-weight: 800;
     color: var(--bone);
     text-transform: uppercase;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.28rem;
   }
   .solved-chip span {
     color: var(--acid);
-    font-size: 0.66rem;
+    font-size: clamp(0.56rem, 1.8vw, 0.64rem);
   }
 
   /* ── 4x4 Token Grid (The Vivisection Matrix) ── */
   .token-grid {
+    flex: 1 1 auto;
+    min-height: 0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.48rem;
+    grid-auto-rows: 1fr;
+    gap: 0.38rem;
+  }
+  .token-grid:empty {
+    display: none;
   }
   .token-tile {
     background: var(--panel-alt);
     border: 3px solid var(--bone);
-    box-shadow: 4px 4px 0 var(--ink);
-    padding: 0.5rem 0.35rem 0.42rem;
-    min-height: 76px;
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.32rem 0.3rem;
+    min-height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -579,12 +526,6 @@
     color: var(--bone);
     transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
     touch-action: manipulation;
-  }
-  @media (min-width: 600px) {
-    .token-tile {
-      min-height: 86px;
-      padding: 0.6rem 0.55rem 0.5rem;
-    }
   }
   .token-tile:hover, .token-tile:focus-visible {
     border-color: var(--acid);
@@ -667,20 +608,21 @@
   .action-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.45rem;
+    gap: 0.38rem;
+    flex-shrink: 0;
   }
   .act-btn {
     background: var(--panel);
     border: 3px solid var(--bone);
-    box-shadow: 4px 4px 0 var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
     color: var(--bone);
     font-family: var(--font-comic);
-    font-size: clamp(0.82rem, 2.8vw, 1.02rem);
+    font-size: clamp(0.76rem, 2.5vw, 0.98rem);
     font-weight: 900;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 0.6rem 0.4rem;
-    min-height: 48px;
+    padding: 0.42rem 0.3rem;
+    min-height: 40px;
     cursor: pointer;
     transition: transform 0.1s, background 0.15s, border-color 0.15s;
     touch-action: manipulation;
@@ -702,7 +644,7 @@
     background: var(--crimson);
     border-color: var(--bone);
     color: var(--bone);
-    box-shadow: 4px 4px 0 var(--acid), 7px 7px 0 var(--ink);
+    box-shadow: 3px 3px 0 var(--acid), 5px 5px 0 var(--ink);
   }
   .act-btn.primary:hover:not(:disabled) {
     background: var(--acid);
@@ -714,15 +656,15 @@
   .telemetry-bar {
     background: var(--ink);
     border: 2px solid rgba(244, 238, 224, 0.35);
-    padding: 0.4rem 0.65rem;
+    padding: 0.3rem 0.55rem;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     color: var(--acid);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 0.4rem;
+    flex-shrink: 0;
   }
   .telemetry-msg {
     overflow: hidden;
@@ -734,12 +676,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
-    padding: 0.35rem 0;
+    padding: 0.15rem 0;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     color: var(--bone-dim);
+    flex-shrink: 0;
   }
   .footer-nav a, .footer-nav button {
     background: none;
@@ -957,20 +900,19 @@
     </div>
   </section>
 
-  <!-- Cortical Probes (4 Masked Sentences — Classified Until Solved) -->
-  <section class="scanner-box" aria-label="Cortical sentence probes">
+  <!-- Compact Oscilloscope Telemetry Strip -->
+  <section class="scanner-box" aria-label="Cortical telemetry status">
     <div class="scanner-head">
-      <span id="active-probe-title">CORTICAL PROBE OSCILLOSCOPE // 4 ENCRYPTED SIGNALS</span>
+      <span id="active-probe-title">CORTICAL PROBES // 0/4 LOBES DECLASSIFIED</span>
       <span class="scanner-sub" id="inference-timing">LOGITS: READY</span>
     </div>
-    <div class="probes-list" id="probes-list" role="region" aria-label="Cortical sentence probes"></div>
   </section>
 
-  <!-- Solved Lobes Stack -->
-  <section class="solved-stack" id="solved-stack" aria-live="polite"></section>
-
-  <!-- 16 Token Tiles Grid -->
-  <section class="token-grid" id="token-grid" aria-label="16 neural tokens"></section>
+  <!-- Surgical Board Area (Solved Lobes + Remaining 4x4 Token Grid = Always 4 Rows) -->
+  <div class="board-area">
+    <section class="solved-stack" id="solved-stack" aria-live="polite"></section>
+    <section class="token-grid" id="token-grid" aria-label="16 neural tokens"></section>
+  </div>
 
   <!-- Surgical Action Bar -->
   <section class="action-bar" aria-label="Surgical controls">
@@ -1112,7 +1054,6 @@
   const streakBadge = $('streak-badge');
   const activeProbeTitle = $('active-probe-title');
   const inferenceTiming = $('inference-timing');
-  const probesListEl = $('probes-list');
   const solvedStackEl = $('solved-stack');
   const tokenGridEl = $('token-grid');
   const shuffleBtn = $('shuffle-btn');
@@ -1800,62 +1741,11 @@
   }
 
   function renderProbes() {
-    probesListEl.replaceChildren();
     const solvedCount = solvedLobeIds.length;
-    currentCase.lobes.forEach((lobe, idx) => {
-      const isSolved = solvedLobeIds.includes(lobe.id);
-      const isActive = idx === activeProbeIdx && isSolved;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `probe-card${isActive ? ' active' : ''}${isSolved ? ' solved' : ''}`;
-      btn.dataset.probeIndex = String(idx);
-      btn.disabled = !isSolved;
-
-      const eye = document.createElement('div');
-      eye.className = 'probe-eyebrow';
-      const leftSpan = document.createElement('span');
-      leftSpan.textContent = isSolved
-        ? `✓ ${lobe.label} // ${lobe.lobe}`
-        : `PROBE 0${idx + 1} // [CLASSIFIED CORTICAL REGION]`;
-      const rightSpan = document.createElement('span');
-      rightSpan.textContent = isSolved ? '◉ DECLASSIFIED' : '🔒 ENCRYPTED';
-      eye.append(leftSpan, rightSpan);
-
-      const sent = document.createElement('div');
-      sent.className = 'probe-sentence';
-      if (isSolved) {
-        const parts = lobe.prompt.split('[MASK]');
-        sent.append(document.createTextNode(parts[0] || ''));
-        const slot = document.createElement('span');
-        slot.className = 'mask-slot';
-        slot.textContent = lobe.words.map(w => w.word.toUpperCase()).join(' / ');
-        sent.append(slot);
-        if (parts[1]) sent.append(document.createTextNode(parts[1]));
-      } else {
-        sent.append(document.createTextNode('████████ ████ ███████ '));
-        const slot = document.createElement('span');
-        slot.className = 'mask-slot';
-        slot.textContent = '[MASK]';
-        sent.append(slot);
-        sent.append(document.createTextNode(' — AMPUTATE 4 MATCHING TOKENS TO DECLASSIFY'));
-      }
-
-      btn.append(eye, sent);
-      if (isSolved) {
-        btn.addEventListener('click', () => {
-          activeProbeIdx = idx;
-          playSound('probe');
-          renderProbes();
-          telemetryMsg.textContent = `DECLASSIFIED PROBE 0${idx + 1}: "${lobe.prompt}"`;
-        });
-      }
-      probesListEl.appendChild(btn);
-    });
-
     if (solvedCount === 0) {
-      activeProbeTitle.textContent = 'CORTICAL PROBE OSCILLOSCOPE // 4 ENCRYPTED SIGNALS';
+      activeProbeTitle.textContent = 'CORTICAL PROBES // 0/4 LOBES DECLASSIFIED';
     } else {
-      activeProbeTitle.textContent = `CORTICAL PROBE OSCILLOSCOPE // ${solvedCount}/4 LOBES DECLASSIFIED`;
+      activeProbeTitle.textContent = `CORTICAL PROBES // ${solvedCount}/4 LOBES DECLASSIFIED`;
     }
   }
 

@@ -1,15 +1,15 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
-  test('renders 4 encrypted cortical probes and 16 mystery tokens in Ward Mode', async ({ page }) => {
+  test('renders 16 mystery tokens with zero category spoilers and fits mobile viewports without scrolling', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
     await expect(page.locator('#mode-btn')).toHaveAttribute('data-mode', 'ward');
     await expect(page.locator('#case-title')).toContainText('CASE #001');
 
-    const probes = page.locator('.probe-card');
-    await expect(probes).toHaveCount(4);
-    await expect(probes.first()).toContainText('ENCRYPTED');
-    await expect(probes.first()).not.toContainText('the best ice cream flavor is');
+    // No category or probe spoilers are shown before a category is solved
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
+    await expect(page.locator('#active-probe-title')).toContainText('0/4 LOBES DECLASSIFIED');
 
     const tiles = page.locator('.token-tile');
     await expect(tiles).toHaveCount(16);
@@ -17,9 +17,19 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     // Unsolved tiles keep probabilities locked until their category is solved
     const firstStatus = await tiles.first().locator('.token-prob-val').textContent();
     expect(firstStatus).toBe('LOCKED');
+
+    // Verify the entire game fits on a small phone screen (375x667) without vertical scrolling or clipping
+    const fitsViewport = await page.evaluate(() => {
+      return document.documentElement.scrollHeight <= window.innerHeight;
+    });
+    expect(fitsViewport).toBe(true);
+    const footerBox = await page.locator('.footer-nav').boundingBox();
+    expect(footerBox).not.toBeNull();
+    expect((footerBox?.y ?? 0) + (footerBox?.height ?? 0)).toBeLessThanOrEqual(667);
   });
 
   test('can select 4 matching tokens, amputate a cortical lobe, and reveal its probe & SLM probabilities', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/index.html?lite=1&seed=1');
 
     // Use STIMULATE (Hint) 4 times to select all 4 tokens of the first unsolved lobe (ice_cream)
@@ -40,8 +50,14 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(solvedLobe).toHaveCount(1);
     await expect(solvedLobe.first()).toContainText('the best ice cream flavor is [MASK].');
     await expect(solvedLobe.first()).toContainText('% (z=');
-    await expect(page.locator('.probe-card.solved')).toHaveCount(1);
+    await expect(page.locator('#active-probe-title')).toContainText('1/4 LOBES DECLASSIFIED');
     await expect(page.locator('.token-tile')).toHaveCount(12);
+
+    // Still fits phone screen without scrolling after solving a category
+    const fitsViewport = await page.evaluate(() => {
+      return document.documentElement.scrollHeight <= window.innerHeight;
+    });
+    expect(fitsViewport).toBe(true);
   });
 
   test('detects One-Away (3/4 synapses aligned) and decrements defibrillator charge on mistake', async ({ page }) => {
