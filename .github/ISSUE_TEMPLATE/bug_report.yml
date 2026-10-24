@@ -1,0 +1,39 @@
+name: Bug report
+description: Something is broken, misfiring, or rendering wrong in the surgical theater.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the surgical case seed or custom sentence probe (for example `post-training.win/?seed=7`).
+      placeholder: Scanned Probe 2 on Case #007 and the token cards didn't update their probabilities.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser, version and device
+      placeholder: Safari 19 on iPhone 15, Chrome 140 on Linux, …
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Surgical mode LED status
+      options:
+        - Green (LIVE LLM SURGERY)
+        - Amber (WARD MODE / PRE-DISSECTED)
+        - Blinking (BOOTING ALBERT-V2)
+        - Didn't check
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors (optional)
+      render: text

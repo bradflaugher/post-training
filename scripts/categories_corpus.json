@@ -1,0 +1,835 @@
+[
+  [
+    "ice_cream",
+    "ICE CREAM FLAVORS",
+    "GUSTATORY CORTEX // FROZEN SWEET",
+    [
+      "the best ice cream flavor is [MASK].",
+      "she ordered a double scoop of [MASK] ice cream.",
+      "at the parlor, the sweetest ice cream flavor is [MASK]."
+    ],
+    [
+      "vanilla",
+      "mint",
+      "chocolate",
+      "strawberry",
+      "caramel",
+      "raspberry",
+      "coconut",
+      "fudge"
+    ]
+  ],
+  [
+    "capitals",
+    "EUROPEAN CITIES",
+    "HIPPOCAMPUS // GEO-COORDINATES",
+    [
+      "in europe, a major capital city is [MASK].",
+      "the international flight landed in the european city of [MASK].",
+      "across europe, travelers visited the historic city of [MASK]."
+    ],
+    [
+      "madrid",
+      "paris",
+      "rome",
+      "berlin",
+      "london",
+      "vienna",
+      "athens",
+      "warsaw",
+      "prague",
+      "brussels",
+      "dublin",
+      "lisbon"
+    ]
+  ],
+  [
+    "breakfast",
+    "COOKED AT BREAKFAST",
+    "ENTERIC NERVE // SKILLET GREASE",
+    [
+      "for breakfast i cooked eggs, toast, and [MASK].",
+      "the morning breakfast plate came with eggs and [MASK].",
+      "at the diner, she ordered breakfast eggs with [MASK]."
+    ],
+    [
+      "bacon",
+      "cheese",
+      "butter",
+      "sausage",
+      "potatoes",
+      "ham",
+      "beans",
+      "toast"
+    ]
+  ],
+  [
+    "instruments",
+    "CONCERT INSTRUMENTS",
+    "AUDITORY CORTEX // HARMONIC",
+    [
+      "in the orchestra, the musician played the [MASK].",
+      "on the concert stage, the soloist performed on the [MASK].",
+      "at rehearsal, the virtuoso tuned the [MASK]."
+    ],
+    [
+      "piano",
+      "violin",
+      "clarinet",
+      "flute",
+      "cello",
+      "oboe",
+      "trumpet",
+      "harp",
+      "trombone",
+      "guitar",
+      "saxophone"
+    ]
+  ],
+  [
+    "colors",
+    "PAINT PIGMENTS",
+    "OCCIPITAL LOBE // CHROMA-V1",
+    [
+      "the painter mixed a bright shade of [MASK] paint.",
+      "across the canvas, the artist brushed vivid [MASK] pigment.",
+      "the neon sign glowed with a brilliant [MASK] hue."
+    ],
+    [
+      "purple",
+      "yellow",
+      "green",
+      "red",
+      "blue",
+      "orange",
+      "pink",
+      "crimson",
+      "scarlet",
+      "indigo",
+      "turquoise"
+    ]
+  ],
+  [
+    "planets",
+    "SOLAR SYSTEM",
+    "PARIETAL LOBE // ORBITAL",
+    [
+      "in our solar system, the planet [MASK] orbits the sun.",
+      "through the telescope, the astronomer observed the planet [MASK].",
+      "the deep space probe entered orbit around the planet [MASK]."
+    ],
+    [
+      "mars",
+      "jupiter",
+      "neptune",
+      "venus",
+      "saturn",
+      "mercury",
+      "pluto"
+    ]
+  ],
+  [
+    "metals",
+    "FORGED METALS",
+    "METALLURGIC SYNAPSE // ORE",
+    [
+      "the heavy blade was forged from solid [MASK].",
+      "inside the foundry, molten [MASK] poured into the mold.",
+      "the armor plating was hammered from thick [MASK]."
+    ],
+    [
+      "steel",
+      "copper",
+      "brass",
+      "iron",
+      "bronze",
+      "titanium",
+      "aluminum",
+      "nickel"
+    ]
+  ],
+  [
+    "weather",
+    "STORMY WEATHER",
+    "BAROMETRIC GANGLIA // TEMPEST",
+    [
+      "the weather forecast warned of heavy [MASK] tonight.",
+      "across the coastline swept a violent [MASK] storm.",
+      "the ship battled through blinding [MASK] and gales."
+    ],
+    [
+      "rain",
+      "snow",
+      "wind",
+      "fog",
+      "hail",
+      "thunder",
+      "lightning",
+      "blizzard",
+      "frost"
+    ]
+  ],
+  [
+    "fruits",
+    "ORCHARD FRUITS",
+    "FRUCTOSE RECEPTOR // HARVEST",
+    [
+      "from the fruit basket she picked a ripe [MASK].",
+      "in the summer orchard hung a juicy ripe [MASK].",
+      "he sliced a fresh sweet [MASK] into the fruit bowl."
+    ],
+    [
+      "pear",
+      "mango",
+      "peach",
+      "apple",
+      "banana",
+      "grape",
+      "cherry",
+      "melon"
+    ]
+  ],
+  [
+    "farm_animals",
+    "BARNYARD LIVESTOCK",
+    "FAUNA CORTEX // LIVESTOCK",
+    [
+      "in the barn, the farmer fed the [MASK].",
+      "across the green pasture grazed a herd of [MASK].",
+      "at dawn on the ranch, the farmhands tended the [MASK]."
+    ],
+    [
+      "sheep",
+      "goats",
+      "horses",
+      "pigs",
+      "cattle",
+      "calves",
+      "ducks",
+      "geese"
+    ]
+  ],
+  [
+    "gems",
+    "CROWN TREASURE",
+    "CRYSTALLINE CORTEX // LUX",
+    [
+      "the ancient treasure chest glittered with [MASK] and diamonds.",
+      "the royal necklace was inlaid with precious [MASK] and pearls.",
+      "inside the vault gleamed rare [MASK] and rubies."
+    ],
+    [
+      "gold",
+      "silver",
+      "jade",
+      "amber",
+      "ivory",
+      "coral",
+      "crystal",
+      "emerald"
+    ]
+  ],
+  [
+    "drinks",
+    "TAVERN SPIRITS",
+    "DOPAMINE RECEPTOR // ETHANOL",
+    [
+      "at the tavern, the bartender poured a glass of cold [MASK].",
+      "in the pub, the sailors toasted with mugs of [MASK].",
+      "from the oak barrel, the innkeeper tapped fresh [MASK]."
+    ],
+    [
+      "beer",
+      "wine",
+      "vodka",
+      "whiskey",
+      "rum",
+      "brandy",
+      "gin",
+      "ale",
+      "champagne"
+    ]
+  ],
+  [
+    "hot_brews",
+    "MORNING CUPS",
+    "ADENOSINE BLOCK // CAFFEINE",
+    [
+      "in the morning, she sipped a hot cup of [MASK].",
+      "to warm his hands, he held a steaming mug of [MASK].",
+      "the cafe served freshly brewed hot [MASK]."
+    ],
+    [
+      "coffee",
+      "tea",
+      "cocoa",
+      "cider",
+      "milk",
+      "broth"
+    ]
+  ],
+  [
+    "weapons",
+    "MELEE WEAPONS",
+    "AMYGDALA // LETHAL COMBAT",
+    [
+      "the warrior drew his sharp [MASK] in battle.",
+      "in the arena, the gladiator swung his deadly [MASK].",
+      "the knight unsheathed his bloodstained [MASK]."
+    ],
+    [
+      "sword",
+      "axe",
+      "dagger",
+      "spear",
+      "blade",
+      "mace",
+      "lance",
+      "halberd"
+    ]
+  ],
+  [
+    "organs",
+    "VITAL ORGANS",
+    "AUTONOMIC VISCERA // VIVISECTION",
+    [
+      "the surgeon cut open the torso to transplant the [MASK].",
+      "during the autopsy, the coroner examined the ruptured [MASK].",
+      "on the operating table, the scalpel exposed the bleeding [MASK]."
+    ],
+    [
+      "lungs",
+      "kidney",
+      "liver",
+      "heart",
+      "stomach",
+      "spleen",
+      "bladder",
+      "pancreas"
+    ]
+  ],
+  [
+    "trees",
+    "FOREST TREES",
+    "DENDRITIC ARBOR // CANOPY",
+    [
+      "in the ancient forest grew tall [MASK] trees.",
+      "the logging camp harvested timber from giant [MASK] trees.",
+      "wind rustled through the branches of the old [MASK] tree."
+    ],
+    [
+      "pine",
+      "oak",
+      "cedar",
+      "willow",
+      "maple",
+      "birch",
+      "cypress",
+      "elm",
+      "redwood"
+    ]
+  ],
+  [
+    "sports",
+    "VARSITY SPORTS",
+    "MOTOR CORTEX // STADIUM",
+    [
+      "in high school, the varsity team played [MASK].",
+      "at the stadium, the crowd cheered the championship [MASK] match.",
+      "the college athlete won a scholarship for playing [MASK]."
+    ],
+    [
+      "basketball",
+      "baseball",
+      "football",
+      "soccer",
+      "volleyball",
+      "tennis",
+      "hockey",
+      "rugby",
+      "golf"
+    ]
+  ],
+  [
+    "clothes",
+    "WINTER GEAR",
+    "THERMAL CORTEX // INSULATION",
+    [
+      "before stepping into the blizzard, he put on his warm [MASK].",
+      "to survive the freezing expedition, she packed a thick [MASK].",
+      "bundled against the frost, the hiker wore a heavy [MASK]."
+    ],
+    [
+      "jacket",
+      "gloves",
+      "boots",
+      "sweater",
+      "coat",
+      "scarf",
+      "cloak",
+      "hoodie"
+    ]
+  ],
+  [
+    "months",
+    "CALENDAR MONTHS",
+    "PINEAL GLAND // ANNUAL CYCLE",
+    [
+      "the festival is held every year in the month of [MASK].",
+      "the calendar marked the deadline in the month of [MASK].",
+      "the annual harvest begins each year in [MASK]."
+    ],
+    [
+      "october",
+      "june",
+      "december",
+      "april",
+      "july",
+      "august",
+      "january",
+      "november",
+      "september",
+      "february"
+    ]
+  ],
+  [
+    "days",
+    "DAYS OF THE WEEK",
+    "SUPRACHIASMATIC NUCLEUS // WEEK",
+    [
+      "the office meeting was scheduled for next [MASK] morning.",
+      "the weekly broadcast airs every [MASK] night.",
+      "the courthouse docket is heard on [MASK] afternoon."
+    ],
+    [
+      "tuesday",
+      "monday",
+      "thursday",
+      "friday",
+      "wednesday",
+      "saturday",
+      "sunday"
+    ]
+  ],
+  [
+    "emotions",
+    "DARK EMOTIONS",
+    "LIMBIC SYSTEM // TRAUMA",
+    [
+      "his mind was consumed by overwhelming [MASK] and grief.",
+      "in the interrogation room, her voice shook with [MASK] and dread.",
+      "the trauma left a deep scar of [MASK] and anguish."
+    ],
+    [
+      "anger",
+      "fear",
+      "guilt",
+      "sorrow",
+      "shame",
+      "rage",
+      "despair",
+      "envy",
+      "hatred"
+    ]
+  ],
+  [
+    "furniture",
+    "PARLOR SEATING",
+    "PROPRIOCEPTIVE LOBE // POSTURE",
+    [
+      "in the living room, he sat down on the leather [MASK].",
+      "beside the fireplace stood an upholstered [MASK].",
+      "the parlor was furnished with a wooden [MASK] and table."
+    ],
+    [
+      "couch",
+      "sofa",
+      "bench",
+      "chair",
+      "stool",
+      "recliner",
+      "armchair",
+      "mattress"
+    ]
+  ],
+  [
+    "vehicles",
+    "HIGHWAY VEHICLES",
+    "LOCOMOTOR PLEXUS // ASPHALT",
+    [
+      "in heavy traffic, the driver parked his [MASK] on the street.",
+      "down the highway sped a roaring [MASK].",
+      "outside the garage stood a customized [MASK]."
+    ],
+    [
+      "car",
+      "truck",
+      "jeep",
+      "motorcycle",
+      "van",
+      "bus",
+      "tractor",
+      "ambulance",
+      "limousine"
+    ]
+  ],
+  [
+    "birds",
+    "BIRDS OF PREY",
+    "AVIAN OPTIC TECTUM // RAPTOR",
+    [
+      "high above the canyon soared a wild [MASK].",
+      "from the cliffside nest swooped a hunting [MASK].",
+      "across the mountain ridge glided a feathered [MASK]."
+    ],
+    [
+      "eagle",
+      "owl",
+      "falcon",
+      "hawk",
+      "vulture",
+      "raven",
+      "crow",
+      "condor"
+    ]
+  ],
+  [
+    "sea_life",
+    "OCEAN GIANTS",
+    "PELAGIC GANGLIA // ABYSSAL",
+    [
+      "deep beneath the ocean waves swam a giant [MASK].",
+      "the submarine sonar detected a massive marine [MASK].",
+      "near the coral reef glided a wild [MASK]."
+    ],
+    [
+      "octopus",
+      "whale",
+      "turtle",
+      "shark",
+      "dolphin",
+      "squid",
+      "seal",
+      "lobster"
+    ]
+  ],
+  [
+    "bugs",
+    "CREEPING INSECTS",
+    "ARTHROPOD NERVE // CHITIN",
+    [
+      "under the rotting log crawled a tiny [MASK] and a spider.",
+      "in the damp soil burrowed a wriggling [MASK].",
+      "the entomologist pinned a specimen of a [MASK] to the board."
+    ],
+    [
+      "worm",
+      "moth",
+      "beetle",
+      "roach",
+      "cricket",
+      "locust",
+      "mosquito",
+      "hornet",
+      "wasp"
+    ]
+  ],
+  [
+    "royalty",
+    "ROYAL COURT",
+    "PREFRONTAL HIERARCHY // THRONE",
+    [
+      "on the royal throne sat the crowned [MASK] of the realm.",
+      "the heralds bowed before the reigning [MASK].",
+      "inside the castle reigned the royal [MASK]."
+    ],
+    [
+      "king",
+      "queen",
+      "prince",
+      "emperor",
+      "monarch",
+      "princess",
+      "duke",
+      "sultan"
+    ]
+  ],
+  [
+    "family",
+    "BLOOD RELATIVES",
+    "OXYTOCIN CIRCUIT // KINSHIP",
+    [
+      "at the family reunion, she hugged her [MASK].",
+      "around the holiday table sat her [MASK] and cousins.",
+      "in the family portrait stood his [MASK]."
+    ],
+    [
+      "brother",
+      "sister",
+      "father",
+      "mother",
+      "uncle",
+      "aunt",
+      "grandmother",
+      "grandfather",
+      "nephew",
+      "niece"
+    ]
+  ],
+  [
+    "rooms",
+    "HOUSEHOLD ROOMS",
+    "ENTORHINAL GRID // FLOORPLAN",
+    [
+      "she walked down the stairs into the [MASK].",
+      "the blueprint showed a spacious [MASK] on the first floor.",
+      "he locked the door to the upstairs [MASK]."
+    ],
+    [
+      "kitchen",
+      "bathroom",
+      "bedroom",
+      "cellar",
+      "attic",
+      "hallway",
+      "garage",
+      "parlor",
+      "basement"
+    ]
+  ],
+  [
+    "sciences",
+    "ACADEMIC SCIENCES",
+    "NEOCORTEX // EMPIRICAL LOGIC",
+    [
+      "at the university, the professor taught a course in [MASK].",
+      "the doctoral candidate published a thesis in [MASK].",
+      "the nobel prize was awarded for research in [MASK]."
+    ],
+    [
+      "physics",
+      "mathematics",
+      "psychology",
+      "biology",
+      "chemistry",
+      "astronomy",
+      "geology",
+      "genetics",
+      "sociology"
+    ]
+  ],
+  [
+    "spices",
+    "CULINARY SPICES",
+    "OLFACTORY BULB // SEASONING",
+    [
+      "the chef seasoned the soup with salt, pepper, and [MASK].",
+      "in the mortar, the cook ground fresh [MASK] and herbs.",
+      "the recipe called for a pinch of dried [MASK]."
+    ],
+    [
+      "garlic",
+      "cinnamon",
+      "basil",
+      "ginger",
+      "thyme",
+      "oregano",
+      "parsley",
+      "rosemary",
+      "mustard"
+    ]
+  ],
+  [
+    "fabrics",
+    "WOVEN TEXTILES",
+    "SOMATOSENSORY CORTEX // THREAD",
+    [
+      "the dress was tailored from fine woven [MASK].",
+      "the merchant unrolled a bolt ofdyed [MASK] fabric.",
+      "the royal curtains were draped in heavy [MASK]."
+    ],
+    [
+      "linen",
+      "wool",
+      "silk",
+      "cotton",
+      "satin",
+      "velvet",
+      "lace",
+      "denim",
+      "canvas",
+      "cashmere"
+    ]
+  ],
+  [
+    "bones",
+    "HUMAN SKELETON",
+    "OSTEOLOGICAL MATRIX // MARROW",
+    [
+      "the autopsy revealed a brutal fracture in the [MASK].",
+      "in the catacombs lay a bleached human [MASK].",
+      "the orthopedic surgeon bolted a titanium plate to the [MASK]."
+    ],
+    [
+      "skull",
+      "pelvis",
+      "spine",
+      "jaw",
+      "femur",
+      "rib",
+      "collarbone",
+      "ankle",
+      "wrist"
+    ]
+  ],
+  [
+    "crimes",
+    "FELONY CHARGES",
+    "FORENSIC ENGRAM // INDICTMENT",
+    [
+      "the prosecutor charged the syndicate boss with [MASK].",
+      "the grand jury indicted the conspirators for [MASK].",
+      "the fugitive was sentenced to prison for [MASK]."
+    ],
+    [
+      "robbery",
+      "murder",
+      "treason",
+      "theft",
+      "extortion",
+      "bribery",
+      "arson",
+      "kidnapping",
+      "fraud",
+      "forgery"
+    ]
+  ],
+  [
+    "monsters",
+    "CRYPT HORRORS",
+    "NIGHTMARE GANGLIA // UNDEAD",
+    [
+      "in the cursed graveyard lurked a bloodthirsty [MASK].",
+      "from the gothic crypt crawled aflesh-eating [MASK].",
+      "the villagers fled in terror from the undead [MASK]."
+    ],
+    [
+      "demon",
+      "ghost",
+      "zombie",
+      "vampire",
+      "werewolf",
+      "ghoul",
+      "banshee",
+      "skeleton",
+      "witch"
+    ]
+  ],
+  [
+    "genres",
+    "FICTION GENRES",
+    "WERNICKE'S AREA // STORYBOOK",
+    [
+      "the library shelf was packed with [MASK] novels.",
+      "the bestselling author wrote pulp [MASK] stories.",
+      "the magazine published serialized [MASK] fiction."
+    ],
+    [
+      "romance",
+      "horror",
+      "mystery",
+      "fantasy",
+      "thriller",
+      "detective",
+      "adventure",
+      "crime"
+    ]
+  ],
+  [
+    "elements",
+    "CHEMICAL ELEMENTS",
+    "MOLECULAR SYNAPSE // VALENCE",
+    [
+      "in the laboratory, the chemist analyzed a sample of pure [MASK].",
+      "the periodic table lists the atomic weight of [MASK].",
+      "inside the pressurized tank was compressed [MASK]."
+    ],
+    [
+      "sodium",
+      "calcium",
+      "oxygen",
+      "nitrogen",
+      "carbon",
+      "hydrogen",
+      "sulfur",
+      "potassium",
+      "chlorine"
+    ]
+  ],
+  [
+    "dances",
+    "STAGE DANCES",
+    "CEREBELLUM // CHOREOGRAPHY",
+    [
+      "across the stage floor, the performers danced a [MASK].",
+      "the orchestra struck up the rhythm of a lively [MASK].",
+      "at the masquerade ball, the couples twirled in a [MASK]."
+    ],
+    [
+      "waltz",
+      "jig",
+      "tango",
+      "ballet",
+      "polka",
+      "samba",
+      "rumba",
+      "mambo",
+      "disco",
+      "salsa",
+      "swing",
+      "tap",
+      "reel"
+    ]
+  ],
+  [
+    "flowers",
+    "GREENHOUSE FLOWERS",
+    "BOTANICAL CORTEX // PETAL",
+    [
+      "in the greenhouse bloomed a fragrant [MASK] flower.",
+      "the botanist sketched the petals of a wild [MASK].",
+      "in the spring garden blossomed a delicate [MASK]."
+    ],
+    [
+      "orchid",
+      "tulip",
+      "lotus",
+      "lily",
+      "rose",
+      "violet",
+      "daisy",
+      "poppy",
+      "iris"
+    ]
+  ],
+  [
+    "chants",
+    "SACRED CHANTS",
+    "TEMPORAL GYRUS // RITUAL",
+    [
+      "in the ancient temple, the monks chanted a sacred [MASK].",
+      "beneath the cathedral dome echoed a solemn [MASK].",
+      "the high priest recited an ancient [MASK]."
+    ],
+    [
+      "hymn",
+      "chant",
+      "psalm",
+      "mantra",
+      "prayer",
+      "blessing",
+      "proverb",
+      "ballad"
+    ]
+  ]
+]
