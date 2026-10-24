@@ -532,7 +532,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "through the marsh grass slithered a venomous [MASK].",
             "inside the glass terrarium coiled a spotted [MASK].",
         ],
-        ["snake", "lizard", "crocodile", "alligator", "cobra", "viper", "python", "gecko", "iguana", "toad", "frog"],
+        ["snake", "lizard", "crocodile", "alligator", "cobra", "viper", "python", "gecko", "iguana", "serpent", "boa"],
     ),
     (
         "predators",

@@ -1225,7 +1225,7 @@
   const TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
   const MODEL_ID = 'Xenova/albert-base-v2';
   const MODEL_DTYPE = 'fp16';
-  const PUZZLES_VERSION = '2';
+  const PUZZLES_VERSION = '3';
   const PUZZLES_URL = `/puzzles.json?v=${PUZZLES_VERSION}`;
   const SAVE_KEY = 'post-training-save';
   const LOADING_SENTINEL = 'post-training-loading';
@@ -1775,6 +1775,60 @@
     return 'G1: CLEAN';
   }
 
+  function evaluateCandidateQuad(quadIds) {
+    if (!corpus || quadIds.length !== 4) return null;
+    // 1. Validate all 6 pairwise compatibility edges and compute minimum 6-pair margin
+    let minPairMargin = Infinity;
+    for (let a = 0; a < 4; a++) {
+      const ca = quadIds[a];
+      const compatA = corpus.compatibility[ca] || [];
+      const marginsA = (corpus.pairMargins && corpus.pairMargins[ca]) || {};
+      for (let b = a + 1; b < 4; b++) {
+        const cb = quadIds[b];
+        if (!compatA.includes(cb)) return null;
+        const pm = typeof marginsA[cb] === 'number' ? marginsA[cb] : 4.5;
+        if (pm < minPairMargin) minPairMargin = pm;
+      }
+    }
+    // 2. Verify every category in the quad has >= 4 valid pool words with margin > 0.35 against the other 3 lobes
+    if (corpus.poolLogits && corpus.poolWordIndex) {
+      for (let i = 0; i < 4; i++) {
+        const cid = quadIds[i];
+        const cat = corpus.categories[cid];
+        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+        const ownRow = corpus.poolLogits[cid];
+        let validCount = 0;
+        for (const we of pool) {
+          const pIdx = corpus.poolWordIndex[we.word];
+          const ownL = (ownRow && pIdx !== undefined) ? ownRow[pIdx] : (we.ownLogit ?? 10);
+          let maxOther = -Infinity;
+          for (let j = 0; j < 4; j++) {
+            if (j !== i) {
+              const otherRow = corpus.poolLogits[quadIds[j]];
+              const ol = (otherRow && pIdx !== undefined) ? otherRow[pIdx] : -5;
+              if (ol > maxOther) maxOther = ol;
+            }
+          }
+          if (ownL - maxOther > 0.35) validCount++;
+        }
+        if (validCount < 4) return null;
+      }
+    }
+    return minPairMargin;
+  }
+
+  function matchesGradeBand(minPairMargin, targetGrade) {
+    if (targetGrade === 'critical') return minPairMargin < 3.6;
+    if (targetGrade === 'entangled') return minPairMargin >= 3.6 && minPairMargin < 5.2;
+    return minPairMargin >= 5.2;
+  }
+
+  function gradeTargetCenter(targetGrade) {
+    if (targetGrade === 'critical') return 2.2;
+    if (targetGrade === 'entangled') return 4.4;
+    return 6.8;
+  }
+
   async function buildCaseFromSeed(seedNum, forceWard = false) {
     const myGen = ++buildGeneration;
     currentSeed = seedNum;
@@ -1787,16 +1841,18 @@
     const rng = mulberry32(seedNum * 2654435761);
     const targetGrade = resolveTargetGrade(seedNum);
 
-    // Choose 4 mutually-compatible categories biased by Seed Phrase Similarity (Entanglement Grade):
+    // Choose 4 mutually-compatible categories validated across all 6 pairs and all 4 word pools:
     // Seed 1 uses the canonical opening quad so onboarding & E2E tests on seed=1 are deterministic;
     // every other seed (2 .. 4,294,967,295) rolls procedurally from the 48-lobe compatibility graph!
     let catIds = basePuzzle.categories.slice();
     if (seedNum > 1 || difficultyOverride !== 'auto') {
       const allIds = Object.keys(corpus.categories);
-      for (let attempt = 0; attempt < 250; attempt++) {
+      let bestQuad = null;
+      let bestDist = Infinity;
+      const idealCenter = gradeTargetCenter(targetGrade);
+
+      for (let attempt = 0; attempt < 320; attempt++) {
         const c0 = allIds[Math.floor(rng() * allIds.length)];
-        // compatibility[c0] is sorted from smallest logit margin (most similar seed phrases!)
-        // to largest logit margin (most orthogonal seed phrases!)
         const compat0 = corpus.compatibility[c0] || [];
         let windowPool = compat0;
         if (compat0.length >= 6) {
@@ -1817,18 +1873,24 @@
             if (picked.length === 4) break;
           }
         }
-        if (picked.length < 4) {
-          for (const cand of seededShuffle(compat0, rng)) {
-            if (!picked.includes(cand) && picked.every(p => (corpus.compatibility[p] || []).includes(cand))) {
-              picked.push(cand);
-              if (picked.length === 4) break;
-            }
-          }
-        }
-        if (picked.length === 4) {
+        if (picked.length < 4) continue;
+
+        const minPM = evaluateCandidateQuad(picked);
+        if (minPM === null) continue;
+
+        if (matchesGradeBand(minPM, targetGrade)) {
           catIds = picked;
+          bestQuad = null;
           break;
         }
+        const dist = Math.abs(minPM - idealCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestQuad = picked;
+        }
+      }
+      if (bestQuad) {
+        catIds = bestQuad;
       }
     }
 
@@ -1837,22 +1899,49 @@
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     const useLive = !forceWard && !wardMode && modelReady;
 
-    // Pick a prompt variant for each lobe based on the seed (seed 1 uses primary prompt for deterministic tests)
+    // In Live SLM mode, pick a prompt variant per lobe; in Ward mode, always use the scored primary prompt!
     const chosenPrompts = catIds.map(cid => {
       const cat = corpus.categories[cid];
-      if (seedNum === 1 && difficultyOverride === 'auto') return cat.prompt;
+      if (!useLive || (seedNum === 1 && difficultyOverride === 'auto')) return cat.prompt;
       const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
       return plist[Math.floor(rng() * plist.length)];
     });
 
     if (useLive) {
-      // LIVE LLM PROCEDURAL MODE:
+      // LIVE SLM PROCEDURAL MODE:
       // Run 4 real ONNX forward passes in the browser (serialized via enqueueInference)
       const passes = [];
       for (let i = 0; i < 4; i++) {
         const passRes = await runMaskedForwardPass(chosenPrompts[i], () => myGen !== buildGeneration);
         if (myGen !== buildGeneration || !passRes) return false;
         passes.push(passRes);
+      }
+
+      // Verify each lobe has >= 4 valid candidates (margin > 0.35); if a prompt variant had < 4, re-run with primary prompt
+      for (let i = 0; i < 4; i++) {
+        const cid = catIds[i];
+        const cat = corpus.categories[cid];
+        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+        const countValid = () => {
+          let c = 0;
+          for (const we of pool) {
+            const ownL = passes[i].logits[we.tokenId];
+            let maxOther = -Infinity;
+            for (let j = 0; j < 4; j++) {
+              if (j !== i && passes[j].logits[we.tokenId] > maxOther) {
+                maxOther = passes[j].logits[we.tokenId];
+              }
+            }
+            if (ownL - maxOther > 0.35) c++;
+          }
+          return c;
+        };
+        if (countValid() < 4 && chosenPrompts[i] !== cat.prompt) {
+          chosenPrompts[i] = cat.prompt;
+          const retryRes = await runMaskedForwardPass(cat.prompt, () => myGen !== buildGeneration);
+          if (myGen !== buildGeneration || !retryRes) return false;
+          passes[i] = retryRes;
+        }
       }
 
       for (let i = 0; i < 4; i++) {
@@ -1877,16 +1966,14 @@
           };
         });
         scoredPool.sort((a, b) => b.margin - a.margin);
-        let chosen4 = scoredPool.slice(0, 4);
-        if (seedNum > 1 || difficultyOverride !== 'auto') {
-          const validCands = scoredPool.filter(w => w.margin > 0.35);
-          if (validCands.length >= 4) {
-            if (targetGrade === 'critical') {
-              // Pick the 4 valid words with the tightest margin (maximum synaptic bleed!)
-              chosen4 = validCands.slice(-4);
-            } else if (targetGrade === 'entangled') {
-              chosen4 = seededShuffle(validCands, rng).slice(0, 4);
-            }
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
+        const usable = validCands.length >= 4 ? validCands : scoredPool.slice(0, 4);
+        let chosen4 = usable.slice(0, 4);
+        if ((seedNum > 1 || difficultyOverride !== 'auto') && usable.length >= 4) {
+          if (targetGrade === 'critical') {
+            chosen4 = usable.slice(-4);
+          } else if (targetGrade === 'entangled') {
+            chosen4 = seededShuffle(usable, rng).slice(0, 4);
           }
         }
         lobes.push({
@@ -1908,8 +1995,8 @@
       const elapsed = Math.round(performance.now() - t0);
       inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
     } else {
-      // PRE-DISSECTED WARD MODE (Uses full 48x391 poolLogits matrix for infinite procedural seeds!)
-      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex;
+      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
+      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
       if (hasPoolMatrix && (seedNum > 1 || difficultyOverride !== 'auto')) {
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
@@ -1936,20 +2023,18 @@
             };
           });
           scoredPool.sort((a, b) => b.margin - a.margin);
-          let chosen4 = scoredPool.slice(0, 4);
           const validCands = scoredPool.filter(w => w.margin > 0.35);
-          if (validCands.length >= 4) {
-            if (targetGrade === 'critical') {
-              chosen4 = validCands.slice(-4);
-            } else if (targetGrade === 'entangled') {
-              chosen4 = seededShuffle(validCands, rng).slice(0, 4);
-            }
+          let chosen4 = validCands.slice(0, 4);
+          if (targetGrade === 'critical') {
+            chosen4 = validCands.slice(-4);
+          } else if (targetGrade === 'entangled') {
+            chosen4 = seededShuffle(validCands, rng).slice(0, 4);
           }
           lobes.push({
             id: cid,
             label: cat.label,
             lobe: cat.lobe,
-            prompt: chosenPrompts[i],
+            prompt: cat.prompt,
             words: chosen4,
           });
         }
@@ -2405,10 +2490,11 @@
 
     const isWardCase = !currentCase || currentCase.mode === 'ward';
     const modeTag = isWardCase ? 'WARD-MODE' : 'LIVE-ALBERT-V2';
-    const gradeTag = formatGradeBadge(currentCase?.grade || 'clean');
+    const activeGrade = currentCase?.grade || 'clean';
+    const gradeTag = formatGradeBadge(activeGrade);
     const shareUrl = isWardCase
-      ? `https://post-training.win/?seed=${currentCase.seed}&mode=ward`
-      : `https://post-training.win/?seed=${currentCase.seed}`;
+      ? `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}&mode=ward`
+      : `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}`;
     const reportText = [
       `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} [${modeTag} · ${gradeTag}]`,
       won
@@ -2773,7 +2859,9 @@
   });
   if (seedRandomBtn) {
     seedRandomBtn.addEventListener('click', () => {
-      const randomSeed = Math.floor(1000 + Math.random() * 999000);
+      const randBuf = new Uint32Array(1);
+      crypto.getRandomValues(randBuf);
+      const randomSeed = (randBuf[0] >>> 0) || 1;
       seedInput.value = String(randomSeed);
       helpDialog.close();
       buildCaseFromSeed(randomSeed);
@@ -2845,6 +2933,11 @@
     const params = new URLSearchParams(window.location.search);
     if (params.get('seed')) {
       currentSeed = hashSeedString(params.get('seed'));
+      difficultyOverride = 'auto';
+    }
+    const gradeParam = params.get('grade');
+    if (gradeParam === 'clean' || gradeParam === 'entangled' || gradeParam === 'critical') {
+      difficultyOverride = gradeParam;
     }
     if (params.get('lite') === '1' || params.get('mode') === 'ward') {
       wardMode = true;
