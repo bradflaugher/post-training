@@ -954,7 +954,7 @@
   <div class="dlg-body">
     <p>Type <strong>any sentence</strong> with <code>[MASK]</code> (or leave <code>[MASK]</code> off and we'll append it to the end). The on-device <strong>ALBERT-v2</strong> transformer will run a live forward pass and expose both its raw vocabulary predictions and how the current 16 board tokens rank!</p>
     <div class="lab-input-row">
-      <input type="text" class="lab-input" id="lab-input" value="the best ice cream flavor is [MASK]." placeholder="e.g. the best ice cream flavor is [MASK]."/>
+      <input type="text" class="lab-input" id="lab-input" value="the surgeon's monitor flashed a bright [MASK] signal." placeholder="e.g. the surgeon's monitor flashed a bright [MASK] signal."/>
       <button type="button" class="act-btn primary" id="lab-run-btn" style="padding:0.45rem 0.9rem;min-height:40px;">PROBE BRAIN</button>
     </div>
     <div>
@@ -970,10 +970,10 @@
       <div style="font-family:var(--font-mono);font-size:0.74rem;color:var(--amber);font-weight:800;margin-bottom:0.3rem;text-transform:uppercase;">🧠 SYNTHESIZE CUSTOM 4×4 SURGERY FROM YOUR OWN 4 SENTENCES:</div>
       <p style="font-size:0.78rem;margin-bottom:0.5rem;">Write any 4 sentences below. The on-device LLM will run 4 live forward passes, extract the 4 most distinct vocabulary words for each sentence across its 30,000-token brain, and deal them onto the operating table!</p>
       <div class="custom-prompts-grid">
-        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 01:</span><input type="text" class="lab-input" id="custom-p1" value="the best ice cream flavor is [MASK]."/></div>
-        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 02:</span><input type="text" class="lab-input" id="custom-p2" value="in europe, a major capital city is [MASK]."/></div>
-        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 03:</span><input type="text" class="lab-input" id="custom-p3" value="for breakfast i cooked eggs, toast, and [MASK]."/></div>
-        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 04:</span><input type="text" class="lab-input" id="custom-p4" value="in the orchestra, the musician played the [MASK]."/></div>
+        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 01:</span><input type="text" class="lab-input" id="custom-p1" value="the surgeon's monitor flashed a bright [MASK] signal."/></div>
+        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 02:</span><input type="text" class="lab-input" id="custom-p2" value="deep beneath the ocean waves swam a giant [MASK]."/></div>
+        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 03:</span><input type="text" class="lab-input" id="custom-p3" value="the medieval knight drew a sharp steel [MASK]."/></div>
+        <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 04:</span><input type="text" class="lab-input" id="custom-p4" value="in the laboratory beaker bubbled a toxic [MASK]."/></div>
       </div>
       <button type="button" class="act-btn primary" id="synthesize-custom-btn" style="margin-top:0.6rem;width:100%;min-height:42px;">⚡ SYNTHESIZE LIVE 4×4 BOARD FROM THESE 4 SENTENCES</button>
     </div>
@@ -1515,10 +1515,12 @@
   // ───────────────────────────────────────────────────────────────────────
   // Live ONNX Masked-Language-Model Forward Pass (Serialized on WASM Queue)
   // ───────────────────────────────────────────────────────────────────────
-  function runMaskedForwardPass(promptText) {
+  function runMaskedForwardPass(promptText, isStale = null) {
     if (!modelReady || !tokenizer || !maskedModel) return Promise.resolve(null);
+    if (typeof isStale === 'function' && isStale()) return Promise.resolve(null);
     return enqueueInference(async () => {
       if (!modelReady || !tokenizer || !maskedModel) return null;
+      if (typeof isStale === 'function' && isStale()) return null;
       const raw = promptText.toLowerCase().replace(/\[mask\]/g, '[MASK]');
       const normalized = raw.includes('[MASK]')
         ? raw
@@ -1599,7 +1601,7 @@
 
       const passes = [];
       for (let i = 0; i < 4; i++) {
-        const passRes = await runMaskedForwardPass(chosenPrompts[i]);
+        const passRes = await runMaskedForwardPass(chosenPrompts[i], () => myGen !== buildGeneration);
         if (myGen !== buildGeneration || !passRes) return false;
         passes.push(passRes);
       }
@@ -2133,14 +2135,14 @@
     }
     const myGen = ++buildGeneration;
     const prompts = rawPrompts.map(p => {
-      const clean = (p || '').trim() || 'the best ice cream flavor is [MASK].';
+      const clean = (p || '').trim() || "the surgeon's monitor flashed a bright [MASK] signal.";
       return clean.includes('[MASK]') ? clean : `${clean.replace(/[.?!]+$/, '')} [MASK].`;
     });
 
     const t0 = performance.now();
     const passes = [];
     for (let i = 0; i < 4; i++) {
-      const passRes = await runMaskedForwardPass(prompts[i]);
+      const passRes = await runMaskedForwardPass(prompts[i], () => myGen !== buildGeneration);
       if (myGen !== buildGeneration || !passRes) return;
       passes.push(passRes);
     }
@@ -2222,11 +2224,13 @@
       wordLogitMap,
     };
 
+    wardMode = false;
     activeProbeIdx = 0;
     selectedWords.clear();
     solvedLobeIds = [];
     mistakesMade = 0;
     moveHistory = [];
+    writeSaveState();
 
     const ms = Math.round(performance.now() - t0);
     inferenceTiming.textContent = `CUSTOM SLM SYNTHESIS: ${ms}ms`;
@@ -2324,9 +2328,13 @@
     applyPreferencesUI();
   });
 
+  const DEFAULT_LAB_PROMPT = "the surgeon's monitor flashed a bright [MASK] signal.";
   function openLab() {
     if (currentCase && currentCase.lobes[activeProbeIdx] && solvedLobeIds.includes(currentCase.lobes[activeProbeIdx].id)) {
       labInput.value = currentCase.lobes[activeProbeIdx].prompt;
+    } else {
+      const firstSolved = currentCase && currentCase.lobes.find(l => solvedLobeIds.includes(l.id));
+      labInput.value = firstSolved ? firstSolved.prompt : DEFAULT_LAB_PROMPT;
     }
     labDialog.showModal();
     runLabProbe();
