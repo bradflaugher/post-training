@@ -1420,13 +1420,6 @@
     if (modelReady) return true;
     if (initModelPromise) return initModelPromise;
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('lite') === '1' || params.get('mode') === 'ward') {
-      wardMode = true;
-      updateModeIndicator();
-      return false;
-    }
-
     initModelPromise = (async () => {
       // Check crash-loop sentinel
       try {
@@ -1546,6 +1539,8 @@
   // ───────────────────────────────────────────────────────────────────────
   async function buildCaseFromSeed(seedNum, forceWard = false) {
     const myGen = ++buildGeneration;
+    currentSeed = seedNum;
+    writeSaveState();
     await loadCorpusOnce();
     if (myGen !== buildGeneration) return false;
 
@@ -2087,8 +2082,11 @@
 
     // Fallback when in Pre-Dissected Ward mode: only show declassified probe distribution if solved
     if (solvedLobeIds.length > 0) {
-      const firstSolvedIdx = currentCase.lobes.findIndex(l => solvedLobeIds.includes(l.id));
-      const solvedMap = currentCase.wordLogitMap[Math.max(0, firstSolvedIdx)];
+      const activeIsSolved = currentCase.lobes[activeProbeIdx] && solvedLobeIds.includes(currentCase.lobes[activeProbeIdx].id);
+      const targetIdx = activeIsSolved
+        ? activeProbeIdx
+        : currentCase.lobes.findIndex(l => solvedLobeIds.includes(l.id));
+      const solvedMap = currentCase.wordLogitMap[Math.max(0, targetIdx)];
       const bLogits = boardWords.map(t => solvedMap.get(t.word) ?? 0);
       const bProbs = softmaxArray(bLogits);
       const ranked = boardWords
