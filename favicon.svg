@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">POST-TRAINING icon</title>
+  <desc id="desc">A comic-book bisected cybernetic brain dripping crimson ink with an acid-green scalpel slash.</desc>
+  <rect width="1024" height="1024" rx="220" fill="#080508"/>
+  <!-- Blood splatter background -->
+  <circle cx="240" cy="240" r="110" fill="#820014"/>
+  <circle cx="790" cy="760" r="140" fill="#820014"/>
+  <circle cx="780" cy="250" r="65" fill="#e60026"/>
+  <circle cx="230" cy="770" r="75" fill="#e60026"/>
+  <!-- Left & Right Brain Hemispheres with heavy black comic ink outline -->
+  <path d="M475 210 C310 200 185 320 190 485 C170 610 260 760 445 775 L475 680 Z" fill="#ff4d79" stroke="#000" stroke-width="44" stroke-linejoin="round"/>
+  <path d="M549 235 C714 225 839 345 834 510 C854 635 764 785 579 800 L549 705 Z" fill="#e60026" stroke="#000" stroke-width="44" stroke-linejoin="round"/>
+  <!-- Brain gyri ink squiggles -->
+  <path d="M270 430 Q360 370 420 450 M260 560 Q350 620 430 540 M600 410 Q690 360 750 450 M595 575 Q685 635 760 555" fill="none" stroke="#080508" stroke-width="34" stroke-linecap="round"/>
+  <!-- Acid-green scalpel / logit slash cleaving the corpus callosum -->
+  <path d="M625 110 L395 914" fill="none" stroke="#000" stroke-width="96" stroke-linecap="round"/>
+  <path d="M625 110 L395 914" fill="none" stroke="#39ff14" stroke-width="48" stroke-linecap="round"/>
+</svg>

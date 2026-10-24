@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Privacy — POST-TRAINING</title>
+<meta name="description" content="POST-TRAINING runs its neural network and word puzzles 100% on your device with no servers, no analytics, no cookies, and no tracking."/>
+<meta name="application-name" content="POST-TRAINING"/>
+<meta name="apple-mobile-web-app-title" content="POST-TRAINING"/>
+<meta name="robots" content="noindex,follow"/>
+<meta name="referrer" content="no-referrer"/>
+<link rel="canonical" href="https://post-training.win/privacy.html"/>
+<link rel="manifest" href="/site.webmanifest"/>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon-dark.png" sizes="180x180" media="(prefers-color-scheme: dark)"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon-light.png" sizes="180x180" media="(prefers-color-scheme: light)"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon-tinted.png" sizes="180x180"/>
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#e60026"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#080508"/>
+<meta name="color-scheme" content="dark"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="POST-TRAINING"/>
+<meta property="og:title" content="Privacy — POST-TRAINING"/>
+<meta property="og:description" content="POST-TRAINING runs its neural network and word puzzles 100% on your device with no servers, no analytics, no cookies, and no tracking."/>
+<meta property="og:url" content="https://post-training.win/privacy.html"/>
+<meta property="og:image" content="https://post-training.win/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="POST-TRAINING comic-book brain icon with acid-green scalpel slash."/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Privacy — POST-TRAINING"/>
+<meta name="twitter:description" content="POST-TRAINING runs its neural network and word puzzles 100% on your device with no servers, no analytics, no cookies, and no tracking."/>
+<meta name="twitter:image" content="https://post-training.win/twitter-card.png"/>
+<meta name="twitter:image:alt" content="POST-TRAINING comic-book brain icon with acid-green scalpel slash."/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #080508;
+    --panel: #140b12;
+    --ink: #000000;
+    --bone: #f4eee0;
+    --crimson: #e60026;
+    --acid: #39ff14;
+    --muted: #b8a6ad;
+  }
+  html { overscroll-behavior: none; height: 100%; }
+  body {
+    font-family: "Chakra Petch", "Impact", "Arial Black", system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(230, 0, 38, 0.16) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+    color: var(--bone);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: max(env(safe-area-inset-top), 2.5rem) 1.25rem max(env(safe-area-inset-bottom), 2.5rem) 1.25rem;
+    line-height: 1.6;
+  }
+  .comic-card {
+    width: 100%;
+    max-width: 640px;
+    background: var(--panel);
+    border: 4px solid var(--bone);
+    box-shadow: 8px 8px 0 var(--crimson), 12px 12px 0 var(--ink);
+    padding: 2rem 1.75rem;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--crimson);
+    color: var(--bone);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 0.25rem 0.6rem;
+    border: 2px solid var(--ink);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.75rem);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--bone);
+    text-shadow: 3px 3px 0 var(--crimson);
+    line-height: 1.1;
+  }
+  .subtitle {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--acid);
+    margin-top: 0.35rem;
+    margin-bottom: 1.75rem;
+  }
+  h2 {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--acid);
+    border-left: 4px solid var(--crimson);
+    padding-left: 0.6rem;
+  }
+  p, li {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--bone);
+    opacity: 0.92;
+    margin-bottom: 0.9rem;
+  }
+  ul {
+    margin-left: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.1rem 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--acid);
+  }
+  a {
+    color: var(--acid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--bone); }
+  .back {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--crimson);
+    color: var(--bone);
+    border: 3px solid var(--bone);
+    box-shadow: 4px 4px 0 var(--ink);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .back:hover {
+    background: var(--acid);
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+<div class="comic-card">
+  <div class="badge">BIO-DIGITAL DISCLOSURE // ZERO TELEMETRY</div>
+  <h1>Privacy Policy</h1>
+  <div class="subtitle">What POST-TRAINING does — and doesn't do</div>
+
+  <h2>No server, no tracking, no analytics</h2>
+  <p><strong>POST-TRAINING</strong> is a static single-page web game served from Cloudflare Pages. There is no backend database, no user account system, no telemetry endpoint, and no analytics script. We do not log your gameplay, your custom prompts, your IP address, or your device fingerprint.</p>
+
+  <h2>100% On-Device Neural Surgery</h2>
+  <p>The language model (<a href="https://huggingface.co/Xenova/albert-base-v2" target="_blank" rel="noopener">albert-base-v2</a>, ~22 MB fp16 ONNX) is hosted directly from this site and runs entirely inside your browser via <a href="https://github.com/huggingface/transformers.js" target="_blank" rel="noopener">@huggingface/transformers</a> v4 (WebAssembly). Every masked-token forward pass, logit calculation, and procedural puzzle generation happens locally on your own CPU. Even when you type a custom sentence into the <strong>Live Lobotomy Lab</strong>, those words never leave your device.</p>
+
+  <h2>No cookies — only local storage</h2>
+  <p>POST-TRAINING sets no cookies. It uses your browser's <code>localStorage</code> and <code>sessionStorage</code> strictly on your device to remember:</p>
+  <ul>
+    <li><code>post-training-save</code>: your surgical case progress, solved lobes, streak, and preferred operating mode (Live LLM Surgery vs. Pre-Dissected Ward, audio mute, and blood/gore intensity).</li>
+    <li><code>post-training-loading</code> &amp; <code>post-training-crash-count</code>: session-only sentinels that detect if a low-memory mobile browser tab was terminated while loading the ONNX model, automatically switching to <strong>Pre-Dissected Ward</strong> mode so your browser never gets stuck in a reload loop.</li>
+  </ul>
+  <p>In addition, your browser uses standard HTTP caching and IndexedDB so the ~22 MB ONNX model weights only need to download once. You can wipe all stored data and caches at any time using the <strong>WIPE MEMORY / RESET</strong> button in the Surgical Manual dialog or via your browser settings.</p>
+
+  <h2>Open Source</h2>
+  <p>The complete source code is available on <a href="https://github.com/bradflaugher/post-training" target="_blank" rel="noopener">GitHub</a> under the MIT License.</p>
+
+  <a class="back" href="/">← Back to Operating Table</a>
+</div>
+</body>
+</html>

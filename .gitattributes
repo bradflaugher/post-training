@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+# Binary assets
+*.onnx binary
+*.png  binary
+*.ico  binary
+
+# Generated artifacts: collapse in diffs and keep out of language stats.
+puzzles.json linguist-generated=true -diff
+scripts/categories_corpus.json     linguist-generated=true
+package-lock.json      linguist-generated=true
+scripts/requirements*.txt linguist-generated=true

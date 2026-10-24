@@ -1,0 +1,55 @@
+{
+  "name": "post-training",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A 90s comic-gore word connection game powered by a tiny on-device SLM/LLM running 100% in the browser.",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "eslint": "^10.12.0",
+    "eslint-plugin-html": "^8.2.1",
+    "globals": "^17.13.0",
+    "serve": "^14.2.6",
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:unit": "python3 -m unittest discover -s tests/unit -v",
+    "test:ci": "CI=1 playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "serve": "serve -l 3000 .",
+    "lint": "npm run lint:js && npm run typecheck && npm run lint:py && npm run lint:config",
+    "lint:js": "eslint index.html privacy.html eslint.config.js",
+    "lint:py": "ruff check scripts tests/unit",
+    "lint:config": "python3 scripts/validate_puzzles.py",
+    "typecheck": "tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradflaugher/post-training.git"
+  },
+  "keywords": [
+    "word-game",
+    "connections",
+    "slm",
+    "llm",
+    "onnx",
+    "transformers-js"
+  ],
+  "author": "Brad Flaugher",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bradflaugher/post-training/issues"
+  },
+  "homepage": "https://post-training.win/",
+  "overrides": {
+    "serve": {
+      "compression": "^1.8.2"
+    }
+  }
+}

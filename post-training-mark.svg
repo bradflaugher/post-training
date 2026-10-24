@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">POST-TRAINING mark</title>
+  <desc id="desc">Bisected brain and scalpel slash mark.</desc>
+  <path d="M475 210 C310 200 185 320 190 485 C170 610 260 760 445 775 L475 680 Z" fill="currentColor"/>
+  <path d="M549 235 C714 225 839 345 834 510 C854 635 764 785 579 800 L549 705 Z" fill="currentColor"/>
+  <path d="M625 110 L395 914" fill="none" stroke="currentColor" stroke-width="72" stroke-linecap="round"/>
+</svg>

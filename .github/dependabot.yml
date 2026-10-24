@@ -1,0 +1,55 @@
+version: 2
+
+# post-training ships static files (index.html + assets) to Cloudflare Pages. Every
+# dependency below is build/test tooling: Playwright, ESLint, TypeScript,
+# serve, the CI actions, and the Python eval scripts. None of it runs in the
+# product, so routine releases don't need chasing.
+#
+# Policy: patch vulnerabilities fast, refresh everything else rarely.
+#
+# - Security fixes come from Dependabot *security updates* (a repo setting,
+#   not this file). They open a PR as soon as an advisory affects us. The schedule and cooldown below
+#   only govern version updates, so they never delay a security fix.
+# - Version updates: one combined PR per quarter across all ecosystems,
+#   instead of a stream of weekly patch bumps.
+# - Releases must be 30 days old before a version update picks them up, so
+#   broken or malicious releases are usually caught and yanked by then.
+
+multi-ecosystem-groups:
+  quarterly-refresh:
+    schedule:
+      interval: quarterly
+
+updates:
+  # GitHub's advisories don't cover SHA-pinned Actions, so no security
+  # update will ever come for these: the quarterly PR is what moves them.
+  # The pins themselves are the defence against a hijacked tag.
+  - package-ecosystem: github-actions
+    directory: /
+    patterns: ['*']
+    multi-ecosystem-group: quarterly-refresh
+    cooldown:
+      default-days: 30
+
+  - package-ecosystem: npm
+    directory: /
+    patterns: ['*']
+    multi-ecosystem-group: quarterly-refresh
+    cooldown:
+      default-days: 30
+    # If several advisories land at once, fix them in one PR.
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns: ['*']
+
+  - package-ecosystem: pip
+    directory: /scripts
+    patterns: ['*']
+    multi-ecosystem-group: quarterly-refresh
+    cooldown:
+      default-days: 30
+    groups:
+      pip-security:
+        applies-to: security-updates
+        patterns: ['*']

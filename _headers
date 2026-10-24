@@ -1,0 +1,34 @@
+# Cache control for Cloudflare Pages (post-training.win).
+#
+# Cloudflare Pages applies EVERY rule that matches a path, and comma-joins
+# duplicate headers instead of overriding them. So the catch-all below must
+# not set Cache-Control. Each path below matches at most one Cache-Control rule.
+
+/*
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Strict-Transport-Security: max-age=31536000
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+
+# Long-lived immutable assets — model weights + tokenizer files (~22 MB).
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Puzzle & neural lobe corpus. index.html appends `?v=…` to bust on changes.
+/puzzles.json
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Static visual assets and install metadata
+/*.png
+  Cache-Control: public, max-age=604800
+/*.svg
+  Cache-Control: public, max-age=604800
+/favicon.ico
+  Cache-Control: public, max-age=604800
+/site.webmanifest
+  Cache-Control: public, max-age=604800
+/browserconfig.xml
+  Cache-Control: public, max-age=604800
