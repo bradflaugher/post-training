@@ -831,5 +831,185 @@
       "proverb",
       "ballad"
     ]
+  ],
+  [
+    "tools",
+    "WORKSHOP TOOLS",
+    "PARIETAL CORTEX // HARDWARE",
+    [
+      "the carpenter reached into the toolbox for a [MASK].",
+      "in the workshop, the mechanic tightened the bolt with a [MASK].",
+      "on the workbench lay a heavy steel [MASK] and pliers."
+    ],
+    [
+      "hammer",
+      "wrench",
+      "screwdriver",
+      "pliers",
+      "chisel",
+      "saw",
+      "drill",
+      "clamp",
+      "mallet",
+      "shovel"
+    ]
+  ],
+  [
+    "kitchenware",
+    "COOKING VESSELS",
+    "INSULAR CORTEX // CAST-IRON",
+    [
+      "on the stove simmered a heavy cast-iron [MASK].",
+      "the chef poured boiling stock into the copper [MASK].",
+      "in the kitchen sink soaked a greasy [MASK] and ladle."
+    ],
+    [
+      "skillet",
+      "kettle",
+      "pot",
+      "pan",
+      "cauldron",
+      "wok",
+      "teapot",
+      "pitcher",
+      "bowl",
+      "platter"
+    ]
+  ],
+  [
+    "reptiles",
+    "COLD-BLOODED SCALES",
+    "REPTILIAN BRAINSTEM // VENOM",
+    [
+      "basking on the sunny swamp rock was a scaly [MASK].",
+      "through the marsh grass slithered a venomous [MASK].",
+      "inside the glass terrarium coiled a spotted [MASK]."
+    ],
+    [
+      "snake",
+      "lizard",
+      "crocodile",
+      "alligator",
+      "cobra",
+      "viper",
+      "python",
+      "gecko",
+      "iguana",
+      "serpent",
+      "boa"
+    ]
+  ],
+  [
+    "predators",
+    "APEX PREDATORS",
+    "PREDATORY STRIATUM // FANG",
+    [
+      "through the dark wilderness prowled a hungry [MASK].",
+      "at midnight the pack of [MASK] stalked their prey.",
+      "in the jungle shadows crouched a snarling [MASK]."
+    ],
+    [
+      "wolf",
+      "bear",
+      "fox",
+      "tiger",
+      "lion",
+      "leopard",
+      "panther",
+      "coyote",
+      "jaguar",
+      "cougar",
+      "hyena"
+    ]
+  ],
+  [
+    "structures",
+    "STONE CITADELS",
+    "PARAHIPPOCAMPAL // MONOLITH",
+    [
+      "atop the rocky crag stood a medieval stone [MASK].",
+      "the pilgrims traveled across the valley to the ancient [MASK].",
+      "behind thick granite walls rose the fortified [MASK]."
+    ],
+    [
+      "castle",
+      "temple",
+      "palace",
+      "cathedral",
+      "chapel",
+      "fortress",
+      "monastery",
+      "shrine",
+      "tower",
+      "citadel"
+    ]
+  ],
+  [
+    "currency",
+    "HARD CURRENCY",
+    "NUCLEUS ACCUMBENS // MINT",
+    [
+      "the foreign exchange counter traded gold and [MASK] bills.",
+      "the teller counted out a stack of crisp [MASK] notes.",
+      "the merchant accepted payment in silver [MASK]."
+    ],
+    [
+      "dollar",
+      "pound",
+      "franc",
+      "peso",
+      "yen",
+      "coin",
+      "cent",
+      "penny",
+      "dime",
+      "euro"
+    ]
+  ],
+  [
+    "medical",
+    "SURGICAL TRAY",
+    "MEDULLA OBLONGATA // STERILE",
+    [
+      "the trauma nurse handed the surgeon a sterile [MASK].",
+      "on the stainless surgical tray gleamed a bloody [MASK].",
+      "the paramedic tore open a packet of [MASK] for the wound."
+    ],
+    [
+      "scalpel",
+      "syringe",
+      "bandage",
+      "needle",
+      "gauze",
+      "catheter",
+      "splint",
+      "forceps",
+      "swab",
+      "mask",
+      "pill",
+      "vaccine"
+    ]
+  ],
+  [
+    "desserts",
+    "BAKERY PASTRIES",
+    "SEROTONIN LOOP // CONFECTION",
+    [
+      "from the bakery display case she chose a frosted [MASK].",
+      "for dessert the baker served warm [MASK] with cream.",
+      "on the porcelain plate sat a freshly baked [MASK]."
+    ],
+    [
+      "cake",
+      "pie",
+      "cookie",
+      "tart",
+      "pastry",
+      "muffin",
+      "brownie",
+      "donut",
+      "biscuit",
+      "pudding"
+    ]
   ]
 ]

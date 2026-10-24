@@ -201,28 +201,31 @@
     }
   }
 
-  /* ── Header Bar: Title + Neural Telemetry ── */
+  /* ── Header Bar: Single-Line Title + Controls on Desktop & Mobile ── */
   .top-header {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.4rem;
+    gap: 0.35rem;
     background: var(--panel);
     border: 3px solid var(--bone);
     box-shadow: 4px 4px 0 var(--crimson), 6px 6px 0 var(--ink);
-    padding: 0.38rem 0.65rem;
+    padding: 0.32rem 0.55rem;
     position: relative;
     flex-shrink: 0;
+    white-space: nowrap;
   }
   .brand-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.42rem;
+    min-width: 0;
+    flex-shrink: 1;
   }
   .brand-emblem {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     border: 2px solid var(--bone);
     background: var(--ink);
     flex-shrink: 0;
@@ -231,18 +234,21 @@
   .brand-titles {
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
   .brand-kicker {
     font-family: var(--font-mono);
-    font-size: 0.56rem;
+    font-size: 0.52rem;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--acid);
     text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .brand-title {
     font-family: var(--font-comic);
-    font-size: clamp(1.2rem, 3.8vw, 1.65rem);
+    font-size: clamp(1.05rem, 3.4vw, 1.52rem);
     font-weight: 900;
     letter-spacing: 0.03em;
     line-height: 1;
@@ -253,25 +259,27 @@
   .header-controls {
     display: flex;
     align-items: center;
-    gap: 0.32rem;
-    flex-wrap: wrap;
+    gap: 0.26rem;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
   }
   .mode-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
     background: var(--ink);
     border: 2px solid var(--bone);
     color: var(--bone);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0.24rem 0.5rem;
+    letter-spacing: 0.04em;
+    padding: 0.22rem 0.44rem;
     cursor: pointer;
     text-transform: uppercase;
     box-shadow: 2px 2px 0 var(--crimson);
-    min-height: 30px;
+    min-height: 28px;
+    white-space: nowrap;
     transition: transform 0.1s, border-color 0.15s;
   }
   .mode-pill:hover, .mode-pill:focus-visible {
@@ -302,11 +310,11 @@
     border: 2px solid var(--bone);
     color: var(--bone);
     font-family: var(--font-mono);
-    font-size: 0.66rem;
+    font-size: 0.64rem;
     font-weight: 800;
-    padding: 0.24rem 0.48rem;
-    min-height: 30px;
-    min-width: 30px;
+    padding: 0.2rem 0.42rem;
+    min-height: 28px;
+    min-width: 28px;
     cursor: pointer;
     box-shadow: 2px 2px 0 var(--crimson);
     text-transform: uppercase;
@@ -314,6 +322,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.2rem;
+    white-space: nowrap;
   }
   .icon-btn:hover, .icon-btn:focus-visible {
     border-color: var(--acid);
@@ -323,45 +332,123 @@
   .icon-btn:active {
     transform: translate(2px, 2px);
   }
+  @media (max-width: 520px) {
+    .hdr-btn-label {
+      display: none;
+    }
+    .brand-emblem {
+      width: 24px;
+      height: 24px;
+    }
+    .brand-kicker {
+      font-size: 0.44rem;
+      letter-spacing: 0.04em;
+    }
+    .brand-title {
+      font-size: 0.98rem;
+    }
+    .top-header {
+      padding: 0.24rem 0.38rem;
+      gap: 0.2rem;
+    }
+    .header-controls {
+      gap: 0.18rem;
+    }
+    .icon-btn {
+      padding: 0;
+      width: 25px;
+      height: 25px;
+      min-width: 25px;
+      min-height: 25px;
+      font-size: 0.6rem;
+    }
+    .mode-pill {
+      padding: 0.14rem 0.32rem;
+      min-height: 25px;
+      font-size: 0.52rem;
+      gap: 0.22rem;
+    }
+    .case-symptom-suffix {
+      display: none;
+    }
+    .solved-z {
+      display: none;
+    }
+    .volts-label {
+      display: none;
+    }
+    .case-strip {
+      padding: 0.2rem 0.32rem;
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+    .case-info {
+      gap: 0.18rem;
+      overflow: visible;
+      flex-wrap: wrap;
+    }
+    .case-badge, .seed-btn {
+      font-size: 0.49rem;
+      padding: 0.08rem 0.22rem;
+    }
+    .vitals-right {
+      gap: 0.22rem;
+    }
+    .volt-pip {
+      width: 7px;
+      height: 10px;
+    }
+    #streak-badge {
+      font-size: 0.5rem !important;
+    }
+  }
 
-  /* ── Sub-Bar: Case Title, Seed & Defibrillator Volts (Lives) ── */
+  /* ── Sub-Bar: Case Title, Seed & Defibrillator Volts (Single Line) ── */
   .case-strip {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.35rem;
     background: var(--panel-alt);
     border: 2px solid var(--bone);
     box-shadow: 3px 3px 0 var(--ink);
-    padding: 0.32rem 0.6rem;
+    padding: 0.26rem 0.5rem;
     font-family: var(--font-mono);
     flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .case-info {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+    gap: 0.32rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
   .case-badge {
     background: var(--crimson);
     color: var(--bone);
-    font-size: 0.64rem;
+    font-size: 0.58rem;
     font-weight: 900;
-    padding: 0.12rem 0.4rem;
+    padding: 0.1rem 0.32rem;
     border: 1.5px solid var(--ink);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .seed-btn {
     background: rgba(57, 255, 20, 0.1);
     border: 1px solid var(--acid);
     color: var(--acid);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: 0.56rem;
     font-weight: 700;
-    padding: 0.12rem 0.4rem;
+    padding: 0.1rem 0.3rem;
     cursor: pointer;
+    flex-shrink: 0;
   }
   .seed-btn:hover {
     background: var(--acid);
@@ -370,23 +457,24 @@
   .vitals-right {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.42rem;
+    flex-shrink: 0;
   }
   .volts-wrap {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.66rem;
+    gap: 0.22rem;
+    font-size: 0.6rem;
     font-weight: 800;
     color: var(--bone);
   }
   .volt-pips {
     display: inline-flex;
-    gap: 0.2rem;
+    gap: 0.18rem;
   }
   .volt-pip {
-    width: 11px;
-    height: 13px;
+    width: 10px;
+    height: 12px;
     background: var(--crimson);
     border: 1.5px solid var(--bone);
     display: inline-block;
@@ -401,13 +489,16 @@
     transform: skewX(-12deg) scale(0.82);
   }
 
-  /* ── Compact Oscilloscope Telemetry Strip (No Spoiler Probe List) ── */
+  /* ── Reimagined Synaptic Clamp Bus & Oscilloscope Tray ── */
   .scanner-box {
     background: var(--panel);
     border: 2px solid var(--bone);
     box-shadow: 3px 3px 0 var(--ink);
-    padding: 0.3rem 0.6rem;
+    padding: 0.26rem 0.5rem 0.32rem 0.5rem;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
   }
   .scanner-head {
     display: flex;
@@ -415,16 +506,52 @@
     justify-content: space-between;
     gap: 0.4rem;
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: var(--acid);
     text-transform: uppercase;
+    white-space: nowrap;
   }
   .scanner-sub {
     color: var(--bone-dim);
     font-weight: 600;
-    font-size: 0.6rem;
+    font-size: 0.56rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .clamp-tray {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.28rem;
+  }
+  .clamp-slot {
+    background: #090408;
+    border: 1.5px dashed rgba(244, 238, 224, 0.28);
+    padding: 0.14rem 0.28rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.54rem, 1.8vw, 0.64rem);
+    font-weight: 800;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.2rem;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .clamp-slot.filled {
+    background: rgba(230, 0, 38, 0.24);
+    border: 1.5px solid var(--amber);
+    color: var(--amber);
+    cursor: pointer;
+    box-shadow: inset 0 0 6px rgba(230, 0, 38, 0.45);
+  }
+  .clamp-slot-word {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── Surgical Board Area (Solved Lobes + Remaining 4x4 Token Grid = Always 4 Rows) ── */
@@ -433,14 +560,14 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.38rem;
+    gap: 0.34rem;
   }
 
   /* ── Solved Cortical Lobes Banner Stack (Reveals Category, Probe & SLM Probabilities) ── */
   .solved-stack {
     display: flex;
     flex-direction: column;
-    gap: 0.38rem;
+    gap: 0.32rem;
     flex-shrink: 0;
   }
   .solved-stack:empty {
@@ -448,13 +575,13 @@
   }
   .solved-lobe {
     background: linear-gradient(90deg, #3a000d 0%, #1c0916 100%);
-    border: 3px solid var(--amber);
-    box-shadow: 4px 4px 0 var(--ink);
-    padding: 0.38rem 0.6rem;
+    border: 2.5px solid var(--amber);
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.26rem 0.48rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.18rem;
+    gap: 0.16rem;
     animation: lobeSlam 0.25s cubic-bezier(0.18, 1.3, 0.4, 1);
   }
   @keyframes lobeSlam {
@@ -465,64 +592,73 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 0.4rem;
+    gap: 0.25rem 0.4rem;
     flex-wrap: wrap;
   }
   .solved-title {
     font-family: var(--font-comic);
-    font-size: clamp(0.84rem, 2.6vw, 1.02rem);
+    font-size: clamp(0.72rem, 2.2vw, 0.92rem);
     font-weight: 900;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--amber);
     text-transform: uppercase;
     text-shadow: 2px 2px 0 var(--ink);
+    flex-shrink: 0;
   }
   .solved-prompt {
     font-family: var(--font-mono);
-    font-size: clamp(0.6rem, 1.9vw, 0.7rem);
+    font-size: clamp(0.54rem, 1.7vw, 0.68rem);
     color: var(--bone);
     font-weight: 700;
   }
   .solved-words {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.24rem;
   }
   .solved-chip {
     background: var(--ink);
     border: 1.5px solid var(--acid);
-    padding: 0.12rem 0.4rem;
+    padding: 0.1rem 0.26rem;
     font-family: var(--font-mono);
-    font-size: clamp(0.62rem, 2vw, 0.72rem);
+    font-size: clamp(0.54rem, 1.7vw, 0.66rem);
     font-weight: 800;
     color: var(--bone);
     text-transform: uppercase;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.28rem;
+    justify-content: space-between;
+    gap: 0.18rem;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
   }
   .solved-chip span {
     color: var(--acid);
-    font-size: clamp(0.56rem, 1.8vw, 0.64rem);
+    font-size: clamp(0.48rem, 1.4vw, 0.58rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* ── 4x4 Token Grid (The Vivisection Matrix) ── */
+  /* ── 4x4 Token Grid (Reimagined Cortical Specimen Cards) ── */
   .token-grid {
     flex: 1 1 auto;
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-auto-rows: 1fr;
-    gap: 0.38rem;
+    gap: 0.34rem;
   }
   .token-grid:empty {
     display: none;
   }
   .token-tile {
-    background: var(--panel-alt);
-    border: 3px solid var(--bone);
+    background:
+      linear-gradient(165deg, rgba(255, 255, 255, 0.03) 0%, transparent 45%),
+      var(--panel-alt);
+    border: 2.5px solid var(--bone);
     box-shadow: 3px 3px 0 var(--ink);
-    padding: 0.32rem 0.3rem;
+    padding: 0.26rem 0.3rem;
     min-height: 0;
     height: 100%;
     display: flex;
@@ -536,6 +672,17 @@
     transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
     touch-action: manipulation;
   }
+  .token-tile::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--crimson);
+    border-left: 2px solid var(--crimson);
+    pointer-events: none;
+  }
   .token-tile:hover, .token-tile:focus-visible {
     border-color: var(--acid);
     transform: translate(-1px, -1px);
@@ -543,20 +690,22 @@
     outline: none;
   }
   .token-tile.selected {
-    background: var(--crimson);
+    background: linear-gradient(160deg, #e60026 0%, #8f0018 100%);
     border-color: var(--amber);
-    box-shadow: 4px 4px 0 var(--acid), 7px 7px 0 var(--ink);
-    transform: translate(-2px, -2px) rotate(-1deg);
+    box-shadow: 3px 3px 0 var(--acid), 6px 6px 0 var(--ink);
+    transform: translate(-1.5px, -1.5px) rotate(-0.8deg);
   }
   .token-top-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-family: var(--font-mono);
-    font-size: 0.56rem;
+    font-size: 0.52rem;
     font-weight: 700;
     color: var(--bone-dim);
     opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .token-tile.selected .token-top-meta {
     color: var(--bone);
@@ -564,16 +713,18 @@
   }
   .token-word {
     font-family: var(--font-comic);
-    font-size: clamp(0.88rem, 3.2vw, 1.22rem);
+    font-size: clamp(0.7rem, 2.8vw, 1.22rem);
     font-weight: 900;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     text-align: center;
     color: var(--bone);
     text-shadow: 2px 2px 0 var(--ink);
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     line-height: 1.05;
-    margin: 0.2rem 0;
+    margin: auto 0;
   }
   .token-tile.selected .token-word {
     color: var(--amber);
@@ -581,58 +732,62 @@
   }
   .token-bottom-meta {
     display: flex;
-    flex-direction: column;
-    gap: 0.16rem;
-  }
-  .token-prob-row {
-    display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.2rem;
+    border-top: 1px dashed rgba(244, 238, 224, 0.16);
+    padding-top: 0.14rem;
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.52rem;
     font-weight: 800;
-    color: var(--acid);
+    color: var(--bone-dim);
+    white-space: nowrap;
   }
-  .token-tile.selected .token-prob-row {
+  .token-tile.selected .token-bottom-meta {
+    border-top-color: rgba(255, 190, 11, 0.55);
     color: var(--bone);
   }
-  .prob-bar-track {
-    width: 100%;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    overflow: hidden;
+  .token-clamp-badge {
+    color: var(--acid);
+    letter-spacing: 0.03em;
   }
-  .prob-bar-fill {
-    height: 100%;
-    background: var(--acid);
-    width: 0%;
-    transition: width 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+  .token-tile.selected .token-clamp-badge {
+    color: var(--amber);
   }
-  .token-tile.selected .prob-bar-fill {
-    background: var(--amber);
+  .token-ekg {
+    width: 28px;
+    height: 8px;
+    stroke: rgba(57, 255, 20, 0.45);
+    stroke-width: 1.6;
+    fill: none;
+    flex-shrink: 0;
+  }
+  .token-tile.selected .token-ekg {
+    stroke: var(--amber);
+    filter: drop-shadow(0 0 3px var(--amber));
   }
 
-  /* ── Action Bar: Incision / Hint / Shuffle / Clear ── */
+  /* ── Action Bar: Shuffle / Hint / Clear / Amputate ── */
   .action-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.38rem;
+    gap: 0.34rem;
     flex-shrink: 0;
   }
   .act-btn {
     background: var(--panel);
-    border: 3px solid var(--bone);
+    border: 2.5px solid var(--bone);
     box-shadow: 3px 3px 0 var(--ink);
     color: var(--bone);
     font-family: var(--font-comic);
-    font-size: clamp(0.76rem, 2.5vw, 0.98rem);
+    font-size: clamp(0.74rem, 2.4vw, 0.96rem);
     font-weight: 900;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 0.42rem 0.3rem;
-    min-height: 40px;
+    padding: 0.38rem 0.25rem;
+    min-height: 38px;
     cursor: pointer;
+    white-space: nowrap;
     transition: transform 0.1s, background 0.15s, border-color 0.15s;
     touch-action: manipulation;
   }
@@ -661,35 +816,85 @@
     border-color: var(--ink);
   }
 
-  /* ── Telemetry Log Ticker + Footer Links ── */
+  /* ── Building-Style Horizontal LED Matrix News Ticker ── */
   .telemetry-bar {
-    background: var(--ink);
-    border: 2px solid rgba(244, 238, 224, 0.35);
-    padding: 0.3rem 0.55rem;
+    background-color: #050206;
+    background-image: radial-gradient(rgba(57, 255, 20, 0.16) 1px, transparent 1px);
+    background-size: 4px 4px;
+    border: 2px solid var(--bone);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9), 2px 2px 0 var(--ink);
+    padding: 0.24rem 0.45rem;
     font-family: var(--font-mono);
     font-size: 0.62rem;
+    font-weight: 800;
     color: var(--acid);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
+    gap: 0.45rem;
     flex-shrink: 0;
-  }
-  .telemetry-msg {
     overflow: hidden;
-    text-overflow: ellipsis;
+  }
+  .ticker-badge {
+    background: var(--crimson);
+    color: var(--bone);
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    padding: 0.08rem 0.32rem;
+    border: 1px solid var(--bone);
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+  .telemetry-viewport {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
     white-space: nowrap;
-    max-width: 100%;
+    position: relative;
+  }
+  @keyframes ledTickerScroll {
+    0%, 10% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+  .telemetry-track {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    will-change: transform;
+    animation: ledTickerScroll 22s linear infinite;
+    text-shadow: 0 0 6px rgba(57, 255, 20, 0.55);
+  }
+  .telemetry-bar:hover .telemetry-track,
+  html.calm-screen .telemetry-track {
+    animation-play-state: paused;
+  }
+  .telemetry-msg,
+  .telemetry-clone {
+    white-space: nowrap;
+    padding-right: 2.5rem;
+  }
+  .debrief-lobes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+  .debrief-lobe-item {
+    background: var(--ink);
+    border: 1.5px solid var(--amber);
+    padding: 0.42rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
   }
   .footer-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    padding: 0.15rem 0;
+    gap: 0.55rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding: 0.1rem 0;
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: clamp(0.52rem, 1.7vw, 0.62rem);
     color: var(--bone-dim);
     flex-shrink: 0;
   }
@@ -863,41 +1068,42 @@
 <div class="comic-stamp" id="comic-stamp" aria-live="polite">LOBOTOMIZED!</div>
 
 <main class="console-wrap">
-  <!-- Header -->
+  <!-- Header: Single line across Laptop & Mobile -->
   <header class="top-header">
     <div class="brand-left">
-      <img src="/favicon.svg" alt="" class="brand-emblem" width="40" height="40"/>
+      <img src="/favicon.svg" alt="" class="brand-emblem" width="32" height="32"/>
       <div class="brand-titles">
-        <span class="brand-kicker">ALBERT-V2 // ON-DEVICE EDGE SLM (11.8M PARAMS)</span>
+        <span class="brand-kicker">ALBERT-V2 // 11.8M CORTICAL SLM</span>
         <h1 class="brand-title">POST-TRAINING</h1>
       </div>
     </div>
     <div class="header-controls">
-      <button type="button" class="mode-pill" id="mode-btn" data-mode="live" title="Switch between Live SLM/LLM Procedural Surgery and Pre-Dissected Ward">
+      <button type="button" class="mode-pill" id="mode-btn" data-mode="live" title="Switch between Live SLM Procedural Surgery and Pre-Dissected Ward">
         <span class="status-led" id="status-led" data-state="loading"></span>
-        <span id="mode-label">BOOTING BRAIN...</span>
+        <span id="mode-label">BOOTING...</span>
       </button>
-      <button type="button" class="icon-btn" id="lab-btn" title="Open Live SLM/LLM Lobotomy Lab (L)">🔬 LAB</button>
-      <button type="button" class="icon-btn" id="new-case-btn" title="Roll a fresh neural vivisection case (N)">⚡ NEW CASE</button>
+      <button type="button" class="icon-btn" id="lab-btn" aria-label="Open Lobotomy Lab" title="Open Live Lobotomy Lab (L)">🔬</button>
+      <button type="button" class="icon-btn" id="new-case-btn" aria-label="New Surgical Case" title="Roll a fresh neural vivisection case (N)">↻ <span class="hdr-btn-label">NEW</span></button>
       <button type="button" class="icon-btn" id="audio-btn" aria-label="Toggle surgical synth sound" title="Toggle synth audio (M)">🔊</button>
-      <button type="button" class="icon-btn" id="help-btn" aria-label="Surgical Manual and Settings" title="Surgical Manual (?)">?</button>
+      <button type="button" class="icon-btn" id="help-btn" aria-label="Surgical Manual and Settings" title="Surgical Manual &amp; Seed Picker (?)">?</button>
     </div>
   </header>
 
   <div class="error-banner" id="error-banner" role="alert">
-    <span id="error-text">Low-memory safeguard active: running in Pre-Dissected Ward mode.</span>
-    <button type="button" class="seed-btn" id="retry-model-btn">RETRY LIVE LLM</button>
+    <span id="error-text">Low-memory safeguard active: running in Ward mode.</span>
+    <button type="button" class="seed-btn" id="retry-model-btn">RETRY LIVE SLM</button>
   </div>
 
   <!-- Case & Vitals Strip -->
   <section class="case-strip" aria-label="Case vitals">
     <div class="case-info">
       <span class="case-badge" id="case-title">CASE #001 // PRE-FRONTAL LOBOTOMY</span>
-      <button type="button" class="seed-btn" id="seed-btn" title="Click to enter or copy surgical seed">SEED: #0001</button>
+      <button type="button" class="seed-btn" id="seed-btn" title="Click to enter or roll any of 4.29B surgical seeds">SEED: #0001</button>
+      <button type="button" class="seed-btn" id="grade-btn" style="border-color:var(--amber);color:var(--amber);background:rgba(255,190,11,0.1);" title="Click to cycle Seed Phrase Similarity / Entanglement Grade">GRADE I: CLEAN</button>
     </div>
     <div class="vitals-right">
       <div class="volts-wrap" title="Remaining Defibrillator Charges (mistakes allowed)">
-        <span>DEFIB:</span>
+        <span class="volts-label">DEFIB:</span>
         <div class="volt-pips" id="volt-pips">
           <span class="volt-pip"></span>
           <span class="volt-pip"></span>
@@ -905,15 +1111,21 @@
           <span class="volt-pip"></span>
         </div>
       </div>
-      <span style="font-size:0.68rem;color:var(--acid);" id="streak-badge">STREAK: 0</span>
+      <span style="font-size:0.62rem;color:var(--acid);font-weight:800;" id="streak-badge">STREAK: 0</span>
     </div>
   </section>
 
-  <!-- Compact Oscilloscope Telemetry Strip -->
-  <section class="scanner-box" aria-label="Cortical telemetry status">
+  <!-- Reimagined Synaptic Clamp Bus & Cortical Monitor -->
+  <section class="scanner-box" aria-label="Synaptic clamp bus">
     <div class="scanner-head">
-      <span id="active-probe-title">CORTICAL PROBES // 0/4 LOBES DECLASSIFIED</span>
+      <span id="active-probe-title">CLAMP BUS // 0/4 LOBES DECLASSIFIED</span>
       <span class="scanner-sub" id="inference-timing">LOGITS: READY</span>
+    </div>
+    <div class="clamp-tray" id="clamp-tray" aria-label="Clamped token buffer">
+      <div class="clamp-slot"><span>01</span><span class="clamp-slot-word">OPEN</span></div>
+      <div class="clamp-slot"><span>02</span><span class="clamp-slot-word">OPEN</span></div>
+      <div class="clamp-slot"><span>03</span><span class="clamp-slot-word">OPEN</span></div>
+      <div class="clamp-slot"><span>04</span><span class="clamp-slot-word">OPEN</span></div>
     </div>
   </section>
 
@@ -923,24 +1135,30 @@
     <section class="token-grid" id="token-grid" aria-label="16 neural tokens"></section>
   </div>
 
-  <!-- Surgical Action Bar -->
+  <!-- Surgical Action Bar (Self-explanatory labels, zero lightning bolt overuse) -->
   <section class="action-bar" aria-label="Surgical controls">
-    <button type="button" class="act-btn" id="shuffle-btn" title="Jolt and shuffle remaining tokens (S)">🔀 JOLT</button>
-    <button type="button" class="act-btn" id="hint-btn" title="Pulse a high-affinity token from an unsolved cortical lobe (H)">⚡ STIMULATE</button>
-    <button type="button" class="act-btn" id="clear-btn" disabled title="Deselect all tokens (Esc)">✕ SUTURE</button>
-    <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 selected tokens (Enter)">🩸 AMPUTATE (0/4)</button>
+    <button type="button" class="act-btn" id="shuffle-btn" title="Shuffle remaining tokens on the operating table (S)">🔀 SHUFFLE</button>
+    <button type="button" class="act-btn" id="hint-btn" title="Dose cortical hint: clamp a high-logit token for an unsolved lobe (H)">💉 HINT</button>
+    <button type="button" class="act-btn" id="clear-btn" disabled title="Unclamp all selected tokens (Esc)">✕ CLEAR</button>
+    <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 clamped tokens (Enter)">🩸 AMPUTATE (0/4)</button>
   </section>
 
-  <!-- Bottom Telemetry Ticker -->
-  <div class="telemetry-bar">
-    <span class="telemetry-msg" id="telemetry-msg">SORT THE 16 BLEEDING TOKENS INTO 4 CORTICAL CATEGORIES. EACH AMPUTATED LOBE DECLASSIFIES ITS HIDDEN LLM SENTENCE PROBE &amp; PROBABILITIES!</span>
+  <!-- Building-Style Horizontal Dot-Matrix LED Marquee Ticker -->
+  <div class="telemetry-bar" role="status" aria-live="polite">
+    <span class="ticker-badge">● LED</span>
+    <div class="telemetry-viewport">
+      <div class="telemetry-track" id="telemetry-track">
+        <span class="telemetry-msg" id="telemetry-msg">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES</span>
+        <span class="telemetry-clone" id="telemetry-clone" aria-hidden="true">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES   ///   48 CORTICAL LOBES · 144 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   HIGHER ENTANGLEMENT GRADE = MORE SIMILAR SEED PHRASES</span>
+      </div>
+    </div>
   </div>
 
   <footer class="footer-nav">
-    <button type="button" id="footer-lab-btn">Live Lobotomy Lab</button>
-    <button type="button" id="footer-seed-btn">Enter Seed</button>
+    <button type="button" id="footer-lab-btn">Lobotomy Lab</button>
+    <button type="button" id="footer-seed-btn">Seed (#)</button>
     <button type="button" id="footer-calm-btn">Calm Screen: OFF</button>
-    <a href="/privacy.html">Privacy (100% On-Device)</a>
+    <a href="/privacy.html">Privacy</a>
     <a href="https://github.com/bradflaugher/post-training" target="_blank" rel="noopener">Source</a>
   </footer>
 </main>
@@ -952,7 +1170,7 @@
     <button type="button" class="dlg-close" id="lab-close-btn" aria-label="Close">✕</button>
   </div>
   <div class="dlg-body">
-    <p>Type <strong>any sentence</strong> with <code>[MASK]</code> (or leave <code>[MASK]</code> off and we'll append it to the end). The on-device <strong>ALBERT-v2</strong> transformer will run a live forward pass and expose both its raw vocabulary predictions and how the current 16 board tokens rank!</p>
+    <p>Type <strong>any sentence</strong> with <code>[MASK]</code> (or omit <code>[MASK]</code> to probe the final word). <strong>ALBERT-v2</strong> will run a live forward pass and expose both its raw 30,000-token predictions and how the current 16 board tokens rank.</p>
     <div class="lab-input-row">
       <input type="text" class="lab-input" id="lab-input" value="the surgeon's monitor flashed a bright [MASK] signal." placeholder="e.g. the surgeon's monitor flashed a bright [MASK] signal."/>
       <button type="button" class="act-btn primary" id="lab-run-btn" style="padding:0.45rem 0.9rem;min-height:40px;">PROBE BRAIN</button>
@@ -968,18 +1186,18 @@
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);"/>
     <div>
       <div style="font-family:var(--font-mono);font-size:0.74rem;color:var(--amber);font-weight:800;margin-bottom:0.3rem;text-transform:uppercase;">🧠 SYNTHESIZE CUSTOM 4×4 SURGERY FROM YOUR OWN 4 SENTENCES:</div>
-      <p style="font-size:0.78rem;margin-bottom:0.5rem;">Write any 4 sentences below. The on-device LLM will run 4 live forward passes, extract the 4 most distinct vocabulary words for each sentence across its 30,000-token brain, and deal them onto the operating table!</p>
+      <p style="font-size:0.78rem;margin-bottom:0.5rem;">Write any 4 sentences below. The transformer will run 4 live forward passes, extract the 4 most distinct vocabulary words for each sentence across its 30,000-token brain, and deal them onto the operating table.</p>
       <div class="custom-prompts-grid">
         <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 01:</span><input type="text" class="lab-input" id="custom-p1" value="the surgeon's monitor flashed a bright [MASK] signal."/></div>
         <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 02:</span><input type="text" class="lab-input" id="custom-p2" value="deep beneath the ocean waves swam a giant [MASK]."/></div>
         <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 03:</span><input type="text" class="lab-input" id="custom-p3" value="the medieval knight drew a sharp steel [MASK]."/></div>
         <div class="custom-probe-row"><span class="custom-probe-tag">PROBE 04:</span><input type="text" class="lab-input" id="custom-p4" value="in the laboratory beaker bubbled a toxic [MASK]."/></div>
       </div>
-      <button type="button" class="act-btn primary" id="synthesize-custom-btn" style="margin-top:0.6rem;width:100%;min-height:42px;">⚡ SYNTHESIZE LIVE 4×4 BOARD FROM THESE 4 SENTENCES</button>
+      <button type="button" class="act-btn primary" id="synthesize-custom-btn" style="margin-top:0.6rem;width:100%;min-height:42px;">🧠 SYNTHESIZE LIVE 4×4 BOARD FROM THESE 4 SENTENCES</button>
     </div>
   </div>
   <div class="dlg-foot">
-    <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--bone-dim);">100% client-side WASM inference · zero network calls</span>
+    <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--bone-dim);">WASM transformer inference · zero network telemetry</span>
     <button type="button" class="icon-btn" id="lab-done-btn">CLOSE LAB</button>
   </div>
 </dialog>
@@ -987,24 +1205,24 @@
 <!-- Dialog 2: Surgical Manual / Settings / Seed Picker -->
 <dialog class="comic-dialog" id="help-dialog" aria-labelledby="help-dlg-title">
   <div class="dlg-head">
-    <h2 class="dlg-title" id="help-dlg-title">🔪 SURGICAL MANUAL &amp; WARD SETTINGS</h2>
+    <h2 class="dlg-title" id="help-dlg-title">🔪 SURGICAL MANUAL &amp; SEED GENERATOR</h2>
     <button type="button" class="dlg-close" id="help-close-btn" aria-label="Close">✕</button>
   </div>
   <div class="dlg-body">
-    <p><strong>WELCOME TO POST-TRAINING.</strong> Our patient — a compact 11.8M-parameter on-device Small Language Model (<code>Xenova/albert-base-v2</code>, an edge next-word / masked-token prediction engine sharing the same transformer architecture as frontier LLMs) — has suffered catastrophic synaptic entanglement. Four cortical sentence probes are firing at once, and 16 vocabulary tokens are floating loose in the cranium.</p>
+    <p><strong>WELCOME TO POST-TRAINING.</strong> Our patient — a compact 11.8M-parameter Small Language Model (<code>Xenova/albert-base-v2</code>) — has suffered catastrophic synaptic entanglement. Four cortical sentence probes are firing at once, and 16 vocabulary tokens are floating loose in the cranium.</p>
     <p><strong>HOW TO OPERATE:</strong></p>
     <ul style="margin-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;">
-      <li><strong>Select 4 Tokens &amp; Amputate:</strong> Group the 4 tokens that belong to one cortical category and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
-      <li><strong>Declassify the LLM Probes:</strong> The 4 cortical sentence probes and token probabilities are encrypted while you solve. Every time you amputate a category, its hidden LLM sentence probe (e.g. <code>"the best ice cream flavor is [MASK]."</code>) rips open along with the model's <strong>live softmax probabilities (%)</strong> and raw logits for each word!</li>
-      <li><strong>One Away Warning:</strong> If 3 of your 4 tokens belong to the same lobe, the cranial monitor flashes <strong>"3/4 SYNAPSES ALIGNED — ONE TOKEN OFF!"</strong></li>
-      <li><strong>Live LLM Mode vs. Pre-Dissected Ward:</strong> In <strong>LIVE LLM SURGERY</strong>, every seed procedurally selects compatible neural lobes, runs live forward passes in WebAssembly, and lets the LLM pick its own top-scoring tokens on the fly. In <strong>PRE-DISSECTED WARD</strong> (`?lite=1`), instant verified logit tables let you play with zero model wait.</li>
+      <li><strong>Clamp 4 Tokens &amp; Amputate:</strong> Select 4 related tokens on the 4×4 grid and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
+      <li><strong>Declassify the Hidden Probes:</strong> Sentence probes and token probabilities stay encrypted while you solve. Every time you amputate a category, its cortical banner rips open to reveal the exact <code>[MASK]</code> sentence probe, softmax probabilities (<code>%</code>), and raw logits (<code>z</code>).</li>
+      <li><strong>4.29B Procedural Seeds &amp; Entanglement Grades:</strong> Tap the <strong>GRADE</strong> badge to control how semantically similar the 4 seed phrases are — from <strong>GRADE I: CLEAN</strong> (distant probes, wide logit margins) to <strong>GRADE III: CRITICAL</strong> (overlapping seed phrases and tight boundary tokens).</li>
     </ul>
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);"/>
     <div style="display:flex;flex-direction:column;gap:0.5rem;">
-      <label for="seed-input" style="font-family:var(--font-mono);font-size:0.74rem;color:var(--acid);font-weight:800;">SURGICAL SEED / CASE NUMBER (SHARE WITH A FRIEND):</label>
+      <label for="seed-input" style="font-family:var(--font-mono);font-size:0.74rem;color:var(--acid);font-weight:800;">INFINITE PROCEDURAL SEED (1 TO 4,294,967,295 OR ANY WORD):</label>
       <div class="lab-input-row">
         <input type="text" class="lab-input" id="seed-input" placeholder="Enter seed number or word (e.g. 1996 or LOBOTOMY)"/>
         <button type="button" class="act-btn primary" id="seed-load-btn" style="padding:0.45rem 0.9rem;min-height:40px;">LOAD SEED</button>
+        <button type="button" class="act-btn" id="seed-random-btn" style="padding:0.45rem 0.9rem;min-height:40px;">🎲 RANDOM</button>
       </div>
     </div>
   </div>
@@ -1021,12 +1239,13 @@
     <button type="button" class="dlg-close" id="debrief-close-btn" aria-label="Close">✕</button>
   </div>
   <div class="dlg-body">
-    <div id="debrief-summary" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--acid);"></div>
-    <pre id="debrief-grid-text" style="background:var(--ink);border:2px solid var(--bone);padding:0.75rem;font-family:var(--font-mono);font-size:0.78rem;overflow-x:auto;color:var(--bone);"></pre>
+    <div id="debrief-summary" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--acid);font-weight:800;"></div>
+    <div id="debrief-lobes-list" class="debrief-lobes-list"></div>
+    <pre id="debrief-grid-text" style="background:var(--ink);border:2px solid var(--bone);padding:0.75rem;font-family:var(--font-mono);font-size:0.74rem;overflow-x:auto;color:var(--bone);"></pre>
   </div>
   <div class="dlg-foot">
     <button type="button" class="icon-btn" id="copy-report-btn">📋 COPY REPORT</button>
-    <button type="button" class="act-btn primary" id="next-case-btn" style="padding:0.45rem 1rem;min-height:40px;">⚡ NEXT PATIENT</button>
+    <button type="button" class="act-btn primary" id="next-case-btn" style="padding:0.45rem 1rem;min-height:40px;">🔪 NEXT PATIENT</button>
   </div>
 </dialog>
 
@@ -1034,7 +1253,7 @@
   const TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
   const MODEL_ID = 'Xenova/albert-base-v2';
   const MODEL_DTYPE = 'fp16';
-  const PUZZLES_VERSION = '2';
+  const PUZZLES_VERSION = '3';
   const PUZZLES_URL = `/puzzles.json?v=${PUZZLES_VERSION}`;
   const SAVE_KEY = 'post-training-save';
   const LOADING_SENTINEL = 'post-training-loading';
@@ -1059,17 +1278,21 @@
   const retryModelBtn = $('retry-model-btn');
   const caseTitleEl = $('case-title');
   const seedBtn = $('seed-btn');
+  const gradeBtn = $('grade-btn');
   const voltPipsEl = $('volt-pips');
   const streakBadge = $('streak-badge');
   const activeProbeTitle = $('active-probe-title');
   const inferenceTiming = $('inference-timing');
+  const clampTrayEl = $('clamp-tray');
   const solvedStackEl = $('solved-stack');
   const tokenGridEl = $('token-grid');
   const shuffleBtn = $('shuffle-btn');
   const hintBtn = $('hint-btn');
   const clearBtn = $('clear-btn');
   const submitBtn = $('submit-btn');
+  const telemetryTrack = $('telemetry-track');
   const telemetryMsg = $('telemetry-msg');
+  const telemetryClone = $('telemetry-clone');
   const footerLabBtn = $('footer-lab-btn');
   const footerSeedBtn = $('footer-seed-btn');
   const footerCalmBtn = $('footer-calm-btn');
@@ -1092,14 +1315,29 @@
   const helpDoneBtn = $('help-done-btn');
   const seedInput = $('seed-input');
   const seedLoadBtn = $('seed-load-btn');
+  const seedRandomBtn = $('seed-random-btn');
   const wipeSaveBtn = $('wipe-save-btn');
 
   const debriefDialog = $('debrief-dialog');
   const debriefCloseBtn = $('debrief-close-btn');
   const debriefSummary = $('debrief-summary');
+  const debriefLobesList = $('debrief-lobes-list');
   const debriefGridText = $('debrief-grid-text');
   const copyReportBtn = $('copy-report-btn');
   const nextCaseBtn = $('next-case-btn');
+
+  const TICKER_FEED_SUFFIX = '   ///   48 CORTICAL LOBES · 144 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   HIGHER ENTANGLEMENT GRADE = MORE SIMILAR SEED PHRASES & TIGHTER LOGIT MARGINS';
+  function setTelemetry(text) {
+    telemetryMsg.textContent = text;
+    if (telemetryClone) {
+      telemetryClone.textContent = `${text}${TICKER_FEED_SUFFIX}`;
+    }
+    if (telemetryTrack) {
+      telemetryTrack.style.animation = 'none';
+      void telemetryTrack.offsetWidth;
+      telemetryTrack.style.animation = '';
+    }
+  }
 
   // ───────────────────────────────────────────────────────────────────────
   // Procedural WebAudio Surgical Synth (No external audio files)
@@ -1347,9 +1585,9 @@
   let solvedLobeIds = [];
   let mistakesMade = 0;
   const MAX_MISTAKES = 4;
-  let moveHistory = []; // Array of arrays of lobe indices (0..3) for emoji autopsy report
   let streak = 0;
   let calmScreen = false;
+  let difficultyOverride = 'auto'; // 'auto' | 'clean' | 'entangled' | 'critical'
 
   function loadSaveState() {
     try {
@@ -1361,6 +1599,7 @@
       if (typeof data.soundEnabled === 'boolean') soundEnabled = data.soundEnabled;
       if (typeof data.calmScreen === 'boolean') calmScreen = data.calmScreen;
       if (typeof data.wardMode === 'boolean') wardMode = data.wardMode;
+      if (typeof data.difficultyOverride === 'string') difficultyOverride = data.difficultyOverride;
     } catch {
       // Ignore malformed localStorage
     }
@@ -1374,6 +1613,7 @@
         soundEnabled,
         calmScreen,
         wardMode,
+        difficultyOverride,
       }));
     } catch {
       // Ignore storage quota errors
@@ -1407,21 +1647,21 @@
     if (wardMode) {
       modeBtn.dataset.mode = 'ward';
       statusLed.dataset.state = 'ward';
-      modeLabel.textContent = 'WARD MODE (PRE-DISSECTED)';
+      modeLabel.textContent = 'WARD MODE';
     } else if (modelReady) {
       if (currentCase && currentCase.mode === 'ward') {
         modeBtn.dataset.mode = 'ward';
         statusLed.dataset.state = 'ward';
-        modeLabel.textContent = 'WARD CASE (TAP FOR LIVE)';
+        modeLabel.textContent = 'WARD → LIVE';
       } else {
         modeBtn.dataset.mode = 'live';
         statusLed.dataset.state = 'ready';
-        modeLabel.textContent = 'LIVE LLM SURGERY (ON-DEVICE)';
+        modeLabel.textContent = 'LIVE SLM';
       }
     } else {
       modeBtn.dataset.mode = 'loading';
       statusLed.dataset.state = 'loading';
-      modeLabel.textContent = 'BOOTING ALBERT-V2 (22MB)...';
+      modeLabel.textContent = 'BOOTING...';
     }
   }
 
@@ -1546,39 +1786,147 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Build a Surgical Case (Live Procedural LLM Synthesis OR Pre-Dissected Ward)
+  // Build a Surgical Case (4.29B Procedural Seeds + Seed Phrase Similarity Grades)
   // ───────────────────────────────────────────────────────────────────────
+  function resolveTargetGrade(seedNum) {
+    if (difficultyOverride !== 'auto') return difficultyOverride;
+    if (seedNum === 1) return 'clean';
+    const mod = seedNum % 3;
+    if (mod === 1) return 'clean';
+    if (mod === 2) return 'entangled';
+    return 'critical';
+  }
+
+  function formatGradeBadge(grade) {
+    if (grade === 'critical') return 'G3: CRITICAL';
+    if (grade === 'entangled') return 'G2: ENTANGLED';
+    return 'G1: CLEAN';
+  }
+
+  function evaluateCandidateQuad(quadIds) {
+    if (!corpus || quadIds.length !== 4) return null;
+    // 1. Validate all 6 pairwise compatibility edges and compute minimum 6-pair margin
+    let minPairMargin = Infinity;
+    for (let a = 0; a < 4; a++) {
+      const ca = quadIds[a];
+      const compatA = corpus.compatibility[ca] || [];
+      const marginsA = (corpus.pairMargins && corpus.pairMargins[ca]) || {};
+      for (let b = a + 1; b < 4; b++) {
+        const cb = quadIds[b];
+        if (!compatA.includes(cb)) return null;
+        const pm = typeof marginsA[cb] === 'number' ? marginsA[cb] : 4.5;
+        if (pm < minPairMargin) minPairMargin = pm;
+      }
+    }
+    // 2. Verify every category in the quad has >= 4 valid pool words with margin > 0.35 against the other 3 lobes
+    if (corpus.poolLogits && corpus.poolWordIndex) {
+      for (let i = 0; i < 4; i++) {
+        const cid = quadIds[i];
+        const cat = corpus.categories[cid];
+        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+        const ownRow = corpus.poolLogits[cid];
+        let validCount = 0;
+        for (const we of pool) {
+          const pIdx = corpus.poolWordIndex[we.word];
+          const ownL = (ownRow && pIdx !== undefined) ? ownRow[pIdx] : (we.ownLogit ?? 10);
+          let maxOther = -Infinity;
+          for (let j = 0; j < 4; j++) {
+            if (j !== i) {
+              const otherRow = corpus.poolLogits[quadIds[j]];
+              const ol = (otherRow && pIdx !== undefined) ? otherRow[pIdx] : -5;
+              if (ol > maxOther) maxOther = ol;
+            }
+          }
+          if (ownL - maxOther > 0.35) validCount++;
+        }
+        if (validCount < 4) return null;
+      }
+    }
+    return minPairMargin;
+  }
+
+  function matchesGradeBand(minPairMargin, targetGrade) {
+    if (targetGrade === 'critical') return minPairMargin < 3.6;
+    if (targetGrade === 'entangled') return minPairMargin >= 3.6 && minPairMargin < 5.2;
+    return minPairMargin >= 5.2;
+  }
+
+  function gradeTargetCenter(targetGrade) {
+    if (targetGrade === 'critical') return 2.2;
+    if (targetGrade === 'entangled') return 4.4;
+    return 6.8;
+  }
+
+  function nextSequentialSeed(s) {
+    const u = (s >>> 0) || 1;
+    return u >= 4294967295 ? 1 : u + 1;
+  }
+
   async function buildCaseFromSeed(seedNum, forceWard = false) {
     const myGen = ++buildGeneration;
-    currentSeed = seedNum;
+    const uSeed = (seedNum >>> 0) || 1;
+    currentSeed = uSeed;
     writeSaveState();
     await loadCorpusOnce();
     if (myGen !== buildGeneration) return false;
 
     const puzzles = corpus.puzzles;
-    const basePuzzle = puzzles[(seedNum - 1) % puzzles.length];
-    const rng = mulberry32(seedNum * 2654435761);
+    const baseIdx = (uSeed - 1) % puzzles.length;
+    const basePuzzle = puzzles[baseIdx];
+    const rng = mulberry32(Math.imul(uSeed, 2654435761) >>> 0);
+    const targetGrade = resolveTargetGrade(uSeed);
+    const isCanonicalSeed1 = uSeed === 1 && targetGrade === 'clean';
 
-    // Choose 4 mutually-compatible categories:
-    // For seeds 1..64 we use the verified basePuzzle categories so case numbers match cleanly,
-    // and for seeds > 64 we procedurally roll a mutually-compatible quad from compatibility graph!
+    // Choose 4 mutually-compatible categories validated across all 6 pairs and all 4 word pools:
+    // Seed 1 (CLEAN) uses the canonical opening quad so onboarding, shared links & E2E tests on seed=1 are deterministic;
+    // every other seed/grade rolls procedurally from the 48-lobe compatibility graph!
     let catIds = basePuzzle.categories.slice();
-    if (seedNum > puzzles.length) {
+    if (!isCanonicalSeed1) {
       const allIds = Object.keys(corpus.categories);
-      for (let attempt = 0; attempt < 200; attempt++) {
+      let bestQuad = null;
+      let bestDist = Infinity;
+      const idealCenter = gradeTargetCenter(targetGrade);
+
+      for (let attempt = 0; attempt < 320; attempt++) {
         const c0 = allIds[Math.floor(rng() * allIds.length)];
         const compat0 = corpus.compatibility[c0] || [];
+        let windowPool = compat0;
+        if (compat0.length >= 6) {
+          if (targetGrade === 'critical') {
+            windowPool = compat0.slice(0, Math.max(5, Math.ceil(compat0.length * 0.45)));
+          } else if (targetGrade === 'clean') {
+            windowPool = compat0.slice(Math.floor(compat0.length * 0.45));
+          } else {
+            const start = Math.floor(compat0.length * 0.2);
+            const end = Math.ceil(compat0.length * 0.8);
+            windowPool = compat0.slice(start, end);
+          }
+        }
         const picked = [c0];
-        for (const cand of seededShuffle(compat0, rng)) {
+        for (const cand of seededShuffle(windowPool, rng)) {
           if (picked.every(p => (corpus.compatibility[p] || []).includes(cand))) {
             picked.push(cand);
             if (picked.length === 4) break;
           }
         }
-        if (picked.length === 4) {
+        if (picked.length < 4) continue;
+
+        const minPM = evaluateCandidateQuad(picked);
+        if (minPM === null) continue;
+
+        if (matchesGradeBand(minPM, targetGrade)) {
           catIds = picked;
+          bestQuad = null;
           break;
         }
+        const dist = Math.abs(minPM - idealCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestQuad = picked;
+        }
+      }
+      if (bestQuad) {
+        catIds = bestQuad;
       }
     }
 
@@ -1587,18 +1935,17 @@
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     const useLive = !forceWard && !wardMode && modelReady;
 
-    if (useLive) {
-      // LIVE LLM PROCEDURAL MODE:
-      // 1. Pick a prompt template for each lobe based on the seed.
-      // 2. Run 4 real ONNX forward passes in the browser (serialized via enqueueInference).
-      // 3. Score the full candidate wordPool of all 4 lobes and pick the 4 words per lobe
-      //    with the strongest synaptic margin!
-      const chosenPrompts = catIds.map(cid => {
-        const cat = corpus.categories[cid];
-        const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
-        return plist[Math.floor(rng() * plist.length)];
-      });
+    // In Live SLM mode, pick a prompt variant per lobe; in Ward mode (or canonical seed 1), use the scored primary prompt!
+    const chosenPrompts = catIds.map(cid => {
+      const cat = corpus.categories[cid];
+      if (!useLive || isCanonicalSeed1) return cat.prompt;
+      const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
+      return plist[Math.floor(rng() * plist.length)];
+    });
 
+    if (useLive) {
+      // LIVE SLM PROCEDURAL MODE:
+      // Run 4 real ONNX forward passes in the browser (serialized via enqueueInference)
       const passes = [];
       for (let i = 0; i < 4; i++) {
         const passRes = await runMaskedForwardPass(chosenPrompts[i], () => myGen !== buildGeneration);
@@ -1606,12 +1953,37 @@
         passes.push(passRes);
       }
 
+      // Verify each lobe has >= 4 valid candidates (margin > 0.35); if a prompt variant had < 4, re-run with primary prompt
       for (let i = 0; i < 4; i++) {
         const cid = catIds[i];
         const cat = corpus.categories[cid];
         const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
-        // Rank candidate words in this lobe's pool by live margin:
-        // own_logit(word, prompt_i) - max_{j != i} logit(word, prompt_j)
+        const countValid = () => {
+          let c = 0;
+          for (const we of pool) {
+            const ownL = passes[i].logits[we.tokenId];
+            let maxOther = -Infinity;
+            for (let j = 0; j < 4; j++) {
+              if (j !== i && passes[j].logits[we.tokenId] > maxOther) {
+                maxOther = passes[j].logits[we.tokenId];
+              }
+            }
+            if (ownL - maxOther > 0.35) c++;
+          }
+          return c;
+        };
+        if (countValid() < 4 && chosenPrompts[i] !== cat.prompt) {
+          chosenPrompts[i] = cat.prompt;
+          const retryRes = await runMaskedForwardPass(cat.prompt, () => myGen !== buildGeneration);
+          if (myGen !== buildGeneration || !retryRes) return false;
+          passes[i] = retryRes;
+        }
+      }
+
+      for (let i = 0; i < 4; i++) {
+        const cid = catIds[i];
+        const cat = corpus.categories[cid];
+        const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
         const scoredPool = pool.map(we => {
           const ownL = passes[i].logits[we.tokenId];
           let maxOther = -Infinity;
@@ -1630,7 +2002,16 @@
           };
         });
         scoredPool.sort((a, b) => b.margin - a.margin);
-        const chosen4 = scoredPool.slice(0, 4);
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
+        const usable = validCands.length >= 4 ? validCands : scoredPool.slice(0, 4);
+        let chosen4 = usable.slice(0, 4);
+        if (!isCanonicalSeed1 && usable.length >= 4) {
+          if (targetGrade === 'critical') {
+            chosen4 = usable.slice(-4);
+          } else if (targetGrade === 'entangled') {
+            chosen4 = seededShuffle(usable, rng).slice(0, 4);
+          }
+        }
         lobes.push({
           id: cid,
           label: cat.label,
@@ -1640,7 +2021,6 @@
         });
       }
 
-      // Fill the 4x16 live logit lookup table for all 16 chosen words across all 4 prompts
       for (let i = 0; i < 4; i++) {
         for (const lobe of lobes) {
           for (const we of lobe.words) {
@@ -1649,28 +2029,81 @@
         }
       }
       const elapsed = Math.round(performance.now() - t0);
-      inferenceTiming.textContent = `LIVE LLM SYNTHESIS: ${elapsed}ms (4 PASSES)`;
+      inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
     } else {
-      // PRE-DISSECTED WARD MODE (Instant fallback using verified logit matrix)
-      catIds = basePuzzle.categories.slice();
-      const all16Words = [];
-      for (let i = 0; i < 4; i++) {
-        const cid = catIds[i];
-        const cat = corpus.categories[cid];
-        const chosen4 = cat.words.slice(0, 4);
-        lobes.push({
-          id: cid,
-          label: cat.label,
-          lobe: cat.lobe,
-          prompt: cat.prompt,
-          words: chosen4,
-        });
-        for (const we of chosen4) all16Words.push(we.word);
-      }
-      for (let i = 0; i < 4; i++) {
-        const row = basePuzzle.fallbackLogits[i];
-        for (let wIdx = 0; wIdx < 16; wIdx++) {
-          wordLogitMap[i].set(all16Words[wIdx], row[wIdx]);
+      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
+      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
+      if (hasPoolMatrix && !isCanonicalSeed1) {
+        for (let i = 0; i < 4; i++) {
+          const cid = catIds[i];
+          const cat = corpus.categories[cid];
+          const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+          const ownRow = corpus.poolLogits[cid];
+          const scoredPool = pool.map(we => {
+            const pIdx = corpus.poolWordIndex[we.word];
+            const ownL = (ownRow && pIdx !== undefined) ? ownRow[pIdx] : (we.ownLogit ?? 10);
+            let maxOther = -Infinity;
+            for (let j = 0; j < 4; j++) {
+              if (j !== i) {
+                const otherRow = corpus.poolLogits[catIds[j]];
+                const ol = (otherRow && pIdx !== undefined) ? otherRow[pIdx] : -5;
+                if (ol > maxOther) maxOther = ol;
+              }
+            }
+            return {
+              word: we.word,
+              tokenId: we.tokenId,
+              tokenStr: we.tokenStr,
+              ownLogit: ownL,
+              margin: ownL - maxOther,
+            };
+          });
+          scoredPool.sort((a, b) => b.margin - a.margin);
+          const validCands = scoredPool.filter(w => w.margin > 0.35);
+          let chosen4 = validCands.slice(0, 4);
+          if (targetGrade === 'critical') {
+            chosen4 = validCands.slice(-4);
+          } else if (targetGrade === 'entangled') {
+            chosen4 = seededShuffle(validCands, rng).slice(0, 4);
+          }
+          lobes.push({
+            id: cid,
+            label: cat.label,
+            lobe: cat.lobe,
+            prompt: cat.prompt,
+            words: chosen4,
+          });
+        }
+        for (let i = 0; i < 4; i++) {
+          const row = corpus.poolLogits[catIds[i]];
+          for (const lobe of lobes) {
+            for (const we of lobe.words) {
+              const pIdx = corpus.poolWordIndex[we.word];
+              wordLogitMap[i].set(we.word, (row && pIdx !== undefined) ? row[pIdx] : 10);
+            }
+          }
+        }
+      } else {
+        catIds = basePuzzle.categories.slice();
+        const all16Words = [];
+        for (let i = 0; i < 4; i++) {
+          const cid = catIds[i];
+          const cat = corpus.categories[cid];
+          const chosen4 = cat.words.slice(0, 4);
+          lobes.push({
+            id: cid,
+            label: cat.label,
+            lobe: cat.lobe,
+            prompt: cat.prompt,
+            words: chosen4,
+          });
+          for (const we of chosen4) all16Words.push(we.word);
+        }
+        for (let i = 0; i < 4; i++) {
+          const row = basePuzzle.fallbackLogits[i];
+          for (let wIdx = 0; wIdx < 16; wIdx++) {
+            wordLogitMap[i].set(all16Words[wIdx], row[wIdx]);
+          }
         }
       }
       inferenceTiming.textContent = `WARD LOGITS // INSTANT`;
@@ -1696,13 +2129,14 @@
       [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
     }
 
-    currentSeed = seedNum;
+    currentSeed = uSeed;
     writeSaveState();
 
     currentCase = {
-      seed: seedNum,
+      seed: uSeed,
       mode: useLive ? 'live' : 'ward',
-      title: `CASE #${String(seedNum).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
+      grade: targetGrade,
+      title: `CASE #${String(baseIdx + 1).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
       symptom: basePuzzle.symptom,
       lobes,
       tokens,
@@ -1713,7 +2147,6 @@
     selectedWords.clear();
     solvedLobeIds = [];
     mistakesMade = 0;
-    moveHistory = [];
 
     updateModeIndicator();
     renderFullSurgicalBoard();
@@ -1725,11 +2158,25 @@
   // ───────────────────────────────────────────────────────────────────────
   function renderFullSurgicalBoard() {
     if (!currentCase) return;
-    caseTitleEl.textContent = currentCase.title;
+    caseTitleEl.replaceChildren();
+    const parts = currentCase.title.split('//');
+    const numSpan = document.createElement('span');
+    numSpan.textContent = parts[0].trim();
+    caseTitleEl.appendChild(numSpan);
+    if (parts[1]) {
+      const symSpan = document.createElement('span');
+      symSpan.className = 'case-symptom-suffix';
+      symSpan.textContent = ` // ${parts[1].trim()}`;
+      caseTitleEl.appendChild(symSpan);
+    }
     seedBtn.textContent = `SEED: #${String(currentCase.seed).padStart(4, '0')}`;
+    if (gradeBtn) {
+      gradeBtn.textContent = formatGradeBadge(currentCase.grade || 'clean');
+    }
 
     renderVoltPips();
     renderProbes();
+    renderClampTray();
     renderSolvedLobes();
     renderTokenGrid();
     updateActionButtons();
@@ -1748,10 +2195,30 @@
 
   function renderProbes() {
     const solvedCount = solvedLobeIds.length;
-    if (solvedCount === 0) {
-      activeProbeTitle.textContent = 'CORTICAL PROBES // 0/4 LOBES DECLASSIFIED';
-    } else {
-      activeProbeTitle.textContent = `CORTICAL PROBES // ${solvedCount}/4 LOBES DECLASSIFIED`;
+    activeProbeTitle.textContent = `CLAMP BUS // ${solvedCount}/4 LOBES DECLASSIFIED`;
+  }
+
+  function renderClampTray() {
+    if (!clampTrayEl) return;
+    clampTrayEl.replaceChildren();
+    const picks = Array.from(selectedWords);
+    for (let i = 0; i < 4; i++) {
+      const w = picks[i];
+      const slot = document.createElement('div');
+      slot.className = `clamp-slot${w ? ' filled' : ''}`;
+      const numSpan = document.createElement('span');
+      numSpan.textContent = `0${i + 1}`;
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'clamp-slot-word';
+      wordSpan.textContent = w ? w.toUpperCase() : 'OPEN';
+      slot.append(numSpan, wordSpan);
+      if (w) {
+        slot.title = `Click to unclamp ${w.toUpperCase()}`;
+        slot.addEventListener('click', () => {
+          toggleTokenSelection(w, 0, 0);
+        });
+      }
+      clampTrayEl.appendChild(slot);
     }
   }
 
@@ -1771,7 +2238,7 @@
       head.className = 'solved-head';
       const title = document.createElement('span');
       title.className = 'solved-title';
-      title.textContent = `🩸 ${lobe.label} (${lobe.lobe})`;
+      title.textContent = `🩸 ${lobe.label}`;
       const promptEl = document.createElement('span');
       promptEl.className = 'solved-prompt';
       promptEl.textContent = `"${lobe.prompt}"`;
@@ -1789,7 +2256,11 @@
         chip.textContent = `${we.word} `;
         const pct = document.createElement('span');
         const z = rawLogits[wi];
-        pct.textContent = `${(probs[wi] * 100).toFixed(1)}% (z=${z >= 0 ? '+' : ''}${z.toFixed(1)})`;
+        pct.textContent = `${(probs[wi] * 100).toFixed(0)}%`;
+        const zSpan = document.createElement('span');
+        zSpan.className = 'solved-z';
+        zSpan.textContent = ` (z=${z >= 0 ? '+' : ''}${z.toFixed(1)})`;
+        pct.appendChild(zSpan);
         chip.appendChild(pct);
         wordsWrap.appendChild(chip);
       });
@@ -1804,8 +2275,10 @@
     const remainingTokens = currentCase.tokens.filter(t => !solvedLobeIds.includes(t.lobeId));
     if (remainingTokens.length === 0) return;
 
+    const picks = Array.from(selectedWords);
     remainingTokens.forEach(tok => {
       const isSelected = selectedWords.has(tok.word);
+      const clampOrder = picks.indexOf(tok.word) + 1;
 
       const tile = document.createElement('button');
       tile.type = 'button';
@@ -1828,23 +2301,25 @@
 
       const botMeta = document.createElement('div');
       botMeta.className = 'token-bottom-meta';
-      const probRow = document.createElement('div');
-      probRow.className = 'token-prob-row';
-      const pLabel = document.createElement('span');
-      pLabel.textContent = isSelected ? 'CLAMPED' : 'SYNAPSE';
-      const pVal = document.createElement('span');
-      pVal.className = 'token-prob-val';
-      pVal.textContent = isSelected ? 'READY' : 'LOCKED';
-      probRow.append(pLabel, pVal);
+      const clampBadge = document.createElement('span');
+      clampBadge.className = 'token-clamp-badge token-prob-val';
+      clampBadge.textContent = isSelected ? `🩸 CLAMP #0${clampOrder}` : 'UNCLAMPED';
 
-      const track = document.createElement('div');
-      track.className = 'prob-bar-track';
-      const fill = document.createElement('div');
-      fill.className = 'prob-bar-fill';
-      fill.style.width = isSelected ? '100%' : '18%';
-      track.appendChild(fill);
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const ekgSvg = document.createElementNS(svgNS, 'svg');
+      ekgSvg.setAttribute('class', 'token-ekg');
+      ekgSvg.setAttribute('viewBox', '0 0 36 10');
+      ekgSvg.setAttribute('aria-hidden', 'true');
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute(
+        'd',
+        isSelected
+          ? 'M0 5 L8 5 L12 1 L16 9 L20 2 L24 8 L28 5 L36 5'
+          : 'M0 5 L12 5 L15 3 L18 7 L21 5 L36 5'
+      );
+      ekgSvg.appendChild(path);
 
-      botMeta.append(probRow, track);
+      botMeta.append(clampBadge, ekgSvg);
       tile.append(topMeta, wordEl, botMeta);
 
       tile.addEventListener('click', e => {
@@ -1867,6 +2342,7 @@
         spawnSplatter(clientX, clientY, '#e60026', 8);
       }
     }
+    renderClampTray();
     renderTokenGrid();
     updateActionButtons();
   }
@@ -1886,9 +2362,6 @@
     const picks = Array.from(selectedWords);
     const pickedTokens = picks.map(w => currentCase.tokens.find(t => t.word === w)).filter(Boolean);
     if (pickedTokens.length !== 4) return;
-
-    // Record move for autopsy emoji grid
-    moveHistory.push(pickedTokens.map(t => t.lobeIdx));
 
     // Count how many belong to each lobe
     const countsByLobe = new Map();
@@ -1919,9 +2392,10 @@
       if (solvedIdx >= 0) activeProbeIdx = solvedIdx;
 
       const solvedLobe = currentCase.lobes.find(l => l.id === matchedLobeId);
-      telemetryMsg.textContent = `DECLASSIFIED LOBE: ${solvedLobe.label} — "${solvedLobe.prompt}"`;
+      setTelemetry(`DECLASSIFIED LOBE: ${solvedLobe.label} — "${solvedLobe.prompt}"`);
 
       renderProbes();
+      renderClampTray();
       renderSolvedLobes();
       renderTokenGrid();
       updateActionButtons();
@@ -1942,10 +2416,10 @@
 
       if (maxMatch === 3) {
         showComicStamp('ONE TOKEN OFF!');
-        telemetryMsg.textContent = '⚠️ 3/4 SYNAPSES ALIGNED — YOU ARE ONE TOKEN AWAY FROM CLEAVING THAT LOBE!';
+        setTelemetry('⚠️ 3/4 SYNAPSES ALIGNED — YOU ARE ONE TOKEN AWAY FROM CLEAVING THAT LOBE!');
       } else {
         showComicStamp('HEMORRHAGE!');
-        telemetryMsg.textContent = `❌ SYNAPTIC REJECTION! (${MAX_MISTAKES - mistakesMade} DEFIB CHARGES REMAINING)`;
+        setTelemetry(`❌ SYNAPTIC REJECTION! (${MAX_MISTAKES - mistakesMade} DEFIB CHARGES REMAINING)`);
       }
 
       if (mistakesMade >= MAX_MISTAKES) {
@@ -1958,6 +2432,7 @@
         }
         selectedWords.clear();
         renderProbes();
+        renderClampTray();
         renderSolvedLobes();
         renderTokenGrid();
         updateActionButtons();
@@ -1967,11 +2442,10 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Stimulate (Hint) & Jolt (Shuffle)
+  // Hint (Dose Cortical Hint) & Shuffle
   // ───────────────────────────────────────────────────────────────────────
   function stimulateHint() {
     if (!currentCase) return;
-    // Target the first unsolved lobe (or the lobe that already has selected tokens)
     const unsolvedLobes = currentCase.lobes
       .map((l, idx) => ({ lobe: l, idx }))
       .filter(entry => !solvedLobeIds.includes(entry.lobe.id));
@@ -1993,7 +2467,6 @@
 
     if (candidates.length === 0) return;
     if (selectedWords.size >= 4) {
-      // Remove a selected word that does NOT belong to targetProbe
       for (const sw of Array.from(selectedWords)) {
         if (!targetProbe.words.some(w => w.word === sw)) {
           selectedWords.delete(sw);
@@ -2004,7 +2477,8 @@
     const bestWord = candidates[0].word;
     selectedWords.add(bestWord);
     playSound('probe');
-    telemetryMsg.textContent = `⚡ CORTICAL STIMULATION: CLAMPED SYNAPSE "${bestWord.toUpperCase()}".`;
+    setTelemetry(`💉 CORTICAL HINT: CLAMPED SYNAPSE "${bestWord.toUpperCase()}".`);
+    renderClampTray();
     renderTokenGrid();
     updateActionButtons();
   }
@@ -2020,25 +2494,48 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Post-Op Autopsy Report Modal
+  // Post-Op Autopsy Report Modal (Clinical Debrief — No Colored Emoji Squares)
   // ───────────────────────────────────────────────────────────────────────
   function showDebriefModal(won) {
-    const emojis = ['🟥', '🟩', '🟨', '🟪'];
     const headerLine = won
-      ? `SURGERY SUCCESSFUL // PATIENT SURVIVED (${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB LEFT)`
+      ? `SURGERY SUCCESSFUL // PATIENT SURVIVED (${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB LEFT · STREAK ${streak})`
       : `PATIENT FLATLINED // CRANIAL HEMORRHAGE`;
     debriefSummary.textContent = headerLine;
 
-    const gridLines = moveHistory.map(row => row.map(idx => emojis[idx % 4]).join(''));
+    if (debriefLobesList && currentCase) {
+      debriefLobesList.replaceChildren();
+      currentCase.lobes.forEach((lobe, idx) => {
+        const item = document.createElement('div');
+        item.className = 'debrief-lobe-item';
+        const rawLogits = lobe.words.map(w => currentCase.wordLogitMap[idx].get(w.word) ?? 10);
+        const probs = softmaxArray(rawLogits);
+        const topLine = document.createElement('div');
+        topLine.style.color = 'var(--amber)';
+        topLine.style.fontWeight = '900';
+        topLine.textContent = `🩸 ${lobe.label} — "${lobe.prompt}"`;
+        const wordsLine = document.createElement('div');
+        wordsLine.style.color = 'var(--bone)';
+        wordsLine.style.marginTop = '0.18rem';
+        wordsLine.textContent = lobe.words
+          .map((w, wi) => `${w.word.toUpperCase()} (${(probs[wi] * 100).toFixed(0)}%)`)
+          .join(' · ');
+        item.append(topLine, wordsLine);
+        debriefLobesList.appendChild(item);
+      });
+    }
+
     const isWardCase = !currentCase || currentCase.mode === 'ward';
     const modeTag = isWardCase ? 'WARD-MODE' : 'LIVE-ALBERT-V2';
+    const activeGrade = currentCase?.grade || 'clean';
+    const gradeTag = formatGradeBadge(activeGrade);
     const shareUrl = isWardCase
-      ? `https://post-training.win/?seed=${currentCase.seed}&mode=ward`
-      : `https://post-training.win/?seed=${currentCase.seed}`;
+      ? `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}&mode=ward`
+      : `https://post-training.win/?seed=${currentCase.seed}&grade=${activeGrade}`;
     const reportText = [
-      `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} (${modeTag})`,
-      won ? `STATUS: LOBOTOMIZED (${mistakesMade} mistakes · Streak ${streak})` : `STATUS: FLATLINED`,
-      ...(gridLines.length ? gridLines : ['🟥🟥🟥🟥']),
+      `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} [${modeTag} · ${gradeTag}]`,
+      won
+        ? `STATUS: LOBOTOMIZED · 4/4 CORTICAL LOBES SEVERED · ${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB INTACT · STREAK ${streak}`
+        : `STATUS: FLATLINED · CRANIAL HEMORRHAGE`,
       shareUrl,
     ].join('\n');
 
@@ -2217,6 +2714,7 @@
     currentCase = {
       seed: currentSeed,
       mode: 'live',
+      grade: 'critical',
       title: `CUSTOM VIVISECTION // LIVE 30K-VOCAB SYNTHESIS`,
       symptom: 'USER-AUTHORED SENTENCE PROBES',
       lobes,
@@ -2229,12 +2727,11 @@
     selectedWords.clear();
     solvedLobeIds = [];
     mistakesMade = 0;
-    moveHistory = [];
     writeSaveState();
 
     const ms = Math.round(performance.now() - t0);
     inferenceTiming.textContent = `CUSTOM SLM SYNTHESIS: ${ms}ms`;
-    telemetryMsg.textContent = `🧠 SYNTHESIZED 16 LIVE TOKENS FROM YOUR 4 SENTENCES IN ${ms}ms!`;
+    setTelemetry(`🧠 SYNTHESIZED 16 LIVE TOKENS FROM YOUR 4 SENTENCES IN ${ms}ms!`);
     updateModeIndicator();
     labDialog.close();
     playSound('cleave');
@@ -2276,14 +2773,33 @@
   clearBtn.addEventListener('click', () => {
     selectedWords.clear();
     playSound('tap');
+    renderClampTray();
     renderTokenGrid();
     updateActionButtons();
   });
   submitBtn.addEventListener('click', submitSelection);
 
   newCaseBtn.addEventListener('click', () => {
-    buildCaseFromSeed(currentSeed + 1);
+    buildCaseFromSeed(nextSequentialSeed(currentSeed));
   });
+
+  if (gradeBtn) {
+    gradeBtn.addEventListener('click', () => {
+      const order = ['clean', 'entangled', 'critical'];
+      const cur = currentCase?.grade || 'clean';
+      const next = order[(order.indexOf(cur) + 1) % order.length];
+      difficultyOverride = next;
+      writeSaveState();
+      playSound('probe');
+      const desc = next === 'critical'
+        ? 'GRADE III: CRITICAL — MAXIMUM SEED PHRASE SIMILARITY & TIGHTEST BOUNDARY LOGITS!'
+        : (next === 'entangled'
+          ? 'GRADE II: ENTANGLED — ADJACENT CORTICAL PROBES & CROSS-BLED TOKENS!'
+          : 'GRADE I: CLEAN — ORTHOGONAL SEED PHRASES & WIDE LOGIT MARGINS!');
+      setTelemetry(desc);
+      buildCaseFromSeed(nextSequentialSeed(currentSeed));
+    });
+  }
 
   modeBtn.addEventListener('click', async () => {
     if (wardMode) {
@@ -2377,6 +2893,16 @@
       buildCaseFromSeed(s);
     }
   });
+  if (seedRandomBtn) {
+    seedRandomBtn.addEventListener('click', () => {
+      const randBuf = new Uint32Array(1);
+      crypto.getRandomValues(randBuf);
+      const randomSeed = (randBuf[0] >>> 0) || 1;
+      seedInput.value = String(randomSeed);
+      helpDialog.close();
+      buildCaseFromSeed(randomSeed);
+    });
+  }
 
   wipeSaveBtn.addEventListener('click', async () => {
     try {
@@ -2393,7 +2919,7 @@
   debriefCloseBtn.addEventListener('click', () => debriefDialog.close());
   nextCaseBtn.addEventListener('click', () => {
     debriefDialog.close();
-    buildCaseFromSeed(currentSeed + 1);
+    buildCaseFromSeed(nextSequentialSeed(currentSeed));
   });
   copyReportBtn.addEventListener('click', async () => {
     try {
@@ -2414,6 +2940,7 @@
       submitSelection();
     } else if (e.key === 'Escape') {
       selectedWords.clear();
+      renderClampTray();
       renderTokenGrid();
       updateActionButtons();
     } else if (e.key === 's' || e.key === 'S') {
@@ -2424,7 +2951,7 @@
       stimulateHint();
     } else if (e.key === 'n' || e.key === 'N') {
       e.preventDefault();
-      buildCaseFromSeed(currentSeed + 1);
+      buildCaseFromSeed(nextSequentialSeed(currentSeed));
     } else if (e.key === 'l' || e.key === 'L') {
       e.preventDefault();
       openLab();
@@ -2442,6 +2969,11 @@
     const params = new URLSearchParams(window.location.search);
     if (params.get('seed')) {
       currentSeed = hashSeedString(params.get('seed'));
+      difficultyOverride = 'auto';
+    }
+    const gradeParam = params.get('grade');
+    if (gradeParam === 'clean' || gradeParam === 'entangled' || gradeParam === 'critical') {
+      difficultyOverride = gradeParam;
     }
     if (params.get('lite') === '1' || params.get('mode') === 'ward') {
       wardMode = true;
