@@ -747,17 +747,27 @@ def generate() -> None:
     rest_quads = sorted(all_quads_list[1:], key=lambda q: -quad_min_margin(q))
     all_quads_list = [p0_quad] + rest_quads
 
-    # Build compatibility adjacency list & pairwise margin map for live procedural generation in browser
-    # Sorted by pair margin ascending (most entangled/similar first, most orthogonal last)
+    # Compute L2-normalized mean-centered cortical embeddings per category (divid3-style cosine similarity)
+    centered_pool = full_pool_logits - full_pool_logits.mean(axis=1, keepdims=True)
+    norms = np.linalg.norm(centered_pool, axis=1, keepdims=True)
+    normed_pool = centered_pool / np.clip(norms, 1e-12, None)
+    pair_cos_matrix = normed_pool @ normed_pool.T
+
+    # Build compatibility adjacency list, pairwise margin map & cosine similarity map for live procedural generation
+    # Sorted by cosine similarity descending (smallest embedding distance / most similar first, most orthogonal last)
     compat_map = {}
     pair_margins_out = {}
+    pair_cos_out = {}
     for i in range(n_cats):
         cid_i = categories_out[i]["id"]
         compat_neighbors = [j for j in range(n_cats) if compat[i, j]]
-        compat_neighbors.sort(key=lambda j: float(pair_margin_matrix[i, j]))
+        compat_neighbors.sort(key=lambda j: -float(pair_cos_matrix[i, j]))
         compat_map[cid_i] = [categories_out[j]["id"] for j in compat_neighbors]
         pair_margins_out[cid_i] = {
             categories_out[j]["id"]: round(float(pair_margin_matrix[i, j]), 2) for j in compat_neighbors
+        }
+        pair_cos_out[cid_i] = {
+            categories_out[j]["id"]: round(float(pair_cos_matrix[i, j]), 4) for j in compat_neighbors
         }
 
     pool_logits_out = {
@@ -789,7 +799,7 @@ def generate() -> None:
     total_prompts = sum(len(c["prompts"]) for c in categories_out)
 
     payload = {
-        "version": 2,
+        "version": 3,
         "modelId": "Xenova/albert-base-v2",
         "dtype": "fp16",
         "maskToken": "[MASK]",
@@ -797,6 +807,7 @@ def generate() -> None:
         "categories": {c["id"]: c for c in categories_out},
         "compatibility": compat_map,
         "pairMargins": pair_margins_out,
+        "pairCosSim": pair_cos_out,
         "poolWordIndex": pool_word_to_idx,
         "poolLogits": pool_logits_out,
         "puzzles": puzzles,

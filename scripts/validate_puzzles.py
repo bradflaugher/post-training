@@ -25,10 +25,12 @@ def main() -> int:
         return 1
 
     data = json.loads(PUZZLES_PATH.read_text(encoding="utf-8"))
-    assert data.get("version") == 2, f"Unexpected version: {data.get('version')}"
+    assert data.get("version") in (2, 3), f"Unexpected version: {data.get('version')}"
     assert data.get("modelId") == "Xenova/albert-base-v2"
     assert data.get("dtype") == "fp16"
     assert data.get("maskToken") == "[MASK]"
+    assert isinstance(data.get("pairCosSim"), dict) and len(data["pairCosSim"]) >= 40
+    assert isinstance(data.get("poolLogits"), dict) and len(data["poolLogits"]) >= 40
 
     categories = data.get("categories", {})
     assert len(categories) >= 40, f"Expected >= 40 categories, got {len(categories)}"
