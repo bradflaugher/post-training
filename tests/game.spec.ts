@@ -46,6 +46,10 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const footerBox = await page.locator('.footer-nav').boundingBox();
     expect(footerBox).not.toBeNull();
     expect((footerBox?.y ?? 0) + (footerBox?.height ?? 0)).toBeLessThanOrEqual(667);
+
+    // Verify bottom scrolling ticker has no LED badge or light
+    await expect(page.locator('.ticker-badge')).toHaveCount(0);
+    await expect(page.locator('.telemetry-bar')).not.toContainText('● LED');
   });
 
   test('can select 4 matching tokens into the Synaptic Clamp Bus, amputate a cortical lobe, and reveal its probe & SLM probabilities', async ({ page }) => {
@@ -81,7 +85,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     expect(fitsViewport).toBe(true);
   });
 
-  test('detects One-Away (3/4 synapses aligned) and decrements defibrillator charge on mistake', async ({ page }) => {
+  test('detects One-Away (3/4 synapses aligned), decrements defibrillator charge on mistake, and blocks duplicate guesses', async ({ page }) => {
     await page.goto('/index.html?lite=1&seed=1');
 
     // Stimulate 3 correct tokens for Probe 01
@@ -94,12 +98,22 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const nonMatchingTile = page.locator('.token-tile:not([data-lobe-id="ice_cream"])').first();
     await nonMatchingTile.click();
 
-    await page.locator('#submit-btn').click();
+    const submitBtn = page.locator('#submit-btn');
+    await submitBtn.click();
     await expect(page.locator('#telemetry-msg')).toContainText('3/4 SYNAPSES ALIGNED');
+    await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
+
+    // Same 4 tokens remain selected, but #submit-btn is now disabled with "ALREADY TRIED"
+    await expect(submitBtn).toBeDisabled();
+    await expect(submitBtn).toHaveText('ALREADY TRIED');
+
+    // Mashing Enter or re-selecting the same 4 tokens must not deduct another defibrillator charge
+    await page.keyboard.press('Enter');
     await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
   });
 
-  test('completes a full surgical case and shows the Post-Op Autopsy Report modal without colored emoji squares', async ({ page }) => {
+  test('completes a full surgical case and shows the Post-Op Autopsy Report modal without colored emoji squares or button overflow on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
 
     const hintBtn = page.locator('#hint-btn');
@@ -119,13 +133,32 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const shareText = (await page.locator('#debrief-grid-text').textContent()) ?? '';
     expect(shareText).toContain('mode=ward');
     expect(shareText).not.toMatch(/[🟥🟩🟨🟪]/u);
+
+    // Verify #copy-report-btn and #next-case-btn stay inside the dialog and do not overflow their boxes on mobile
+    const buttonsFit = await page.evaluate(() => {
+      const dlg = document.querySelector('#debrief-dialog')?.getBoundingClientRect();
+      const copyBtn = document.querySelector('#copy-report-btn') as HTMLElement | null;
+      const nextBtn = document.querySelector('#next-case-btn') as HTMLElement | null;
+      if (!dlg || !copyBtn || !nextBtn) return false;
+      const copyRect = copyBtn.getBoundingClientRect();
+      const nextRect = nextBtn.getBoundingClientRect();
+      return (
+        copyRect.width >= 100 &&
+        copyBtn.scrollWidth <= copyBtn.clientWidth + 2 &&
+        copyRect.left >= dlg.left &&
+        copyRect.right <= dlg.right &&
+        nextRect.left >= dlg.left &&
+        nextRect.right <= dlg.right
+      );
+    });
+    expect(buttonsFit).toBe(true);
   });
 
-  test('cycles entanglement difficulty grades and synthesizes billions of procedural seeds', async ({ page }) => {
+  test('cycles cosine-distance difficulty grades, rolls random seeds on refresh/grade change, and synthesizes billions of procedural seeds', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=3923223191');
     await expect(page.locator('#seed-btn')).toContainText('SEED: #3923223191');
-    await expect(page.locator('#grade-btn')).toContainText('G2: ENTANGLED');
+    await expect(page.locator('#grade-btn')).toContainText('MED · Δ');
 
     // Verify #grade-btn is completely visible and unclipped on a 375px screen even with a 10-digit seed
     const gradeBox = await page.locator('#grade-btn').boundingBox();
@@ -135,12 +168,19 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const wordsA = await page.locator('.token-word').allTextContents();
 
     await page.locator('#grade-btn').click();
-    await expect(page.locator('#grade-btn')).toContainText('G3: CRITICAL');
+    await expect(page.locator('#grade-btn')).toContainText('HARD · Δ');
     await expect(page.locator('.token-tile')).toHaveCount(16);
 
     await page.locator('#grade-btn').click();
-    await expect(page.locator('#grade-btn')).toContainText('G1: CLEAN');
+    await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
     await expect(page.locator('.token-tile')).toHaveCount(16);
+
+    // Verify clicking #new-case-btn rolls a fresh random seed while keeping EASY difficulty
+    const seedBeforeRefresh = await page.locator('#seed-btn').textContent();
+    await page.locator('#new-case-btn').click();
+    await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
+    const seedAfterRefresh = await page.locator('#seed-btn').textContent();
+    expect(seedAfterRefresh).not.toBe(seedBeforeRefresh);
 
     // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
     await page.goto('/index.html?lite=1&seed=1588089239');
@@ -153,7 +193,8 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     expect(canonicalWords).toContain('vanilla');
   });
 
-  test('opens Live Lobotomy Lab and Surgical Manual dialogs cleanly', async ({ page }) => {
+  test('opens Live Lobotomy Lab and Surgical Manual dialogs cleanly with properly bounded footer buttons on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
 
     await page.locator('#lab-btn').click();
@@ -164,6 +205,28 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
 
     await page.locator('#help-btn').click();
     await expect(page.locator('#help-dialog')).toBeVisible();
+
+    // Verify #wipe-save-btn and #help-done-btn stay inside #help-dialog and do not overflow their button boxes on mobile
+    const helpButtonsFit = await page.evaluate(() => {
+      const dlg = document.querySelector('#help-dialog')?.getBoundingClientRect();
+      const wipeBtn = document.querySelector('#wipe-save-btn') as HTMLElement | null;
+      const doneBtn = document.querySelector('#help-done-btn') as HTMLElement | null;
+      if (!dlg || !wipeBtn || !doneBtn) return false;
+      const wipeRect = wipeBtn.getBoundingClientRect();
+      const doneRect = doneBtn.getBoundingClientRect();
+      return (
+        wipeRect.width >= 100 &&
+        doneRect.width >= 100 &&
+        wipeBtn.scrollWidth <= wipeBtn.clientWidth + 2 &&
+        doneBtn.scrollWidth <= doneBtn.clientWidth + 2 &&
+        wipeRect.left >= dlg.left &&
+        wipeRect.right <= dlg.right &&
+        doneRect.left >= dlg.left &&
+        doneRect.right <= dlg.right
+      );
+    });
+    expect(helpButtonsFit).toBe(true);
+
     await page.locator('#seed-input').fill('42');
     await page.locator('#seed-load-btn').click();
     await expect(page.locator('#seed-btn')).toContainText('SEED: #0042');
