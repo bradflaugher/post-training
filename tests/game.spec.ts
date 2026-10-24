@@ -122,17 +122,35 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
   });
 
   test('cycles entanglement difficulty grades and synthesizes billions of procedural seeds', async ({ page }) => {
-    await page.goto('/index.html?lite=1&seed=999999');
-    await expect(page.locator('#seed-btn')).toContainText('SEED: #999999');
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/index.html?lite=1&seed=3923223191');
+    await expect(page.locator('#seed-btn')).toContainText('SEED: #3923223191');
+    await expect(page.locator('#grade-btn')).toContainText('G2: ENTANGLED');
+
+    // Verify #grade-btn is completely visible and unclipped on a 375px screen even with a 10-digit seed
+    const gradeBox = await page.locator('#grade-btn').boundingBox();
+    expect(gradeBox).not.toBeNull();
+    expect((gradeBox?.x ?? 0) + (gradeBox?.width ?? 0)).toBeLessThanOrEqual(375);
+
+    const wordsA = await page.locator('.token-word').allTextContents();
+
+    await page.locator('#grade-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('G3: CRITICAL');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
 
     await page.locator('#grade-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('G1: CLEAN');
     await expect(page.locator('.token-tile')).toHaveCount(16);
 
-    await page.locator('#grade-btn').click();
-    await expect(page.locator('#grade-btn')).toContainText('G2: ENTANGLED');
-    await expect(page.locator('.token-tile')).toHaveCount(16);
+    // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
+    await page.goto('/index.html?lite=1&seed=1588089239');
+    const wordsB = await page.locator('.token-word').allTextContents();
+    expect(wordsA.join(',')).not.toBe(wordsB.join(','));
+
+    // Verify shared seed=1&grade=clean link preserves canonical seed 1 board
+    await page.goto('/index.html?lite=1&seed=1&grade=clean');
+    const canonicalWords = await page.locator('.token-word').allTextContents();
+    expect(canonicalWords).toContain('vanilla');
   });
 
   test('opens Live Lobotomy Lab and Surgical Manual dialogs cleanly', async ({ page }) => {

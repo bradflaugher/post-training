@@ -374,6 +374,34 @@
     .solved-z {
       display: none;
     }
+    .volts-label {
+      display: none;
+    }
+    .case-strip {
+      padding: 0.2rem 0.32rem;
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+    .case-info {
+      gap: 0.18rem;
+      overflow: visible;
+      flex-wrap: wrap;
+    }
+    .case-badge, .seed-btn {
+      font-size: 0.49rem;
+      padding: 0.08rem 0.22rem;
+    }
+    .vitals-right {
+      gap: 0.22rem;
+    }
+    .volt-pip {
+      width: 7px;
+      height: 10px;
+    }
+    #streak-badge {
+      font-size: 0.5rem !important;
+    }
   }
 
   /* ── Sub-Bar: Case Title, Seed & Defibrillator Volts (Single Line) ── */
@@ -1075,7 +1103,7 @@
     </div>
     <div class="vitals-right">
       <div class="volts-wrap" title="Remaining Defibrillator Charges (mistakes allowed)">
-        <span>DEFIB:</span>
+        <span class="volts-label">DEFIB:</span>
         <div class="volt-pips" id="volt-pips">
           <span class="volt-pip"></span>
           <span class="volt-pip"></span>
@@ -1829,23 +1857,31 @@
     return 6.8;
   }
 
+  function nextSequentialSeed(s) {
+    const u = (s >>> 0) || 1;
+    return u >= 4294967295 ? 1 : u + 1;
+  }
+
   async function buildCaseFromSeed(seedNum, forceWard = false) {
     const myGen = ++buildGeneration;
-    currentSeed = seedNum;
+    const uSeed = (seedNum >>> 0) || 1;
+    currentSeed = uSeed;
     writeSaveState();
     await loadCorpusOnce();
     if (myGen !== buildGeneration) return false;
 
     const puzzles = corpus.puzzles;
-    const basePuzzle = puzzles[(seedNum - 1) % puzzles.length];
-    const rng = mulberry32(seedNum * 2654435761);
-    const targetGrade = resolveTargetGrade(seedNum);
+    const baseIdx = (uSeed - 1) % puzzles.length;
+    const basePuzzle = puzzles[baseIdx];
+    const rng = mulberry32(Math.imul(uSeed, 2654435761) >>> 0);
+    const targetGrade = resolveTargetGrade(uSeed);
+    const isCanonicalSeed1 = uSeed === 1 && targetGrade === 'clean';
 
     // Choose 4 mutually-compatible categories validated across all 6 pairs and all 4 word pools:
-    // Seed 1 uses the canonical opening quad so onboarding & E2E tests on seed=1 are deterministic;
-    // every other seed (2 .. 4,294,967,295) rolls procedurally from the 48-lobe compatibility graph!
+    // Seed 1 (CLEAN) uses the canonical opening quad so onboarding, shared links & E2E tests on seed=1 are deterministic;
+    // every other seed/grade rolls procedurally from the 48-lobe compatibility graph!
     let catIds = basePuzzle.categories.slice();
-    if (seedNum > 1 || difficultyOverride !== 'auto') {
+    if (!isCanonicalSeed1) {
       const allIds = Object.keys(corpus.categories);
       let bestQuad = null;
       let bestDist = Infinity;
@@ -1899,10 +1935,10 @@
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     const useLive = !forceWard && !wardMode && modelReady;
 
-    // In Live SLM mode, pick a prompt variant per lobe; in Ward mode, always use the scored primary prompt!
+    // In Live SLM mode, pick a prompt variant per lobe; in Ward mode (or canonical seed 1), use the scored primary prompt!
     const chosenPrompts = catIds.map(cid => {
       const cat = corpus.categories[cid];
-      if (!useLive || (seedNum === 1 && difficultyOverride === 'auto')) return cat.prompt;
+      if (!useLive || isCanonicalSeed1) return cat.prompt;
       const plist = cat.prompts && cat.prompts.length ? cat.prompts : [cat.prompt];
       return plist[Math.floor(rng() * plist.length)];
     });
@@ -1969,7 +2005,7 @@
         const validCands = scoredPool.filter(w => w.margin > 0.35);
         const usable = validCands.length >= 4 ? validCands : scoredPool.slice(0, 4);
         let chosen4 = usable.slice(0, 4);
-        if ((seedNum > 1 || difficultyOverride !== 'auto') && usable.length >= 4) {
+        if (!isCanonicalSeed1 && usable.length >= 4) {
           if (targetGrade === 'critical') {
             chosen4 = usable.slice(-4);
           } else if (targetGrade === 'entangled') {
@@ -1997,7 +2033,7 @@
     } else {
       // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
       const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
-      if (hasPoolMatrix && (seedNum > 1 || difficultyOverride !== 'auto')) {
+      if (hasPoolMatrix && !isCanonicalSeed1) {
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
           const cat = corpus.categories[cid];
@@ -2093,14 +2129,14 @@
       [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
     }
 
-    currentSeed = seedNum;
+    currentSeed = uSeed;
     writeSaveState();
 
     currentCase = {
-      seed: seedNum,
+      seed: uSeed,
       mode: useLive ? 'live' : 'ward',
       grade: targetGrade,
-      title: `CASE #${String(seedNum).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
+      title: `CASE #${String(baseIdx + 1).padStart(3, '0')} // ${basePuzzle.title.split('//')[1]?.trim() || 'CORTICAL VIVISECTION'}`,
       symptom: basePuzzle.symptom,
       lobes,
       tokens,
@@ -2744,7 +2780,7 @@
   submitBtn.addEventListener('click', submitSelection);
 
   newCaseBtn.addEventListener('click', () => {
-    buildCaseFromSeed(currentSeed + 1);
+    buildCaseFromSeed(nextSequentialSeed(currentSeed));
   });
 
   if (gradeBtn) {
@@ -2761,7 +2797,7 @@
           ? 'GRADE II: ENTANGLED — ADJACENT CORTICAL PROBES & CROSS-BLED TOKENS!'
           : 'GRADE I: CLEAN — ORTHOGONAL SEED PHRASES & WIDE LOGIT MARGINS!');
       setTelemetry(desc);
-      buildCaseFromSeed(currentSeed + 1);
+      buildCaseFromSeed(nextSequentialSeed(currentSeed));
     });
   }
 
@@ -2883,7 +2919,7 @@
   debriefCloseBtn.addEventListener('click', () => debriefDialog.close());
   nextCaseBtn.addEventListener('click', () => {
     debriefDialog.close();
-    buildCaseFromSeed(currentSeed + 1);
+    buildCaseFromSeed(nextSequentialSeed(currentSeed));
   });
   copyReportBtn.addEventListener('click', async () => {
     try {
@@ -2915,7 +2951,7 @@
       stimulateHint();
     } else if (e.key === 'n' || e.key === 'N') {
       e.preventDefault();
-      buildCaseFromSeed(currentSeed + 1);
+      buildCaseFromSeed(nextSequentialSeed(currentSeed));
     } else if (e.key === 'l' || e.key === 'L') {
       e.preventDefault();
       openLab();
