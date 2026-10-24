@@ -501,6 +501,107 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         ],
         ["hymn", "chant", "psalm", "mantra", "prayer", "blessing", "proverb", "ballad"],
     ),
+    (
+        "tools",
+        "WORKSHOP TOOLS",
+        "PARIETAL CORTEX // HARDWARE",
+        [
+            "the carpenter reached into the toolbox for a [MASK].",
+            "in the workshop, the mechanic tightened the bolt with a [MASK].",
+            "on the workbench lay a heavy steel [MASK] and pliers.",
+        ],
+        ["hammer", "wrench", "screwdriver", "pliers", "chisel", "saw", "drill", "clamp", "mallet", "shovel"],
+    ),
+    (
+        "kitchenware",
+        "COOKING VESSELS",
+        "INSULAR CORTEX // CAST-IRON",
+        [
+            "on the stove simmered a heavy cast-iron [MASK].",
+            "the chef poured boiling stock into the copper [MASK].",
+            "in the kitchen sink soaked a greasy [MASK] and ladle.",
+        ],
+        ["skillet", "kettle", "pot", "pan", "cauldron", "wok", "teapot", "pitcher", "bowl", "platter"],
+    ),
+    (
+        "reptiles",
+        "COLD-BLOODED SCALES",
+        "REPTILIAN BRAINSTEM // VENOM",
+        [
+            "basking on the sunny swamp rock was a scaly [MASK].",
+            "through the marsh grass slithered a venomous [MASK].",
+            "inside the glass terrarium coiled a spotted [MASK].",
+        ],
+        ["snake", "lizard", "crocodile", "alligator", "cobra", "viper", "python", "gecko", "iguana", "toad", "frog"],
+    ),
+    (
+        "predators",
+        "APEX PREDATORS",
+        "PREDATORY STRIATUM // FANG",
+        [
+            "through the dark wilderness prowled a hungry [MASK].",
+            "at midnight the pack of [MASK] stalked their prey.",
+            "in the jungle shadows crouched a snarling [MASK].",
+        ],
+        ["wolf", "bear", "fox", "tiger", "lion", "leopard", "panther", "coyote", "jaguar", "cougar", "hyena"],
+    ),
+    (
+        "structures",
+        "STONE CITADELS",
+        "PARAHIPPOCAMPAL // MONOLITH",
+        [
+            "atop the rocky crag stood a medieval stone [MASK].",
+            "the pilgrims traveled across the valley to the ancient [MASK].",
+            "behind thick granite walls rose the fortified [MASK].",
+        ],
+        ["castle", "temple", "palace", "cathedral", "chapel", "fortress", "monastery", "shrine", "tower", "citadel"],
+    ),
+    (
+        "currency",
+        "HARD CURRENCY",
+        "NUCLEUS ACCUMBENS // MINT",
+        [
+            "the foreign exchange counter traded gold and [MASK] bills.",
+            "the teller counted out a stack of crisp [MASK] notes.",
+            "the merchant accepted payment in silver [MASK].",
+        ],
+        ["dollar", "pound", "franc", "peso", "yen", "coin", "cent", "penny", "dime", "euro"],
+    ),
+    (
+        "medical",
+        "SURGICAL TRAY",
+        "MEDULLA OBLONGATA // STERILE",
+        [
+            "the trauma nurse handed the surgeon a sterile [MASK].",
+            "on the stainless surgical tray gleamed a bloody [MASK].",
+            "the paramedic tore open a packet of [MASK] for the wound.",
+        ],
+        [
+            "scalpel",
+            "syringe",
+            "bandage",
+            "needle",
+            "gauze",
+            "catheter",
+            "splint",
+            "forceps",
+            "swab",
+            "mask",
+            "pill",
+            "vaccine",
+        ],
+    ),
+    (
+        "desserts",
+        "BAKERY PASTRIES",
+        "SEROTONIN LOOP // CONFECTION",
+        [
+            "from the bakery display case she chose a frosted [MASK].",
+            "for dessert the baker served warm [MASK] with cream.",
+            "on the porcelain plate sat a freshly baked [MASK].",
+        ],
+        ["cake", "pie", "cookie", "tart", "pastry", "muffin", "brownie", "donut", "biscuit", "pudding"],
+    ),
 ]
 
 SURGICAL_CASES = [
@@ -571,8 +672,13 @@ def generate() -> None:
             }
         )
 
-    # Compute compatibility matrix on the canonical top-4 words for the 64 fallback surgical cases
+    # Compute logits of every category's primary prompt on ALL pool words across all categories
     n_cats = len(categories_out)
+    all_pool_entries = [(ci, we["word"], we["tokenId"]) for ci, c in enumerate(categories_out) for we in c["wordPool"]]
+    pool_word_to_idx = {w: idx for idx, (_, w, _) in enumerate(all_pool_entries)}
+    pool_tids = [tid for _, _, tid in all_pool_entries]
+
+    full_pool_logits = np.zeros((n_cats, len(all_pool_entries)), dtype=np.float32)
     all_tids = [we["tokenId"] for c in categories_out for we in c["words"]]
     logit_matrix = np.zeros((n_cats, n_cats * 4), dtype=np.float32)
 
@@ -585,9 +691,12 @@ def generate() -> None:
         logits = out[0, enc.ids.index(mask_id)].astype(np.float32)
         for wi, tid in enumerate(all_tids):
             logit_matrix[ci, wi] = float(logits[tid])
+        for pwi, tid in enumerate(pool_tids):
+            full_pool_logits[ci, pwi] = float(logits[tid])
 
     margin = 1.4
     compat = np.zeros((n_cats, n_cats), dtype=bool)
+    pair_margin_matrix = np.zeros((n_cats, n_cats), dtype=np.float32)
     for i in range(n_cats):
         own_i = logit_matrix[i, i * 4 : (i + 1) * 4]
         min_i = float(np.min(own_i))
@@ -597,42 +706,28 @@ def generate() -> None:
             other_on_i = logit_matrix[i, j * 4 : (j + 1) * 4]
             own_j = logit_matrix[j, j * 4 : (j + 1) * 4]
             other_on_j = logit_matrix[j, i * 4 : (i + 1) * 4]
-            if min_i > float(np.max(other_on_i)) + margin and float(np.min(own_j)) > float(np.max(other_on_j)) + margin:
+            gap_ij = min(min_i - float(np.max(other_on_i)), float(np.min(own_j)) - float(np.max(other_on_j)))
+            pair_margin_matrix[i, j] = gap_ij
+            if gap_ij > margin:
                 compat[i, j] = True
 
     def is_valid_quad(quad: tuple[int, int, int, int]) -> bool:
         return all(bool(compat[a, b]) for a, b in itertools.combinations(quad, 2))
 
+    def quad_min_margin(quad: tuple[int, int, int, int]) -> float:
+        return min(float(pair_margin_matrix[a, b]) for a, b in itertools.combinations(quad, 2))
+
     p0_quad = (0, 1, 3, 5)
     assert is_valid_quad(p0_quad), "Puzzle 0 quad must be valid!"
 
-    remaining = [i for i in range(n_cats) if i not in p0_quad]
-
-    def solve_partition(rem: list[int]) -> list[tuple[int, int, int, int]] | None:
-        if not rem:
-            return []
-        first = rem[0]
-        rest = rem[1:]
-        for b, c, d in itertools.combinations(rest, 3):
-            q = (first, b, c, d)
-            if is_valid_quad(q):
-                sub = solve_partition([x for x in rest if x not in (b, c, d)])
-                if sub is not None:
-                    return [q] + sub
-        return None
-
-    part = solve_partition(remaining)
-    assert part is not None, "Could not partition remaining 36 categories into 9 disjoint quads!"
-    first_10_quads = [p0_quad] + part
-
     rng = random.Random(19960420)
-    seen_quads = set(first_10_quads)
-    all_quads_list = list(first_10_quads)
-    usage_counts = {i: 1 for i in range(n_cats)}
+    seen_quads = {p0_quad}
+    all_quads_list = [p0_quad]
+    usage_counts = {i: (1 if i in p0_quad else 0) for i in range(n_cats)}
     attempts = 0
-    while len(all_quads_list) < 64 and attempts < 50000:
+    while len(all_quads_list) < 128 and attempts < 80000:
         attempts += 1
-        weights = [1.0 / (usage_counts[i] ** 2) for i in range(n_cats)]
+        weights = [1.0 / ((usage_counts[i] + 1) ** 2) for i in range(n_cats)]
         chosen = []
         pool = list(range(n_cats))
         while len(chosen) < 4:
@@ -647,9 +742,26 @@ def generate() -> None:
             for c in quad:
                 usage_counts[c] += 1
 
-    # Build compatibility adjacency list for live procedural generation in browser
-    compat_map = {
-        categories_out[i]["id"]: [categories_out[j]["id"] for j in range(n_cats) if compat[i, j]] for i in range(n_cats)
+    # Keep Puzzle 0 as the opening case, and sort remaining 127 cases from widest margin (easiest/cleanest)
+    # to tightest margin (most semantically entangled seed phrases!)
+    rest_quads = sorted(all_quads_list[1:], key=lambda q: -quad_min_margin(q))
+    all_quads_list = [p0_quad] + rest_quads
+
+    # Build compatibility adjacency list & pairwise margin map for live procedural generation in browser
+    # Sorted by pair margin ascending (most entangled/similar first, most orthogonal last)
+    compat_map = {}
+    pair_margins_out = {}
+    for i in range(n_cats):
+        cid_i = categories_out[i]["id"]
+        compat_neighbors = [j for j in range(n_cats) if compat[i, j]]
+        compat_neighbors.sort(key=lambda j: float(pair_margin_matrix[i, j]))
+        compat_map[cid_i] = [categories_out[j]["id"] for j in compat_neighbors]
+        pair_margins_out[cid_i] = {
+            categories_out[j]["id"]: round(float(pair_margin_matrix[i, j]), 2) for j in compat_neighbors
+        }
+
+    pool_logits_out = {
+        categories_out[ci]["id"]: [round(float(x), 1) for x in full_pool_logits[ci]] for ci in range(n_cats)
     }
 
     puzzles = []
@@ -667,6 +779,7 @@ def generate() -> None:
                 "id": pi + 1,
                 "title": title,
                 "symptom": case_note,
+                "minMargin": round(quad_min_margin(quad), 2),
                 "categories": [categories_out[c]["id"] for c in quad],
                 "fallbackLogits": p_logits,
             }
@@ -683,6 +796,9 @@ def generate() -> None:
         "maskTokenId": int(mask_id),
         "categories": {c["id"]: c for c in categories_out},
         "compatibility": compat_map,
+        "pairMargins": pair_margins_out,
+        "poolWordIndex": pool_word_to_idx,
+        "poolLogits": pool_logits_out,
         "puzzles": puzzles,
     }
 
