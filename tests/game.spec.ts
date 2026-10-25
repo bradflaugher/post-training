@@ -181,21 +181,29 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const easyDelta = parseFloat(easyBadgeText.split('Δ')[1] ?? '0');
     expect(easyDelta).toBeGreaterThanOrEqual(0.8);
 
-    // Verify clicking #new-case-btn rolls a fresh random seed while keeping EASY difficulty and zero category overlap
+    // Verify clicking #new-case-btn across 10 consecutive games (pushing recentLobeIds past its 32-entry cap)
+    // never repeats a category from any of the preceding 7 games (every 8-game window has 32 distinct lobes)
     const seedBeforeRefresh = await page.locator('#seed-btn').textContent();
-    const lobesBeforeRefresh = await page.evaluate(() =>
+    const firstBoardLobes = await page.evaluate(() =>
       Array.from(new Set(Array.from(document.querySelectorAll('.token-tile')).map(el => (el as HTMLElement).dataset.lobeId || '')))
     );
-    await page.locator('#new-case-btn').click();
-    await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
+    expect(firstBoardLobes.length).toBe(4);
+    const boardHistory: string[][] = [firstBoardLobes];
+    for (let g = 0; g < 10; g++) {
+      await page.locator('#new-case-btn').click();
+      await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
+      const curLobes = await page.evaluate(() =>
+        Array.from(new Set(Array.from(document.querySelectorAll('.token-tile')).map(el => (el as HTMLElement).dataset.lobeId || '')))
+      );
+      expect(curLobes.length).toBe(4);
+      const recentWindowLobes = new Set(boardHistory.slice(-7).flat());
+      for (const lid of curLobes) {
+        expect(recentWindowLobes.has(lid)).toBe(false);
+      }
+      boardHistory.push(curLobes);
+    }
     const seedAfterRefresh = await page.locator('#seed-btn').textContent();
     expect(seedAfterRefresh).not.toBe(seedBeforeRefresh);
-    const lobesAfterRefresh = await page.evaluate(() =>
-      Array.from(new Set(Array.from(document.querySelectorAll('.token-tile')).map(el => (el as HTMLElement).dataset.lobeId || '')))
-    );
-    for (const lid of lobesAfterRefresh) {
-      expect(lobesBeforeRefresh).not.toContain(lid);
-    }
 
     // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
     await page.goto('/index.html?lite=1&seed=1588089239');

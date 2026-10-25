@@ -2210,7 +2210,7 @@
     return count > 0 ? total / count : 0.75;
   }
 
-  function selectDeterministicQuad(uSeed, targetGrade) {
+  function selectDeterministicQuad(uSeed, targetGrade, rejectOverlapSet = null) {
     const puzzles = corpus.puzzles;
     const baseIdx = (uSeed - 1) % puzzles.length;
     const basePuzzle = puzzles[baseIdx];
@@ -2220,6 +2220,7 @@
     let catIds = basePuzzle.categories.slice();
     let probeCosDist = evaluateCandidateQuad(catIds, targetGrade) ?? 0.85;
     if (isCanonicalSeed1) {
+      if (rejectOverlapSet && catIds.some(cid => rejectOverlapSet.has(cid))) return null;
       return { catIds, probeCosDist, rng, baseIdx, basePuzzle, isCanonicalSeed1 };
     }
 
@@ -2244,7 +2245,7 @@
             const simB = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[b]) ?? 0), 0) / picked.length;
             return simB - simA;
           });
-          const topK = cands.slice(0, Math.max(6, Math.min(14, cands.length)));
+          const topK = cands.slice(0, Math.max(8, Math.min(18, cands.length)));
           picked.push(topK[Math.floor(rng() * topK.length)]);
         }
       } else if (targetGrade === 'easy') {
@@ -2260,7 +2261,7 @@
             const avgB = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[b]) ?? 0), 0) / picked.length;
             return (0.7 * maxA + 0.3 * avgA) - (0.7 * maxB + 0.3 * avgB);
           });
-          const topK = cands.slice(0, Math.max(6, Math.min(12, cands.length)));
+          const topK = cands.slice(0, Math.max(8, Math.min(16, cands.length)));
           picked.push(topK[Math.floor(rng() * topK.length)]);
         }
       } else {
@@ -2279,6 +2280,12 @@
 
       const cDist = evaluateCandidateQuad(picked, targetGrade);
       if (cDist === null) continue;
+      const canMatchBand =
+        targetGrade === 'easy' ? cDist >= 0.71 :
+        targetGrade === 'hard' ? cDist <= 0.71 :
+        (cDist >= 0.45 && cDist <= 0.88);
+      if (!canMatchBand && bestQuad !== null) continue;
+      if (canMatchBand && rejectOverlapSet && picked.some(cid => rejectOverlapSet.has(cid))) return null;
 
       let combinedCandDist = cDist;
       if (hasPoolMatrixForSearch) {
@@ -2305,11 +2312,12 @@
       catIds = bestQuad;
       probeCosDist = bestQuadDistVal;
     }
+    if (rejectOverlapSet && catIds.some(cid => rejectOverlapSet.has(cid))) return null;
     return { catIds, probeCosDist, rng, baseIdx, basePuzzle, isCanonicalSeed1 };
   }
 
   function rollRandomSeed() {
-    const randBuf = new Uint32Array(16);
+    const randBuf = new Uint32Array(32);
     crypto.getRandomValues(randBuf);
     let fallbackSeed = 2;
     for (let k = 0; k < randBuf.length; k++) {
@@ -2322,24 +2330,27 @@
     if (!corpus || !recentLobeIds.length) {
       return fallbackSeed;
     }
-    let bestSeed = fallbackSeed;
-    let bestOverlap = Infinity;
-    for (let k = 0; k < randBuf.length; k++) {
-      const candSeed = (randBuf[k] >>> 0) || 2;
-      if (candSeed === 1 || candSeed === currentSeed) continue;
-      const tGrade = resolveTargetGrade(candSeed);
-      const { catIds } = selectDeterministicQuad(candSeed, tGrade);
-      let overlap = 0;
-      for (const cid of catIds) {
-        if (recentLobeIds.includes(cid)) overlap++;
-      }
-      if (overlap === 0) return candSeed;
-      if (overlap < bestOverlap) {
-        bestOverlap = overlap;
-        bestSeed = candSeed;
+    const windowSizes = [recentLobeIds.length, 24, 16, 8, 4].filter(
+      (n, idx, arr) => n > 0 && n <= recentLobeIds.length && arr.indexOf(n) === idx
+    );
+    for (const winSize of windowSizes) {
+      const recentSet = new Set(recentLobeIds.slice(-winSize));
+      for (let batch = 0; batch < 16; batch++) {
+        if (batch > 0 || winSize !== recentLobeIds.length) {
+          crypto.getRandomValues(randBuf);
+        }
+        for (let k = 0; k < randBuf.length; k++) {
+          const candSeed = (randBuf[k] >>> 0) || 2;
+          if (candSeed === 1 || candSeed === currentSeed) continue;
+          const tGrade = resolveTargetGrade(candSeed);
+          const matched = selectDeterministicQuad(candSeed, tGrade, recentSet);
+          if (matched && matched.catIds.every(cid => !recentSet.has(cid))) {
+            return candSeed;
+          }
+        }
       }
     }
-    return bestSeed;
+    return fallbackSeed;
   }
 
   async function buildCaseFromSeed(seedNum, forceWard = false) {

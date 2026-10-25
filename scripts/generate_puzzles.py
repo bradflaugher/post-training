@@ -1585,9 +1585,10 @@ def generate() -> None:
             vecs_j = word_vecs_16[cat_word_indices[j]]
             cross_word_sims = np.sort((vecs_i @ vecs_j.T).ravel())[::-1]
             top_word_sim = float(np.mean(cross_word_sims[:2]))
+            word_sim_adj = float(np.clip((top_word_sim - 0.25) / 0.65, -0.2, 0.92))
             base_cos = float(col_cos_matrix[i, j])
-            blended = 0.40 * base_cos + 0.30 * decoy_sim + 0.30 * top_word_sim
-            raw_pair_cos[i, j] = float(np.clip(max(base_cos, blended, 0.68 * top_word_sim), -0.8, 0.92))
+            blended = 0.40 * base_cos + 0.30 * decoy_sim + 0.30 * word_sim_adj
+            raw_pair_cos[i, j] = float(np.clip(max(base_cos, blended, 0.78 * word_sim_adj), -0.8, 0.92))
 
     # Apply one-sided hub-penalization so hub categories don't dominate HARD cliques without inflating EASY pairs
     top_k_means = np.array(
