@@ -2039,7 +2039,7 @@
       if (!isCanonicalSeed1 && targetGrade === 'hard') {
         chosen[i] = pickHardWordsForLobe(scoredPool);
       } else if (!isCanonicalSeed1 && targetGrade === 'medium') {
-        const validCands = scoredPool.filter(w => w.margin > 0.25);
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
         const poolToUse = validCands.length >= 4 ? validCands : scoredPool;
         chosen[i] = seededShuffle(poolToUse, rng).slice(0, 4);
       } else {
