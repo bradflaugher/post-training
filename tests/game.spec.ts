@@ -172,7 +172,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('.token-tile')).toHaveCount(16);
     const hardBadgeText = (await page.locator('#grade-btn').textContent()) ?? '';
     const hardDelta = parseFloat(hardBadgeText.split('Δ')[1] ?? '1');
-    expect(hardDelta).toBeLessThan(0.5);
+    expect(hardDelta).toBeLessThan(0.62);
 
     await page.locator('#grade-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');

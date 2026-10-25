@@ -1939,7 +1939,7 @@
     return Math.max(0.05, Math.min(0.99, 1 - quadSim));
   }
 
-  function evaluateCandidateQuad(quadIds) {
+  function evaluateCandidateQuad(quadIds, targetGrade = 'easy') {
     if (!corpus || quadIds.length !== 4) return null;
     // 1. Validate all 6 pairwise compatibility edges and compute 6-pair clique cosine distance
     const pairSims = [];
@@ -1956,7 +1956,9 @@
     }
     pairSims.sort((x, y) => y - x);
     const quadSim = 0.65 * pairSims[0] + 0.25 * pairSims[1] + 0.10 * pairSims[2];
-    // 2. Verify every category in the quad has >= 4 pool words and >= 2 clean anchor words (margin > 0.35)
+    // 2. Require >= 4 clean words (margin > 0.35) on EASY/MEDIUM so non-HARD boards stay strictly separated;
+    // on HARD, allow false-flag words as long as each category has >= 2 clean anchor words (margin > 0.35).
+    const minRequiredAnchors = targetGrade === 'hard' ? 2 : 4;
     if (corpus.poolLogits && corpus.poolWordIndex) {
       for (let i = 0; i < 4; i++) {
         const cid = quadIds[i];
@@ -1978,7 +1980,7 @@
           }
           if (ownL - maxOther > 0.35) anchorCount++;
         }
-        if (anchorCount < 2) return null;
+        if (anchorCount < minRequiredAnchors) return null;
       }
     }
     return Math.max(0.05, Math.min(0.99, 1 - quadSim));
@@ -2170,7 +2172,7 @@
     // Seed 1 (EASY) uses the canonical opening quad so onboarding, shared links & E2E tests on seed=1 are deterministic;
     // every other seed/grade rolls procedurally from the 48-lobe compatibility graph!
     let catIds = basePuzzle.categories.slice();
-    let probeCosDist = evaluateCandidateQuad(catIds) ?? 0.85;
+    let probeCosDist = evaluateCandidateQuad(catIds, targetGrade) ?? 0.85;
     if (!isCanonicalSeed1) {
       const allIds = Object.keys(corpus.categories);
       let bestQuad = null;
@@ -2224,7 +2226,7 @@
         }
         if (picked.length < 4) continue;
 
-        const cDist = evaluateCandidateQuad(picked);
+        const cDist = evaluateCandidateQuad(picked, targetGrade);
         if (cDist === null) continue;
 
         let combinedCandDist = cDist;
@@ -2382,8 +2384,8 @@
       const elapsed = Math.round(performance.now() - t0);
       inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
     } else {
-      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
-      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
+      // PRE-DISSECTED WARD MODE (Uses full 56x476 poolLogits matrix scored on each category's primary prompt!)
+      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds, targetGrade) !== null;
       if (hasPoolMatrix && !isCanonicalSeed1) {
         const wardPools = buildWardPoolsForQuad(catIds);
         const wardSelRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
