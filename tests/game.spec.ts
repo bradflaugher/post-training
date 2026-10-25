@@ -181,12 +181,21 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const easyDelta = parseFloat(easyBadgeText.split('Δ')[1] ?? '0');
     expect(easyDelta).toBeGreaterThanOrEqual(0.8);
 
-    // Verify clicking #new-case-btn rolls a fresh random seed while keeping EASY difficulty
+    // Verify clicking #new-case-btn rolls a fresh random seed while keeping EASY difficulty and zero category overlap
     const seedBeforeRefresh = await page.locator('#seed-btn').textContent();
+    const lobesBeforeRefresh = await page.evaluate(() =>
+      Array.from(new Set(Array.from(document.querySelectorAll('.token-tile')).map(el => (el as HTMLElement).dataset.lobeId || '')))
+    );
     await page.locator('#new-case-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
     const seedAfterRefresh = await page.locator('#seed-btn').textContent();
     expect(seedAfterRefresh).not.toBe(seedBeforeRefresh);
+    const lobesAfterRefresh = await page.evaluate(() =>
+      Array.from(new Set(Array.from(document.querySelectorAll('.token-tile')).map(el => (el as HTMLElement).dataset.lobeId || '')))
+    );
+    for (const lid of lobesAfterRefresh) {
+      expect(lobesBeforeRefresh).not.toContain(lid);
+    }
 
     // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
     await page.goto('/index.html?lite=1&seed=1588089239');

@@ -26,8 +26,10 @@ class PuzzleTests(unittest.TestCase):
 
     def test_schema_and_uniqueness(self) -> None:
         cats = self.data["categories"]
-        self.assertGreaterEqual(len(cats), 56)
+        self.assertGreaterEqual(len(cats), 108)
+        self.assertGreaterEqual(len(self.data["puzzles"]), 256)
         word_vecs = self.data.get("wordVecs", {})
+        self.assertGreaterEqual(len(word_vecs), 950)
         seen = set()
         for cid, c in cats.items():
             self.assertEqual(cid, c["id"])
