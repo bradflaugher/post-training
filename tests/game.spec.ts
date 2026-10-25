@@ -190,11 +190,13 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
 
     // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
     await page.goto('/index.html?lite=1&seed=1588089239');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     const wordsB = await page.locator('.token-word').allTextContents();
     expect(wordsA.join(',')).not.toBe(wordsB.join(','));
 
     // Verify shared seed=1&grade=clean link preserves canonical seed 1 board
     await page.goto('/index.html?lite=1&seed=1&grade=clean');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     const canonicalWords = await page.locator('.token-word').allTextContents();
     expect(canonicalWords).toContain('vanilla');
   });
