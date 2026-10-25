@@ -2280,7 +2280,8 @@
         passes.push(passRes);
       }
 
-      // Verify each lobe has >= 4 valid candidates (margin > 0.35); if a prompt variant had < 4, re-run with primary prompt
+      // Verify each lobe has the required anchor candidates (margin > 0.35); if a prompt variant had fewer, re-run with primary prompt
+      const minLiveAnchors = targetGrade === 'hard' ? 2 : 4;
       for (let i = 0; i < 4; i++) {
         const cid = catIds[i];
         const cat = corpus.categories[cid];
@@ -2299,7 +2300,7 @@
           }
           return c;
         };
-        if (countValid() < 4 && chosenPrompts[i] !== cat.prompt) {
+        if (countValid() < minLiveAnchors && chosenPrompts[i] !== cat.prompt) {
           chosenPrompts[i] = cat.prompt;
           const retryRes = await runMaskedForwardPass(cat.prompt, () => myGen !== buildGeneration);
           if (myGen !== buildGeneration || !retryRes) return false;
@@ -2308,8 +2309,7 @@
       }
 
       const buildLiveSelection = () => {
-        const liveDist = computeLiveProbeCosDist(passes);
-        const pDist = typeof liveDist === 'number' ? liveDist : probeCosDist;
+        const pDist = probeCosDist;
         const livePools = catIds.map((cid, i) => {
           const cat = corpus.categories[cid];
           const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
