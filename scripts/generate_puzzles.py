@@ -678,6 +678,709 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         ],
         ["aperture", "zoom", "shutter", "exposure", "focus", "filter", "flash", "film"],
     ),
+    (
+        "trains",
+        "RAILROAD LOCOMOTIVE",
+        "LOCOMOTOR PLEXUS // RAIL",
+        [
+            "the steam train pulled a heavy [MASK] down the railroad tracks.",
+            "at the railway station, passengers boarded the train [MASK].",
+            "the locomotive engineer coupled the [MASK] to the freight train.",
+        ],
+        ["locomotive", "carriage", "coach", "sleeper", "wagon", "engine", "tender", "whistle", "express", "freight"],
+    ),
+    (
+        "aviation",
+        "FLIGHT DECK",
+        "VESTIBULAR CORTEX // AVIONICS",
+        [
+            "the airline pilot checked the aircraft [MASK] before takeoff.",
+            "inside the jet, the flight engineer inspected the [MASK].",
+            "at thirty thousand feet, ice formed on the airplane [MASK].",
+        ],
+        [
+            "cockpit",
+            "fuselage",
+            "wing",
+            "propeller",
+            "turbine",
+            "rotor",
+            "flap",
+            "hangar",
+            "throttle",
+            "beacon",
+            "radar",
+            "parachute",
+        ],
+    ),
+    (
+        "automobiles",
+        "AUTO GARAGE",
+        "MOTOR GANGLIA // CHASSIS",
+        [
+            "the auto mechanic replaced the worn [MASK] on the car.",
+            "under the car, oil leaked from the damaged [MASK].",
+            "before the road race, the driver tested the vehicle [MASK].",
+        ],
+        ["clutch", "brake", "bumper", "fender", "axle", "piston", "radiator", "tire", "exhaust", "windshield"],
+    ),
+    (
+        "boxing",
+        "BOXING RING",
+        "STRIATAL REFLEX // PUGILISM",
+        [
+            "in the boxing ring, the heavyweight fighter threw a fierce [MASK].",
+            "during the title bout, the boxer landed a sharp [MASK].",
+            "at the bell, the prizefighter dodged a [MASK] in the ring.",
+        ],
+        ["jab", "punch", "knockout", "bout", "glove", "referee", "belt", "heavyweight", "champion", "round", "corner"],
+    ),
+    (
+        "golf_course",
+        "GOLF FAIRWAY",
+        "PARIETAL TRAJECTORY // LINKS",
+        [
+            "on the golf course, the golfer hit the ball into the [MASK].",
+            "at the eighteenth hole, the caddie handed him a golf [MASK].",
+            "across the country club links, the shot landed on the [MASK].",
+        ],
+        ["bunker", "green", "hazard", "tee", "rough", "par", "driver"],
+    ),
+    (
+        "bowling",
+        "BOWLING ALLEY",
+        "CEREBELLAR LANE // STRIKE",
+        [
+            "at the bowling alley, the bowler rolled the ball down the [MASK].",
+            "in the tenth frame, she knocked down the final bowling [MASK].",
+            "the heavy bowling ball curved away from the [MASK].",
+        ],
+        ["lane", "gutter", "spare", "strike", "pin", "alley", "split", "frame", "pins", "bowling"],
+    ),
+    (
+        "fishing",
+        "ANGLER TACKLE",
+        "PISCINE CORTEX // REEL",
+        [
+            "by the riverbank, the fisherman cast his [MASK] into the water.",
+            "inside the tackle box, the angler tied a [MASK] to the fishing line.",
+            "the trout snapped at the [MASK] on the end of the fishing rod.",
+        ],
+        ["lure", "bait", "net", "rod", "tackle", "line", "trout", "bass", "perch"],
+    ),
+    (
+        "camping",
+        "BACKCOUNTRY CAMP",
+        "CIRCADIAN PINEAL // BIVOUAC",
+        [
+            "at the campsite, the hikers pitched a [MASK] before nightfall.",
+            "around the campfire, the scouts packed a [MASK] in their gear.",
+            "deep in the wilderness, the camper lit the [MASK].",
+        ],
+        ["tent", "lantern", "compass", "canteen", "backpack", "trail", "stove", "torch", "sleeping"],
+    ),
+    (
+        "gardening",
+        "GARDEN SHED",
+        "BOTANICAL MOTOR // CULTIVATION",
+        [
+            "in the backyard garden, the gardener dug the soil with a [MASK].",
+            "inside the potting shed hung a rusty [MASK] and watering can.",
+            "she spread fresh [MASK] around the garden beds.",
+        ],
+        ["rake", "hose", "compost", "seed", "bulb", "fertilizer", "soil", "lawn", "turf", "shrub", "plot"],
+    ),
+    (
+        "pottery",
+        "CERAMIC KILN",
+        "TACTILE CLAY // TERRACOTTA",
+        [
+            "the potter shaped the wet [MASK] on the spinning wheel.",
+            "inside the hot kiln, the ceramic [MASK] hardened overnight.",
+            "the museum displayed an ancient painted [MASK] from the kiln.",
+        ],
+        ["clay", "glaze", "kiln", "porcelain", "ceramic", "urn", "vase", "jug", "jar", "pottery"],
+    ),
+    (
+        "painting",
+        "PAINTER STUDIO",
+        "VISUAL CORTEX // PIGMENT",
+        [
+            "in the art studio, the painter mixed oil colors on the [MASK].",
+            "the gallery hung a framed [MASK] by the renaissance artist.",
+            "with a fine bristle [MASK], the artist finished the painting.",
+        ],
+        ["palette", "brush", "pigment", "mural", "portrait", "fresco", "sketch", "charcoal", "acrylic", "watercolor"],
+    ),
+    (
+        "sculpture",
+        "SCULPTOR CHISEL",
+        "PARIETAL RELIEF // MARBLE",
+        [
+            "the sculptor carved a lifelike [MASK] out of white marble.",
+            "in the courtyard stood a carved stone [MASK] on a plinth.",
+            "using a mallet and chisel, the artist shaped the [MASK].",
+        ],
+        ["marble", "granite", "bust", "statue", "pedestal", "plaster", "relief", "carving", "mold", "monument"],
+    ),
+    (
+        "knitting",
+        "TEXTILE LOOM",
+        "FINE MOTOR // SPINDLE",
+        [
+            "the weaver spun raw [MASK] on the wooden loom.",
+            "by the fireplace, the grandmother knitted a sweater with soft [MASK].",
+            "the seamstress threaded the [MASK] through the sewing machine.",
+        ],
+        ["yarn", "stitch", "spindle", "thread", "embroidery", "quilt", "shuttle", "tapestry", "weave"],
+    ),
+    (
+        "printing",
+        "PRINTING PRESS",
+        "BROCA TYPESET // FOLIO",
+        [
+            "the typesetter inked the [MASK] on the printing press.",
+            "on the front page, the newspaper printed a bold [MASK].",
+            "the publisher distributed a printed [MASK] to the readers.",
+        ],
+        ["font", "column", "headline", "proof", "press", "pamphlet", "brochure", "gazette", "bulletin"],
+    ),
+    (
+        "post_office",
+        "POSTAL DISPATCH",
+        "TEMPORAL COURIER // PARCEL",
+        [
+            "at the post office, the clerk affixed a [MASK] to the letter.",
+            "the mail carrier delivered a sealed [MASK] to the doorstep.",
+            "inside the mailbag lay a stamped [MASK] for overseas delivery.",
+        ],
+        ["stamp", "parcel", "envelope", "courier", "postage", "letter", "package", "pouch", "telegram", "mail"],
+    ),
+    (
+        "banking",
+        "FINANCIAL VAULT",
+        "PREFRONTAL LEDGER // BULLION",
+        [
+            "at the bank, the accountant recorded the [MASK] in the ledger.",
+            "the borrower signed a contract for a bank [MASK].",
+            "the central bank raised the rate on the [MASK].",
+        ],
+        ["mortgage", "interest", "deposit", "credit", "loan", "dividend", "bond", "equity", "audit", "vault", "debt"],
+    ),
+    (
+        "stock_market",
+        "TRADING FLOOR",
+        "STRIATAL TICKER // EXCHANGE",
+        [
+            "on the stock exchange floor, the trader bought a [MASK].",
+            "wall street analysts predicted a sharp [MASK] in the market.",
+            "the investment firm hedged its [MASK] against inflation.",
+        ],
+        ["broker", "share", "hedge", "portfolio", "tariff", "commodity", "yield", "rally", "asset"],
+    ),
+    (
+        "castle_siege",
+        "CASTLE SIEGE",
+        "FORTIFIED CORTEX // GARRISON",
+        [
+            "around the medieval castle, soldiers defended the stone [MASK].",
+            "the siege engines battered the outer [MASK] of the keep.",
+            "archers fired arrows from the castle [MASK].",
+        ],
+        ["moat", "rampart", "catapult", "parapet", "turret", "dungeon", "bastion", "garrison", "keep", "wall"],
+    ),
+    (
+        "pirates",
+        "BUCCANEER FLEET",
+        "PELAGIC CORSAIR // PLUNDER",
+        [
+            "aboard the pirate galleon, the buccaneers seized the [MASK].",
+            "across the caribbean sea sailed a ruthless pirate [MASK].",
+            "the mutinous crew buried their stolen [MASK] on the island.",
+        ],
+        ["mutiny", "plunder", "armada", "ransom", "cannon", "treasure", "pirate", "fleet"],
+    ),
+    (
+        "astronomy",
+        "DEEP COSMOS",
+        "OCCIPITAL TELESCOPE // NEBULA",
+        [
+            "through the observatory telescope, astronomers discovered a distant [MASK].",
+            "across the night sky streaked a glowing [MASK].",
+            "the space telescope photographed a massive cosmic [MASK].",
+        ],
+        ["nebula", "comet", "asteroid", "galaxy", "supernova", "eclipse", "meteor", "constellation", "orbit"],
+    ),
+    (
+        "optics_light",
+        "LIGHT SPECTRUM",
+        "OPTIC RADIATION // PHOTON",
+        [
+            "in the physics lab, the glass prism split the [MASK] of light.",
+            "a narrow [MASK] of light reflected off the polished surface.",
+            "the optical sensor measured the [MASK] of the light.",
+        ],
+        ["prism", "beam", "laser", "ray", "mirror", "spectrum", "shadow", "reflection", "wavelength", "glow", "gleam"],
+    ),
+    (
+        "electricity",
+        "VOLTAGE CIRCUIT",
+        "AXONAL CURRENT // OHM",
+        [
+            "the electrician soldered a burned [MASK] on the circuit board.",
+            "high voltage surged through the copper [MASK] in the transformer.",
+            "when the power failed, he replaced the blown [MASK].",
+        ],
+        ["circuit", "battery", "switch", "wire", "coil", "relay", "diode", "current", "voltage"],
+    ),
+    (
+        "computing",
+        "SILICON KERNEL",
+        "DIGITAL SYNAPSE // PACKET",
+        [
+            "the systems engineer debugged the network [MASK] on the server.",
+            "inside the data center, the computer [MASK] crashed under load.",
+            "the hacker bypassed the encrypted [MASK] of the mainframe.",
+        ],
+        ["buffer", "cache", "port", "packet", "server", "pixel", "cursor", "kernel"],
+    ),
+    (
+        "radio",
+        "RADIO BROADCAST",
+        "AUDITORY HERTZ // SIGNAL",
+        [
+            "on the roof, the technician adjusted the radio [MASK].",
+            "through the nocturnal airwaves crackled a weak radio [MASK].",
+            "he turned the knob on the shortwave [MASK] to hear the news.",
+        ],
+        [
+            "antenna",
+            "receiver",
+            "transmitter",
+            "signal",
+            "frequency",
+            "static",
+            "amplifier",
+            "broadcast",
+            "wave",
+            "microphone",
+            "speaker",
+        ],
+    ),
+    (
+        "cinema",
+        "CINEMA SCREEN",
+        "TEMPORAL REEL // PROJECTOR",
+        [
+            "at the film festival, the audience applauded the movie [MASK].",
+            "in the hollywood studio, the film [MASK] yelled cut.",
+            "the theater projector played the opening [MASK] of the film.",
+        ],
+        [
+            "director",
+            "trailer",
+            "sequel",
+            "premiere",
+            "studio",
+            "screen",
+            "soundtrack",
+            "documentary",
+            "footage",
+            "cinema",
+            "comedy",
+        ],
+    ),
+    (
+        "journalism",
+        "NEWSROOM DESK",
+        "WERNICKE PRESS // DISPATCH",
+        [
+            "the investigative [MASK] broke the scandal in the morning paper.",
+            "in the newsroom, the editor rewrote the [MASK] before deadline.",
+            "foreign correspondents wired an urgent [MASK] to the newspaper.",
+        ],
+        [
+            "reporter",
+            "scoop",
+            "editorial",
+            "tabloid",
+            "correspondent",
+            "censor",
+            "syndicate",
+            "journalist",
+            "interview",
+            "article",
+            "columnist",
+            "dispatch",
+        ],
+    ),
+    (
+        "grammar",
+        "SYNTAX & GRAMMAR",
+        "BROCA SYNTAX // LEXICON",
+        [
+            "in the grammar lesson, the teacher underlined the [MASK] in the sentence.",
+            "the linguist analyzed the plural [MASK] of the latin phrase.",
+            "she inserted a grammatical [MASK] between the two words.",
+        ],
+        ["verb", "noun", "clause", "colon", "prefix", "suffix", "pronoun", "adjective", "tense", "vowel"],
+    ),
+    (
+        "poetry",
+        "POETIC METER",
+        "LYRIC CORTEX // STANZA",
+        [
+            "the romantic poet recited the final [MASK] of the poem.",
+            "in the anthology, the literary critic praised the [MASK].",
+            "each line of the poem followed a strict iambic [MASK].",
+        ],
+        ["stanza", "sonnet", "verse", "ballad", "lyric", "rhyme", "meter", "epic", "poem"],
+    ),
+    (
+        "mythology",
+        "OLYMPIC MYTH",
+        "ARCHETYPAL ENGRAM // PANTHEON",
+        [
+            "in greek mythology, the hero slew the monstrous [MASK].",
+            "ancient legends told of a winged [MASK] guarding the mountain.",
+            "at the sacred shrine, the priestess consulted the [MASK].",
+        ],
+        ["titan", "nymph", "oracle", "centaur", "dragon", "phoenix", "siren", "hydra", "goddess", "deity", "myth"],
+    ),
+    (
+        "circus",
+        "BIG TOP CIRCUS",
+        "CEREBELLAR ACROBAT // CARNIVAL",
+        [
+            "under the circus big top, the crowd gasped at the daring [MASK].",
+            "at the traveling carnival, the [MASK] entertained the children.",
+            "high above the circus ring swung the [MASK].",
+        ],
+        ["clown", "carnival", "circus", "midway", "magician", "stunt", "parade"],
+    ),
+    (
+        "casino",
+        "CASINO ROULETTE",
+        "DOPAMINE WAGER // JACKPOT",
+        [
+            "inside the las vegas casino, the gambler placed a [MASK] on the table.",
+            "the roulette wheel spun past the lucky [MASK].",
+            "he hit the winning [MASK] on the casino floor.",
+        ],
+        ["slot", "chip", "wager", "wheel", "poker", "bet", "casino", "lottery"],
+    ),
+    (
+        "arch_elements",
+        "STONE ARCHITECTURE",
+        "PARIETAL VAULT // KEYSTONE",
+        [
+            "the gothic cathedral was supported by a carved stone [MASK].",
+            "above the marble entrance rose a classical [MASK].",
+            "the architect designed a vaulted [MASK] over the hall.",
+        ],
+        ["arch", "dome", "pillar", "frieze", "gable", "portico", "keystone", "facade"],
+    ),
+    (
+        "carpentry",
+        "TIMBER JOINERY",
+        "MOTOR WORKSHOP // FASTENER",
+        [
+            "the cabinetmaker fastened the wooden joint with a steel [MASK].",
+            "in the lumber mill, the saw cut through a thick oak [MASK].",
+            "he sanded the rough [MASK] of the wooden table.",
+        ],
+        ["plank", "screw", "nail", "bracket", "wedge", "board", "joint"],
+    ),
+    (
+        "plumbing",
+        "HYDRAULIC PIPING",
+        "AUTONOMIC VALVE // CONDUIT",
+        [
+            "the plumber tightened the leaking brass [MASK] under the sink.",
+            "water gushed through the ruptured iron [MASK] in the basement.",
+            "to shut off the water main, he turned the [MASK].",
+        ],
+        ["valve", "pipe", "drain", "nozzle", "conduit", "pump", "sewer"],
+    ),
+    (
+        "mining",
+        "SUBTERRANEAN MINE",
+        "DEEP BASAL // EXCAVATION",
+        [
+            "deep in the coal mine, the miners dug through a rich [MASK].",
+            "the mining company blasted a deep [MASK] into the mountain.",
+            "carts hauled crushed [MASK] out of the underground mine.",
+        ],
+        ["quarry", "shaft", "vein", "ore", "tunnel", "coal", "miner", "pit", "mine", "pick"],
+    ),
+    (
+        "arctic",
+        "POLAR GLACIER",
+        "HYPOTHALAMIC COLD // TUNDRA",
+        [
+            "across the frozen arctic ocean drifted a massive [MASK].",
+            "the polar expedition trekked across the icy [MASK].",
+            "in the subzero wilderness, sled dogs pulled the [MASK].",
+        ],
+        ["glacier", "avalanche", "sled", "penguin", "polar", "ice", "arctic", "freeze", "expedition", "winter", "ski"],
+    ),
+    (
+        "desert",
+        "ARID DUNES",
+        "THALAMIC MIRAGE // ARID",
+        [
+            "across the scorching sahara desert stretched a barren [MASK].",
+            "the exhausted desert travelers spotted a distant [MASK].",
+            "wind whipped sand across the dry [MASK].",
+        ],
+        ["oasis", "mirage", "cactus", "caravan", "camel", "canyon", "mesa", "drought", "scorpion", "dune", "sand"],
+    ),
+    (
+        "jungle",
+        "RAINFOREST CANOPY",
+        "TROPICAL PLEXUS // LAGOON",
+        [
+            "deep in the amazon rainforest, explorers hacked through thick [MASK].",
+            "in the humid jungle swamp lurked a wild [MASK].",
+            "monkeys chattered in the tropical [MASK] above the river.",
+        ],
+        ["bamboo", "vine", "fern", "moss", "swamp", "lagoon", "monkey", "parrot", "jungle", "rainforest"],
+    ),
+    (
+        "fungus",
+        "MYCOLOGY SPORES",
+        "SAPROPHYTIC CORTEX // MYCELIUM",
+        [
+            "on the damp forest floor sprouted a poisonous [MASK].",
+            "under the microscope, the biologist observed fungal [MASK].",
+            "the rotting log was covered in wild [MASK].",
+        ],
+        ["mushroom", "yeast", "fungus", "rot", "cap", "gill"],
+    ),
+    (
+        "bakery_bread",
+        "ARTISAN BAKERY",
+        "OLFACTORY CRUST // LOAF",
+        [
+            "from the brick oven, the baker pulled a warm [MASK] of bread.",
+            "at the french bakery, he bought a crusty [MASK].",
+            "the mill ground golden [MASK] into flour for the bread.",
+        ],
+        ["dough", "crumb", "loaf", "roll", "rye", "barley", "wheat", "flour"],
+    ),
+    (
+        "butcher",
+        "BUTCHER SHOP",
+        "CARNIVORE CORTEX // PRIME CUT",
+        [
+            "at the butcher shop, the cleaver sliced a thick [MASK].",
+            "on the grill sizzled a seasoned [MASK].",
+            "the banquet table featured roasted [MASK] and gravy.",
+        ],
+        ["roast", "steak", "chop", "pork", "beef", "lamb", "ribs", "meat", "poultry", "turkey", "chicken"],
+    ),
+    (
+        "seafood_dish",
+        "OYSTER BAR",
+        "BRINE RECEPTOR // SHELLFISH",
+        [
+            "at the coastal raw bar, the chef shucked a fresh [MASK].",
+            "the fishing boat unloaded crates of live [MASK] at the dock.",
+            "on a bed of crushed ice lay chilled [MASK] and lemon.",
+        ],
+        ["oyster", "clam", "mussel", "shrimp", "crab", "cod", "roe", "fin", "shell"],
+    ),
+    (
+        "vegetables",
+        "ROOT HARVEST",
+        "CHLOROPHYLL CORTEX // TUBER",
+        [
+            "for the harvest stew, the cook chopped a fresh [MASK].",
+            "from the vegetable patch she pulled a ripe [MASK].",
+            "at the farmers market, baskets overflowed with green [MASK].",
+        ],
+        ["carrot", "cabbage", "pumpkin", "squash", "corn", "bean", "kale", "cucumber", "pepper", "olive", "salad"],
+    ),
+    (
+        "nuts_seeds",
+        "ROASTED NUTS",
+        "BOTANICAL KERNEL // SHELL",
+        [
+            "the squirrel cracked open a hard [MASK] from the tree.",
+            "the baker topped the cake with toasted [MASK] and honey.",
+            "in the autumn woods fell a ripe [MASK] onto the ground.",
+        ],
+        ["walnut", "almond", "peanut", "chestnut", "sesame", "sunflower", "nut"],
+    ),
+    (
+        "footwear",
+        "COBBLER FOOTWEAR",
+        "PLANTAR CORTEX // TREAD",
+        [
+            "the cobbler stitched a leather [MASK] onto the shoe.",
+            "before hiking the muddy trail, he laced up his [MASK].",
+            "in the hallway stood a pair of worn [MASK].",
+        ],
+        ["boot", "spur", "shoe", "tongue", "tread", "boots", "shoes", "heels", "socks", "leather"],
+    ),
+    (
+        "military_ranks",
+        "MILITARY COMMAND",
+        "STRATEGIC CORTEX // INSIGNIA",
+        [
+            "at military headquarters, the [MASK] saluted the troops.",
+            "on the battlefield, the commanding [MASK] gave the order.",
+            "the war medal was pinned onto the uniform of the [MASK].",
+        ],
+        [
+            "general",
+            "colonel",
+            "major",
+            "captain",
+            "lieutenant",
+            "sergeant",
+            "corporal",
+            "admiral",
+            "marshal",
+            "commander",
+            "cadet",
+            "private",
+            "officer",
+        ],
+    ),
+    (
+        "clergy_church",
+        "ECCLESIASTICAL CLERGY",
+        "TEMPORAL SANCTUM // VESTMENT",
+        [
+            "inside the abbey, the robed [MASK] led the evening prayer.",
+            "at the cathedral altar stood the ordained [MASK].",
+            "the parish congregation listened to the sermon of the [MASK].",
+        ],
+        [
+            "priest",
+            "monk",
+            "nun",
+            "pope",
+            "cardinal",
+            "pastor",
+            "vicar",
+            "deacon",
+            "abbot",
+            "friar",
+            "chaplain",
+            "clergy",
+            "rector",
+            "preacher",
+        ],
+    ),
+    (
+        "detective_noir",
+        "HOMICIDE PRECINCT",
+        "FORENSIC DEDUCTION // ALIBI",
+        [
+            "at the crime scene, the homicide [MASK] examined the evidence.",
+            "during the police interrogation, the [MASK] confessed to the crime.",
+            "the private investigator uncovered a crucial [MASK] in the case.",
+        ],
+        [
+            "clue",
+            "suspect",
+            "motive",
+            "detective",
+            "mystery",
+            "coroner",
+            "fingerprint",
+            "homicide",
+            "inspector",
+            "informant",
+        ],
+    ),
+    (
+        "horseracing",
+        "EQUESTRIAN DERBY",
+        "MOTOR STEEPLECHASE // FURLONG",
+        [
+            "at the racetrack, the thoroughbred [MASK] sprinted toward the finish.",
+            "inside the paddock, the trainer fastened the leather [MASK] on the horse.",
+            "the crowd cheered as the winning [MASK] crossed the finish line.",
+        ],
+        [
+            "jockey",
+            "saddle",
+            "stallion",
+            "mare",
+            "colt",
+            "filly",
+            "gallop",
+            "trot",
+            "derby",
+            "pony",
+            "hoof",
+            "rein",
+            "groom",
+            "stable",
+        ],
+    ),
+    (
+        "cosmetics",
+        "PERFUMERY & SALON",
+        "OLFACTORY VANITY // ESSENCE",
+        [
+            "at the vanity table, she applied a touch of [MASK] before the gala.",
+            "the glass bottle on the dresser held fragrant French [MASK].",
+            "inside the beauty salon, the stylist reached for the [MASK].",
+        ],
+        [
+            "perfume",
+            "powder",
+            "lipstick",
+            "rouge",
+            "comb",
+            "salon",
+            "fragrance",
+            "soap",
+            "scent",
+            "aroma",
+            "cologne",
+            "serum",
+            "dye",
+        ],
+    ),
+    (
+        "academia",
+        "UNIVERSITY CAMPUS",
+        "HIPPOCAMPAL DEAN // LECTURE",
+        [
+            "at the university, the professor delivered a [MASK] in the hall.",
+            "the graduate student defended her [MASK] before the committee.",
+            "the college dean awarded a [MASK] at commencement.",
+        ],
+        [
+            "lecture",
+            "thesis",
+            "seminar",
+            "diploma",
+            "degree",
+            "campus",
+            "faculty",
+            "dean",
+            "tuition",
+            "dormitory",
+            "scholarship",
+        ],
+    ),
+    (
+        "hospital_ward",
+        "TRAUMA WARD",
+        "CLINICAL TRIAGE // ICU",
+        [
+            "in the emergency room, paramedics wheeled the [MASK] down the hall.",
+            "the chief resident checked the patient chart in the [MASK].",
+            "inside the ambulance, the medic monitored the [MASK].",
+        ],
+        ["ward", "clinic", "hospice", "morgue", "pharmacy", "ambulance", "patient", "nurse", "surgeon", "doctor"],
+    ),
 ]
 
 SURGICAL_CASES = [
@@ -694,6 +1397,12 @@ SURGICAL_CASES = [
     ("CASE #008 // DEEP THALAMIC PROBE", "PATIENT: ALBERT-V2 — SYMPTOM: SKELETAL & CRIMINAL OSSIFICATION"),
     ("CASE #009 // SUBDURAL EVACUATION", "PATIENT: ALBERT-V2 — SYMPTOM: BOTANICAL & OLFACTORY SEIZURE"),
     ("CASE #010 // PINEAL GLAND EXTRACTION", "PATIENT: ALBERT-V2 — SYMPTOM: RITUALISTIC & HARMONIC PSYCHOSIS"),
+    ("CASE #011 // HIPPOCAMPAL RESECTION", "PATIENT: ALBERT-V2 — SYMPTOM: RECURSIVE MEMORY ENGRAM LEAKAGE"),
+    ("CASE #012 // BROCA'S GYRUS ABLATION", "PATIENT: ALBERT-V2 — SYMPTOM: POLYSEMOUS LEXICAL COLLISION"),
+    ("CASE #013 // WERNICKE'S LOOP SHUNT", "PATIENT: ALBERT-V2 — SYMPTOM: SEMANTIC DRIFT & SYNTAX CONTAGION"),
+    ("CASE #014 // BASAL GANGLIA CLAMP", "PATIENT: ALBERT-V2 — SYMPTOM: COMPULSIVE TOKEN REPETITION"),
+    ("CASE #015 // CEREBELLAR BIOPSY", "PATIENT: ALBERT-V2 — SYMPTOM: FINE-MOTOR & BALLISTIC TREMOR"),
+    ("CASE #016 // OPTIC CHIASM SPLICE", "PATIENT: ALBERT-V2 — SYMPTOM: REFRACTIVE APERTURE & SPECTRUM BLUR"),
 ]
 
 
@@ -801,7 +1510,7 @@ def generate() -> None:
     all_quads_list = [p0_quad]
     usage_counts = {i: (1 if i in p0_quad else 0) for i in range(n_cats)}
     attempts = 0
-    while len(all_quads_list) < 128 and attempts < 80000:
+    while len(all_quads_list) < 256 and attempts < 120000:
         attempts += 1
         weights = [1.0 / ((usage_counts[i] + 1) ** 2) for i in range(n_cats)]
         chosen = []
@@ -863,7 +1572,7 @@ def generate() -> None:
     z_pool = (full_pool_logits - row_mean) / row_std
     cat_word_indices = [[idx for idx, (ci, _, _) in enumerate(all_pool_entries) if ci == i] for i in range(n_cats)]
 
-    pair_cos_matrix = np.zeros((n_cats, n_cats), dtype=np.float32)
+    raw_pair_cos = np.zeros((n_cats, n_cats), dtype=np.float32)
     for i in range(n_cats):
         vecs_i = word_vecs_16[cat_word_indices[i]]
         for j in range(n_cats):
@@ -876,23 +1585,35 @@ def generate() -> None:
             vecs_j = word_vecs_16[cat_word_indices[j]]
             cross_word_sims = np.sort((vecs_i @ vecs_j.T).ravel())[::-1]
             top_word_sim = float(np.mean(cross_word_sims[:2]))
+            word_sim_adj = float(np.clip((top_word_sim - 0.25) / 0.65, -0.2, 0.92))
             base_cos = float(col_cos_matrix[i, j])
-            blended = 0.40 * base_cos + 0.30 * decoy_sim + 0.30 * top_word_sim
-            pair_cos_matrix[i, j] = float(np.clip(max(base_cos, blended, 0.75 * top_word_sim), -0.8, 0.92))
+            blended = 0.40 * base_cos + 0.30 * decoy_sim + 0.30 * word_sim_adj
+            raw_pair_cos[i, j] = float(np.clip(max(base_cos, blended, 0.78 * word_sim_adj), -0.8, 0.92))
 
-    # Build compatibility adjacency list, pairwise margin map & cosine similarity map for live procedural generation
+    # Apply one-sided hub-penalization so hub categories don't dominate HARD cliques without inflating EASY pairs
+    top_k_means = np.array(
+        [float(np.mean(np.sort(raw_pair_cos[i, [j for j in range(n_cats) if j != i]])[-8:])) for i in range(n_cats)],
+        dtype=np.float32,
+    )
+    median_top_k = float(np.median(top_k_means))
+    hub_excess = np.maximum(0.0, top_k_means - median_top_k)
+    pair_cos_matrix = np.zeros((n_cats, n_cats), dtype=np.float32)
+    for i in range(n_cats):
+        for j in range(n_cats):
+            if i == j:
+                continue
+            hub_penalty = 0.45 * float(hub_excess[i] + hub_excess[j])
+            pair_cos_matrix[i, j] = float(np.clip(raw_pair_cos[i, j] - hub_penalty, -0.8, 0.92))
+
+    # Build compatibility adjacency list & cosine similarity map for live procedural generation
     # Sorted by cosine/decoy similarity descending (smallest embedding distance / most entangled first, most orthogonal last)
     compat_map = {}
-    pair_margins_out = {}
     pair_cos_out = {}
     for i in range(n_cats):
         cid_i = categories_out[i]["id"]
         compat_neighbors = [j for j in range(n_cats) if j != i]
         compat_neighbors.sort(key=lambda j: -float(pair_cos_matrix[i, j]))
         compat_map[cid_i] = [categories_out[j]["id"] for j in compat_neighbors]
-        pair_margins_out[cid_i] = {
-            categories_out[j]["id"]: round(float(pair_margin_matrix[i, j]), 2) for j in compat_neighbors
-        }
         pair_cos_out[cid_i] = {
             categories_out[j]["id"]: round(float(pair_cos_matrix[i, j]), 4) for j in compat_neighbors
         }
@@ -933,7 +1654,6 @@ def generate() -> None:
         "maskTokenId": int(mask_id),
         "categories": {c["id"]: c for c in categories_out},
         "compatibility": compat_map,
-        "pairMargins": pair_margins_out,
         "pairCosSim": pair_cos_out,
         "poolWordIndex": pool_word_to_idx,
         "poolLogits": pool_logits_out,
@@ -942,7 +1662,7 @@ def generate() -> None:
     }
 
     CORPUS_OUT.write_text(json.dumps(RAW_CATEGORIES, indent=2) + "\n", encoding="utf-8")
-    PUZZLES_OUT.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    PUZZLES_OUT.write_text(json.dumps(payload, separators=(",", ":")) + "\n", encoding="utf-8")
     print(
         f"Wrote {len(categories_out)} lobes ({total_prompts} prompts, {total_pool_words} pool tokens) "
         f"and {len(puzzles)} fallback cases to {PUZZLES_OUT}"
