@@ -31,6 +31,7 @@ def main() -> int:
     assert data.get("maskToken") == "[MASK]"
     assert isinstance(data.get("pairCosSim"), dict) and len(data["pairCosSim"]) >= 40
     assert isinstance(data.get("poolLogits"), dict) and len(data["poolLogits"]) >= 40
+    assert isinstance(data.get("wordVecs"), dict) and len(data["wordVecs"]) >= 400
 
     categories = data.get("categories", {})
     assert len(categories) >= 40, f"Expected >= 40 categories, got {len(categories)}"

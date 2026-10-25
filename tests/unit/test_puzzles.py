@@ -26,7 +26,8 @@ class PuzzleTests(unittest.TestCase):
 
     def test_schema_and_uniqueness(self) -> None:
         cats = self.data["categories"]
-        self.assertGreaterEqual(len(cats), 40)
+        self.assertGreaterEqual(len(cats), 56)
+        word_vecs = self.data.get("wordVecs", {})
         seen = set()
         for cid, c in cats.items():
             self.assertEqual(cid, c["id"])
@@ -37,6 +38,11 @@ class PuzzleTests(unittest.TestCase):
             for we in c["wordPool"]:
                 self.assertNotIn(we["word"], seen)
                 seen.add(we["word"])
+                vec = word_vecs.get(we["word"])
+                self.assertIsNotNone(vec)
+                self.assertEqual(len(vec), 16)
+                norm = float(np.linalg.norm(vec))
+                self.assertAlmostEqual(norm, 1.0, places=2)
 
     def test_all_64_puzzles_have_strict_logit_separation(self) -> None:
         for p in self.data["puzzles"]:

@@ -87,26 +87,22 @@
     ]
   ],
   [
-    "colors",
-    "PAINT PIGMENTS",
-    "OCCIPITAL LOBE // CHROMA-V1",
+    "locksmith",
+    "LOCKSMITH HARDWARE",
+    "PARIETAL TUMBLER // SHACKLE",
     [
-      "the painter mixed a bright shade of [MASK] paint.",
-      "across the canvas, the artist brushed vivid [MASK] pigment.",
-      "the neon sign glowed with a brilliant [MASK] hue."
+      "to secure the heavy door, the locksmith fastened the iron [MASK].",
+      "on the dungeon gate hung a rusted iron [MASK].",
+      "the burglar picked the brass [MASK] on the vault door."
     ],
     [
-      "purple",
-      "yellow",
-      "green",
-      "red",
-      "blue",
-      "orange",
-      "pink",
-      "crimson",
-      "scarlet",
-      "indigo",
-      "turquoise"
+      "lock",
+      "clasp",
+      "bolt",
+      "chain",
+      "bar",
+      "key",
+      "hook"
     ]
   ],
   [
@@ -145,7 +141,10 @@
       "bronze",
       "titanium",
       "aluminum",
-      "nickel"
+      "nickel",
+      "zinc",
+      "lead",
+      "tin"
     ]
   ],
   [
@@ -285,7 +284,7 @@
       "blade",
       "mace",
       "lance",
-      "halberd"
+      "pike"
     ]
   ],
   [
@@ -326,7 +325,8 @@
       "birch",
       "cypress",
       "elm",
-      "redwood"
+      "redwood",
+      "ash"
     ]
   ],
   [
@@ -351,64 +351,66 @@
     ]
   ],
   [
-    "clothes",
-    "WINTER GEAR",
-    "THERMAL CORTEX // INSULATION",
+    "book",
+    "BOOK PUBLISHING",
+    "BROCA'S FOLIO // MANUSCRIPT",
     [
-      "before stepping into the blizzard, he put on his warm [MASK].",
-      "to survive the freezing expedition, she packed a thick [MASK].",
-      "bundled against the frost, the hiker wore a heavy [MASK]."
+      "the editor proofread the [MASK] of the hardcover book before publication.",
+      "the librarian opened the leather-bound book and read the [MASK].",
+      "the printing press bound the [MASK] of the new novel."
     ],
     [
-      "jacket",
-      "gloves",
-      "boots",
-      "sweater",
-      "coat",
-      "scarf",
-      "cloak",
-      "hoodie"
+      "edition",
+      "title",
+      "volume",
+      "preface",
+      "margin",
+      "page",
+      "spine",
+      "chapter",
+      "index",
+      "prologue",
+      "jacket"
     ]
   ],
   [
-    "months",
-    "CALENDAR MONTHS",
-    "PINEAL GLAND // ANNUAL CYCLE",
+    "chess",
+    "CHESS BOARD",
+    "PREFRONTAL GAMBIT // GRANDMASTER",
     [
-      "the festival is held every year in the month of [MASK].",
-      "the calendar marked the deadline in the month of [MASK].",
-      "the annual harvest begins each year in [MASK]."
+      "on the chessboard, the grandmaster captured the [MASK].",
+      "during the chess tournament, she sacrificed her [MASK] for checkmate.",
+      "across the checkered board, the player advanced his [MASK]."
     ],
     [
-      "october",
-      "june",
-      "december",
-      "april",
-      "july",
-      "august",
-      "january",
-      "november",
-      "september",
-      "february"
+      "knight",
+      "rook",
+      "pawn",
+      "king",
+      "castle",
+      "queen",
+      "bishop"
     ]
   ],
   [
-    "days",
-    "DAYS OF THE WEEK",
-    "SUPRACHIASMATIC NUCLEUS // WEEK",
+    "cards",
+    "POKER TABLE",
+    "STRIATAL WAGER // DECK",
     [
-      "the office meeting was scheduled for next [MASK] morning.",
-      "the weekly broadcast airs every [MASK] night.",
-      "the courthouse docket is heard on [MASK] afternoon."
+      "at the card table, the poker dealer revealed a [MASK].",
+      "in the casino, the gambler drew a winning [MASK] from the pack.",
+      "he shuffled the playing cards and dealt a [MASK]."
     ],
     [
-      "tuesday",
-      "monday",
-      "thursday",
-      "friday",
-      "wednesday",
-      "saturday",
-      "sunday"
+      "joker",
+      "spade",
+      "suit",
+      "trump",
+      "club",
+      "deck",
+      "jack",
+      "flush",
+      "ace"
     ]
   ],
   [
@@ -433,44 +435,46 @@
     ]
   ],
   [
-    "furniture",
-    "PARLOR SEATING",
-    "PROPRIOCEPTIVE LOBE // POSTURE",
+    "dental",
+    "DENTAL CLINIC",
+    "TRIGEMINAL NERVE // ENAMEL",
     [
-      "in the living room, he sat down on the leather [MASK].",
-      "beside the fireplace stood an upholstered [MASK].",
-      "the parlor was furnished with a wooden [MASK] and table."
+      "at the dental clinic, the dentist examined the patient's tooth [MASK].",
+      "the orthodontist scraped the calcified [MASK] from the tooth.",
+      "under the bright lamp, the dentist drilled into the decayed [MASK]."
     ],
     [
-      "couch",
-      "sofa",
-      "bench",
-      "chair",
-      "stool",
-      "recliner",
-      "armchair",
-      "mattress"
+      "enamel",
+      "cavity",
+      "root",
+      "gum",
+      "decay",
+      "canal",
+      "plaque",
+      "crown",
+      "brace",
+      "filling"
     ]
   ],
   [
-    "vehicles",
-    "HIGHWAY VEHICLES",
-    "LOCOMOTOR PLEXUS // ASPHALT",
+    "tree_parts",
+    "TIMBER ANATOMY",
+    "XYLEM CORTEX // CAMBIUM",
     [
-      "in heavy traffic, the driver parked his [MASK] on the street.",
-      "down the highway sped a roaring [MASK].",
-      "outside the garage stood a customized [MASK]."
+      "the woodsman chopped through the thick [MASK] of the tree.",
+      "in the forest, moss grew along the ancient tree's [MASK].",
+      "the botanist peeled a sample of rough [MASK] from the trunk."
     ],
     [
-      "car",
-      "truck",
-      "jeep",
-      "motorcycle",
-      "van",
-      "bus",
-      "tractor",
-      "ambulance",
-      "limousine"
+      "bark",
+      "foliage",
+      "branch",
+      "canopy",
+      "trunk",
+      "stump",
+      "sap",
+      "twig",
+      "timber"
     ]
   ],
   [
@@ -490,7 +494,8 @@
       "vulture",
       "raven",
       "crow",
-      "condor"
+      "condor",
+      "heron"
     ]
   ],
   [
@@ -505,12 +510,13 @@
     [
       "octopus",
       "whale",
-      "turtle",
       "shark",
       "dolphin",
       "squid",
       "seal",
-      "lobster"
+      "lobster",
+      "salmon",
+      "tuna"
     ]
   ],
   [
@@ -539,83 +545,84 @@
     "ROYAL COURT",
     "PREFRONTAL HIERARCHY // THRONE",
     [
-      "on the royal throne sat the crowned [MASK] of the realm.",
-      "the heralds bowed before the reigning [MASK].",
-      "inside the castle reigned the royal [MASK]."
+      "the heralds bowed before the reigning [MASK] of the realm.",
+      "on the velvet throne sat the crowned [MASK].",
+      "inside the royal court ruled the noble [MASK]."
     ],
     [
-      "king",
-      "queen",
-      "prince",
-      "emperor",
       "monarch",
+      "emperor",
+      "prince",
       "princess",
       "duke",
-      "sultan"
+      "sultan",
+      "baron",
+      "sovereign"
     ]
   ],
   [
-    "family",
-    "BLOOD RELATIVES",
-    "OXYTOCIN CIRCUIT // KINSHIP",
+    "ship",
+    "SHIP ANATOMY",
+    "VESTIBULAR KEEL // MARITIME",
     [
-      "at the family reunion, she hugged her [MASK].",
-      "around the holiday table sat her [MASK] and cousins.",
-      "in the family portrait stood his [MASK]."
+      "ocean waves crashed against the wooden [MASK] of the ship.",
+      "the captain stood near the [MASK] of the sailing vessel.",
+      "below the waterline, barnacles clung to the ship's [MASK]."
     ],
     [
-      "brother",
-      "sister",
-      "father",
-      "mother",
-      "uncle",
-      "aunt",
-      "grandmother",
-      "grandfather",
-      "nephew",
-      "niece"
+      "hull",
+      "keel",
+      "cabin",
+      "galley",
+      "rudder",
+      "helm",
+      "mast",
+      "stern",
+      "bow",
+      "anchor"
     ]
   ],
   [
-    "rooms",
-    "HOUSEHOLD ROOMS",
-    "ENTORHINAL GRID // FLOORPLAN",
+    "garment",
+    "TAILORED GARMENTS",
+    "TACTILE LOOM // STITCH",
     [
-      "she walked down the stairs into the [MASK].",
-      "the blueprint showed a spacious [MASK] on the first floor.",
-      "he locked the door to the upstairs [MASK]."
+      "the tailor stitched the silk [MASK] onto the coat.",
+      "she fastened the brass [MASK] of her tailored coat.",
+      "the seamstress mended the torn [MASK] of the shirt."
     ],
     [
-      "kitchen",
-      "bathroom",
-      "bedroom",
-      "cellar",
-      "attic",
-      "hallway",
-      "garage",
-      "parlor",
-      "basement"
+      "zipper",
+      "sleeve",
+      "strap",
+      "seam",
+      "collar",
+      "button",
+      "hood",
+      "buckle",
+      "pocket",
+      "fringe"
     ]
   ],
   [
-    "sciences",
-    "ACADEMIC SCIENCES",
-    "NEOCORTEX // EMPIRICAL LOGIC",
+    "firearms",
+    "FIREARM MECHANISM",
+    "BALLISTIC REFLEX // ORDNANCE",
     [
-      "at the university, the professor taught a course in [MASK].",
-      "the doctoral candidate published a thesis in [MASK].",
-      "the nobel prize was awarded for research in [MASK]."
+      "the gunsmith cleaned the [MASK] of the pistol.",
+      "on the firing range, the marksman checked the rifle's [MASK].",
+      "smoke curled from the steel [MASK] of the revolver."
     ],
     [
-      "physics",
-      "mathematics",
-      "psychology",
-      "biology",
-      "chemistry",
-      "astronomy",
-      "geology",
-      "genetics",
-      "sociology"
+      "holster",
+      "muzzle",
+      "barrel",
+      "recoil",
+      "cartridge",
+      "chamber",
+      "trigger",
+      "sight",
+      "stock"
     ]
   ],
   [
@@ -636,7 +643,8 @@
       "oregano",
       "parsley",
       "rosemary",
-      "mustard"
+      "mustard",
+      "sage"
     ]
   ],
   [
@@ -645,7 +653,7 @@
     "SOMATOSENSORY CORTEX // THREAD",
     [
       "the dress was tailored from fine woven [MASK].",
-      "the merchant unrolled a bolt ofdyed [MASK] fabric.",
+      "the merchant unrolled a bolt of dyed [MASK] fabric.",
       "the royal curtains were draped in heavy [MASK]."
     ],
     [
@@ -658,7 +666,7 @@
       "lace",
       "denim",
       "canvas",
-      "cashmere"
+      "tweed"
     ]
   ],
   [
@@ -673,13 +681,11 @@
     [
       "skull",
       "pelvis",
-      "spine",
       "jaw",
       "femur",
       "rib",
       "collarbone",
-      "ankle",
-      "wrist"
+      "sternum"
     ]
   ],
   [
@@ -710,7 +716,7 @@
     "NIGHTMARE GANGLIA // UNDEAD",
     [
       "in the cursed graveyard lurked a bloodthirsty [MASK].",
-      "from the gothic crypt crawled aflesh-eating [MASK].",
+      "from the gothic crypt crawled a flesh-eating [MASK].",
       "the villagers fled in terror from the undead [MASK]."
     ],
     [
@@ -721,28 +727,29 @@
       "werewolf",
       "ghoul",
       "banshee",
-      "skeleton",
       "witch"
     ]
   ],
   [
-    "genres",
-    "FICTION GENRES",
-    "WERNICKE'S AREA // STORYBOOK",
+    "geology",
+    "TECTONIC GEOLOGY",
+    "LITHOSPHERIC CORTEX // MAGMA",
     [
-      "the library shelf was packed with [MASK] novels.",
-      "the bestselling author wrote pulp [MASK] stories.",
-      "the magazine published serialized [MASK] fiction."
+      "the volcano erupted through the tectonic [MASK] of the earth.",
+      "seismographs detected a deep fracture in the earth's [MASK].",
+      "geologists drilled core samples from the rocky [MASK]."
     ],
     [
-      "romance",
-      "horror",
-      "mystery",
-      "fantasy",
-      "thriller",
-      "detective",
-      "adventure",
-      "crime"
+      "crust",
+      "ridge",
+      "mantle",
+      "fault",
+      "core",
+      "bedrock",
+      "trench",
+      "crater",
+      "magma",
+      "lava"
     ]
   ],
   [
@@ -780,11 +787,6 @@
       "jig",
       "tango",
       "ballet",
-      "polka",
-      "samba",
-      "rumba",
-      "mambo",
-      "disco",
       "salsa",
       "swing",
       "tap",
@@ -808,28 +810,30 @@
       "rose",
       "violet",
       "daisy",
-      "poppy",
-      "iris"
+      "poppy"
     ]
   ],
   [
-    "chants",
-    "SACRED CHANTS",
-    "TEMPORAL GYRUS // RITUAL",
+    "river",
+    "RIVER HYDROLOGY",
+    "FLUVIAL PLEXUS // ESTUARY",
     [
-      "in the ancient temple, the monks chanted a sacred [MASK].",
-      "beneath the cathedral dome echoed a solemn [MASK].",
-      "the high priest recited an ancient [MASK]."
+      "the canoe drifted down the muddy [MASK] of the river.",
+      "after the spring thaw, floodwaters overflowed the river [MASK].",
+      "fishermen cast their nets across the shallow river [MASK]."
     ],
     [
-      "hymn",
-      "chant",
-      "psalm",
-      "mantra",
-      "prayer",
-      "blessing",
-      "proverb",
-      "ballad"
+      "rapids",
+      "bank",
+      "mouth",
+      "estuary",
+      "fork",
+      "stream",
+      "basin",
+      "creek",
+      "delta",
+      "channel",
+      "bed"
     ]
   ],
   [
@@ -844,14 +848,13 @@
     [
       "hammer",
       "wrench",
-      "screwdriver",
-      "pliers",
-      "chisel",
       "saw",
       "drill",
       "clamp",
       "mallet",
-      "shovel"
+      "shovel",
+      "file",
+      "plane"
     ]
   ],
   [
@@ -871,9 +874,9 @@
       "cauldron",
       "wok",
       "teapot",
-      "pitcher",
       "bowl",
-      "platter"
+      "platter",
+      "ladle"
     ]
   ],
   [
@@ -896,7 +899,7 @@
       "gecko",
       "iguana",
       "serpent",
-      "boa"
+      "turtle"
     ]
   ],
   [
@@ -932,7 +935,6 @@
       "behind thick granite walls rose the fortified [MASK]."
     ],
     [
-      "castle",
       "temple",
       "palace",
       "cathedral",
@@ -946,7 +948,7 @@
   ],
   [
     "currency",
-    "HARD CURRENCY",
+    "MINTED CURRENCY",
     "NUCLEUS ACCUMBENS // MINT",
     [
       "the foreign exchange counter traded gold and [MASK] bills.",
@@ -956,14 +958,12 @@
     [
       "dollar",
       "pound",
-      "franc",
-      "peso",
-      "yen",
       "coin",
       "cent",
       "penny",
       "dime",
-      "euro"
+      "euro",
+      "mark"
     ]
   ],
   [
@@ -1010,6 +1010,175 @@
       "donut",
       "biscuit",
       "pudding"
+    ]
+  ],
+  [
+    "clock",
+    "CLOCKWORK MECHANISM",
+    "SUPRACHIASMATIC // HOROLOGY",
+    [
+      "the watchmaker repaired the broken [MASK] inside the grandfather clock.",
+      "at midnight, the brass [MASK] of the clock tower began to move.",
+      "he wound the tiny [MASK] of the antique pocket watch."
+    ],
+    [
+      "dial",
+      "bell",
+      "pendulum",
+      "gear",
+      "face",
+      "hand",
+      "alarm",
+      "spring"
+    ]
+  ],
+  [
+    "baseball",
+    "BASEBALL DIAMOND",
+    "CEREBELLAR ARC // INNING",
+    [
+      "in the baseball game, the batter hit a [MASK] into the field.",
+      "under the stadium lights, the [MASK] stepped onto the baseball diamond.",
+      "the crowd roared as the baseball [MASK] made the play."
+    ],
+    [
+      "homer",
+      "pitcher",
+      "single",
+      "catcher",
+      "triple",
+      "foul",
+      "inning",
+      "double",
+      "umpire",
+      "mound"
+    ]
+  ],
+  [
+    "theater",
+    "THEATER STAGE",
+    "TEMPORAL PROSCENIUM // DRAMA",
+    [
+      "before opening night at the theater, the actors rehearsed the [MASK].",
+      "backstage at the playhouse, the stagehands prepared the [MASK].",
+      "as the spotlight dimmed, the theater [MASK] took its place."
+    ],
+    [
+      "script",
+      "scene",
+      "encore",
+      "stage",
+      "monologue",
+      "cast",
+      "curtain",
+      "crew",
+      "prop",
+      "cue"
+    ]
+  ],
+  [
+    "sheet_music",
+    "MUSICAL NOTATION",
+    "AUDITORY STAFF // HARMONY",
+    [
+      "the pianist played a minor [MASK] in the symphony.",
+      "on the sheet music, the conductor marked the [MASK].",
+      "the choir rehearsed the opening [MASK] of the score."
+    ],
+    [
+      "note",
+      "melody",
+      "chord",
+      "harmony",
+      "chorus",
+      "octave",
+      "rhythm",
+      "tempo",
+      "pitch",
+      "scale"
+    ]
+  ],
+  [
+    "eye",
+    "OCULAR ANATOMY",
+    "OPTIC CHIASM // RETINA",
+    [
+      "the eye doctor shone a light into the patient's [MASK].",
+      "through the microscope, the optometrist examined the damaged [MASK].",
+      "bright sunlight caused a painful reflex in her [MASK]."
+    ],
+    [
+      "retina",
+      "pupil",
+      "socket",
+      "brow",
+      "iris",
+      "lens",
+      "vision",
+      "glare",
+      "blink"
+    ]
+  ],
+  [
+    "limb",
+    "LIMB & FOOT ANATOMY",
+    "MOTOR HOMUNCULUS // TENDON",
+    [
+      "the barefoot runner sprained his [MASK] on the trail.",
+      "the physical therapist wrapped an elastic brace around the swollen [MASK].",
+      "after the marathon, a sharp cramp seized her [MASK]."
+    ],
+    [
+      "ankle",
+      "wrist",
+      "elbow",
+      "thigh",
+      "calf",
+      "heel",
+      "shin",
+      "palm",
+      "sole"
+    ]
+  ],
+  [
+    "court",
+    "JUDICIAL COURT",
+    "PREFRONTAL TRIBUNAL // DOCKET",
+    [
+      "in the courtroom, the judge read the [MASK] to the jury.",
+      "the defense attorney filed an emergency [MASK] with the court.",
+      "after three days of testimony, the magistrate issued the [MASK]."
+    ],
+    [
+      "verdict",
+      "sentence",
+      "trial",
+      "appeal",
+      "witness",
+      "bail",
+      "parole",
+      "custody",
+      "warrant"
+    ]
+  ],
+  [
+    "camera",
+    "CAMERA OPTICS",
+    "OCCIPITAL APERTURE // SHUTTER",
+    [
+      "the photographer adjusted the camera [MASK] to capture the portrait.",
+      "in the darkroom, the photojournalist checked the [MASK] setting.",
+      "before snapping the photograph, she calibrated the [MASK]."
+    ],
+    [
+      "aperture",
+      "zoom",
+      "shutter",
+      "exposure",
+      "focus",
+      "filter",
+      "flash",
+      "film"
     ]
   ]
 ]

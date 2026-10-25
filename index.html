@@ -1169,7 +1169,7 @@
     <div class="telemetry-viewport">
       <div class="telemetry-track" id="telemetry-track">
         <span class="telemetry-msg" id="telemetry-msg">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES</span>
-        <span class="telemetry-clone" id="telemetry-clone" aria-hidden="true">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES   ///   48 CORTICAL LOBES · 144 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES &amp; WORDS</span>
+        <span class="telemetry-clone" id="telemetry-clone" aria-hidden="true">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES   ///   56 CORTICAL LOBES · 168 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES &amp; WORDS</span>
       </div>
     </div>
   </div>
@@ -1282,7 +1282,7 @@
   const TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
   const MODEL_ID = 'Xenova/albert-base-v2';
   const MODEL_DTYPE = 'fp16';
-  const PUZZLES_VERSION = '4';
+  const PUZZLES_VERSION = '5';
   const PUZZLES_URL = `/puzzles.json?v=${PUZZLES_VERSION}`;
   const SAVE_KEY = 'post-training-save';
   const LOADING_SENTINEL = 'post-training-loading';
@@ -1358,7 +1358,7 @@
   const copyReportBtn = $('copy-report-btn');
   const nextCaseBtn = $('next-case-btn');
 
-  const TICKER_FEED_SUFFIX = '   ///   48 CORTICAL LOBES · 144 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES & WORDS';
+  const TICKER_FEED_SUFFIX = '   ///   56 CORTICAL LOBES · 168 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES & WORDS';
   function setTelemetry(text) {
     telemetryMsg.textContent = text;
     if (telemetryClone) {
@@ -1877,15 +1877,15 @@
     return s;
   }
 
-  // Build a word's L2-normalized category-by-word logit embedding vector
+  // Build a word's L2-normalized embedding vector (16-D SVD ALBERT+cortical vector for corpus words; 4-D probe vector for custom Lab boards)
   function buildWordEmbeddingVec(word, lobeVals, quadIds) {
+    if (Array.isArray(quadIds) && quadIds.length === 4 && corpus && corpus.wordVecs && Array.isArray(corpus.wordVecs[word])) {
+      return corpus.wordVecs[word];
+    }
     const raw = [];
-    // Include the 4 active board probe logits
     for (let k = 0; k < lobeVals.length; k++) {
       raw.push(lobeVals[k]);
     }
-    // For corpus quads, include the remaining 44 category logits so all corpus word vectors share a fixed 48-D space;
-    // for custom boards (quadIds === null), keep all word vectors in the common 4-D custom-probe space.
     if (Array.isArray(quadIds) && quadIds.length === 4 && corpus && corpus.poolLogits && corpus.poolWordIndex) {
       const pIdx = corpus.poolWordIndex[word];
       const allCatIds = Object.keys(corpus.poolLogits);
@@ -1928,20 +1928,21 @@
     const tokenIds = Array.from(tokenSet);
     if (!tokenIds.length) return null;
     const passVecs = passes.map(p => normalizeCenteredVec(tokenIds.map(tid => p.logits[tid] ?? 0)));
-    let maxPairCos = -1;
+    const pairSims = [];
     for (let a = 0; a < 4; a++) {
       for (let b = a + 1; b < 4; b++) {
-        const cs = dotProduct(passVecs[a], passVecs[b]);
-        if (cs > maxPairCos) maxPairCos = cs;
+        pairSims.push(dotProduct(passVecs[a], passVecs[b]));
       }
     }
-    return Math.max(0.05, Math.min(0.99, 1 - maxPairCos));
+    pairSims.sort((x, y) => y - x);
+    const quadSim = 0.65 * pairSims[0] + 0.25 * pairSims[1] + 0.10 * pairSims[2];
+    return Math.max(0.05, Math.min(0.99, 1 - quadSim));
   }
 
-  function evaluateCandidateQuad(quadIds) {
+  function evaluateCandidateQuad(quadIds, targetGrade = 'easy') {
     if (!corpus || quadIds.length !== 4) return null;
-    // 1. Validate all 6 pairwise compatibility edges and compute minimum 6-pair cosine distance (1 - maxPairCos)
-    let maxPairCos = -1;
+    // 1. Validate all 6 pairwise compatibility edges and compute 6-pair clique cosine distance
+    const pairSims = [];
     for (let a = 0; a < 4; a++) {
       const ca = quadIds[a];
       const compatA = corpus.compatibility[ca] || [];
@@ -1950,17 +1951,22 @@
         const cb = quadIds[b];
         if (!compatA.includes(cb)) return null;
         const cs = typeof cosA[cb] === 'number' ? cosA[cb] : 0.15;
-        if (cs > maxPairCos) maxPairCos = cs;
+        pairSims.push(cs);
       }
     }
-    // 2. Verify every category in the quad has >= 4 valid pool words with margin > 0.35 against the other 3 lobes
+    pairSims.sort((x, y) => y - x);
+    const quadSim = 0.65 * pairSims[0] + 0.25 * pairSims[1] + 0.10 * pairSims[2];
+    // 2. Require >= 4 clean words (margin > 0.35) on EASY/MEDIUM so non-HARD boards stay strictly separated;
+    // on HARD, allow false-flag words as long as each category has >= 2 clean anchor words (margin > 0.35).
+    const minRequiredAnchors = targetGrade === 'hard' ? 2 : 4;
     if (corpus.poolLogits && corpus.poolWordIndex) {
       for (let i = 0; i < 4; i++) {
         const cid = quadIds[i];
         const cat = corpus.categories[cid];
         const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
+        if (!pool || pool.length < 4) return null;
         const ownRow = corpus.poolLogits[cid];
-        let validCount = 0;
+        let anchorCount = 0;
         for (const we of pool) {
           const pIdx = corpus.poolWordIndex[we.word];
           const ownL = (ownRow && pIdx !== undefined) ? ownRow[pIdx] : (we.ownLogit ?? 10);
@@ -1972,12 +1978,12 @@
               if (ol > maxOther) maxOther = ol;
             }
           }
-          if (ownL - maxOther > 0.35) validCount++;
+          if (ownL - maxOther > 0.35) anchorCount++;
         }
-        if (validCount < 4) return null;
+        if (anchorCount < minRequiredAnchors) return null;
       }
     }
-    return Math.max(0.05, Math.min(0.99, 1 - maxPairCos));
+    return Math.max(0.05, Math.min(0.99, 1 - quadSim));
   }
 
   function matchesGradeBand(cosDist, targetGrade) {
@@ -1993,37 +1999,61 @@
   }
 
   function gradeTargetCenter(targetGrade) {
-    if (targetGrade === 'hard') return 0.45;
-    if (targetGrade === 'medium') return 0.71;
+    if (targetGrade === 'hard') return 0.36;
+    if (targetGrade === 'medium') return 0.70;
     return 0.86;
+  }
+
+  function pickHardWordsForLobe(scoredPool) {
+    const anchors = scoredPool.filter(w => w.margin > 0.35);
+    anchors.sort((a, b) => a.hardScore - b.hardScore);
+    const picked = anchors.slice(0, 2);
+    const remaining = scoredPool.filter(w => !picked.includes(w) && w.margin > -6.5);
+    remaining.sort((a, b) => a.hardScore - b.hardScore);
+    for (const w of remaining) {
+      if (picked.length >= 4) break;
+      picked.push(w);
+    }
+    if (picked.length < 4) {
+      for (const w of scoredPool) {
+        if (picked.length >= 4) break;
+        if (!picked.includes(w)) picked.push(w);
+      }
+    }
+    return picked.slice(0, 4);
   }
 
   // Select 4 words per lobe and compute pairwise word cosine distance strictly against the 16 selected board words
   function selectQuadWordsFromPools(pools, targetGrade, rng, isCanonicalSeed1) {
-    const initialRivalVecs = pools.map(items => {
-      const valid = items.filter(w => w.margin > 0.35);
-      const ref = valid.length >= 4 ? valid : items.slice(0, 4);
-      return ref.map(w => w.wordVec);
-    });
+    const initialRivalVecs = pools.map(items => items.map(w => w.wordVec));
 
     const chosen = new Array(4);
     for (let i = 0; i < 4; i++) {
       const scoredPool = pools[i];
       for (const item of scoredPool) {
         item.wordCosDist = computeWordCosineDistance(item.wordVec, i, initialRivalVecs);
+        const esoBonus = Math.min(item.poolRank ?? 0, 6) * 0.025;
+        const pullBonus = Math.max(0, Math.min(0.16, (2.5 - item.margin) * 0.04));
+        item.hardScore = item.wordCosDist - esoBonus - pullBonus;
       }
-      const validCands = scoredPool.filter(w => w.margin > 0.35);
-      if (validCands.length >= 4) {
-        validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
-        if (!isCanonicalSeed1 && targetGrade === 'hard') {
-          chosen[i] = validCands.slice(-4);
-        } else if (!isCanonicalSeed1 && targetGrade === 'medium') {
-          chosen[i] = seededShuffle(validCands, rng).slice(0, 4);
-        } else {
-          chosen[i] = validCands.slice(0, 4);
-        }
+      if (!isCanonicalSeed1 && targetGrade === 'hard') {
+        chosen[i] = pickHardWordsForLobe(scoredPool);
+      } else if (!isCanonicalSeed1 && targetGrade === 'medium') {
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
+        const poolToUse = validCands.length >= 4 ? validCands : scoredPool;
+        chosen[i] = seededShuffle(poolToUse, rng).slice(0, 4);
       } else {
-        chosen[i] = scoredPool.slice(0, 4);
+        const validCands = scoredPool.filter(w => w.margin > 0.35);
+        if (validCands.length >= 4) {
+          if (isCanonicalSeed1) {
+            validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
+          } else {
+            validCands.sort((a, b) => (b.wordCosDist - (b.poolRank ?? 0) * 0.015) - (a.wordCosDist - (a.poolRank ?? 0) * 0.015));
+          }
+          chosen[i] = validCands.slice(0, 4);
+        } else {
+          chosen[i] = scoredPool.slice(0, 4);
+        }
       }
     }
 
@@ -2034,12 +2064,20 @@
         const scoredPool = pools[i];
         for (const item of scoredPool) {
           item.wordCosDist = computeWordCosineDistance(item.wordVec, i, selectedVecs);
+          const esoBonus = Math.min(item.poolRank ?? 0, 6) * 0.025;
+          const pullBonus = Math.max(0, Math.min(0.16, (2.5 - item.margin) * 0.04));
+          item.hardScore = item.wordCosDist - esoBonus - pullBonus;
         }
-        const validCands = scoredPool.filter(w => w.margin > 0.35);
-        if (validCands.length >= 4) {
-          validCands.sort((a, b) => b.wordCosDist - a.wordCosDist);
-          chosen[i] = targetGrade === 'hard' ? validCands.slice(-4) : validCands.slice(0, 4);
+        if (targetGrade === 'hard') {
+          chosen[i] = pickHardWordsForLobe(scoredPool);
           selectedVecs[i] = chosen[i].map(w => w.wordVec);
+        } else {
+          const validCands = scoredPool.filter(w => w.margin > 0.35);
+          if (validCands.length >= 4) {
+            validCands.sort((a, b) => (b.wordCosDist - (b.poolRank ?? 0) * 0.015) - (a.wordCosDist - (a.poolRank ?? 0) * 0.015));
+            chosen[i] = validCands.slice(0, 4);
+            selectedVecs[i] = chosen[i].map(w => w.wordVec);
+          }
         }
       }
     }
@@ -2063,7 +2101,7 @@
     return quadIds.map((cid, i) => {
       const cat = corpus.categories[cid];
       const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
-      const items = pool.map(we => {
+      const items = pool.map((we, poolRank) => {
         const pIdx = corpus.poolWordIndex[we.word];
         const lobeVals = [0, 1, 2, 3].map(k => {
           const rowK = corpus.poolLogits[quadIds[k]];
@@ -2078,10 +2116,12 @@
           word: we.word,
           tokenId: we.tokenId,
           tokenStr: we.tokenStr,
+          poolRank,
           ownLogit: ownL,
           margin: ownL - maxOther,
           wordVec: buildWordEmbeddingVec(we.word, lobeVals, quadIds),
           wordCosDist: 0.75,
+          hardScore: 0.75,
         };
       });
       items.sort((a, b) => b.margin - a.margin);
@@ -2132,7 +2172,7 @@
     // Seed 1 (EASY) uses the canonical opening quad so onboarding, shared links & E2E tests on seed=1 are deterministic;
     // every other seed/grade rolls procedurally from the 48-lobe compatibility graph!
     let catIds = basePuzzle.categories.slice();
-    let probeCosDist = evaluateCandidateQuad(catIds) ?? 0.85;
+    let probeCosDist = evaluateCandidateQuad(catIds, targetGrade) ?? 0.85;
     if (!isCanonicalSeed1) {
       const allIds = Object.keys(corpus.categories);
       let bestQuad = null;
@@ -2143,29 +2183,50 @@
 
       for (let attempt = 0; attempt < 320; attempt++) {
         const c0 = allIds[Math.floor(rng() * allIds.length)];
-        const compat0 = corpus.compatibility[c0] || [];
-        let windowPool = compat0;
-        if (compat0.length >= 6) {
-          if (targetGrade === 'hard') {
-            windowPool = compat0.slice(0, Math.max(5, Math.ceil(compat0.length * 0.45)));
-          } else if (targetGrade === 'easy') {
-            windowPool = compat0.slice(Math.floor(compat0.length * 0.45));
-          } else {
-            const start = Math.floor(compat0.length * 0.2);
-            const end = Math.ceil(compat0.length * 0.8);
-            windowPool = compat0.slice(start, end);
-          }
-        }
         const picked = [c0];
-        for (const cand of seededShuffle(windowPool, rng)) {
-          if (picked.every(p => (corpus.compatibility[p] || []).includes(cand))) {
-            picked.push(cand);
-            if (picked.length === 4) break;
+        if (targetGrade === 'hard') {
+          while (picked.length < 4) {
+            const cands = allIds.filter(
+              c => !picked.includes(c) && picked.every(p => (corpus.compatibility[p] || []).includes(c))
+            );
+            if (!cands.length) break;
+            cands.sort((a, b) => {
+              const simA = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[a]) ?? 0), 0) / picked.length;
+              const simB = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[b]) ?? 0), 0) / picked.length;
+              return simB - simA;
+            });
+            const topK = cands.slice(0, Math.max(4, Math.min(8, cands.length)));
+            picked.push(topK[Math.floor(rng() * topK.length)]);
+          }
+        } else if (targetGrade === 'easy') {
+          while (picked.length < 4) {
+            const cands = allIds.filter(
+              c => !picked.includes(c) && picked.every(p => (corpus.compatibility[p] || []).includes(c))
+            );
+            if (!cands.length) break;
+            cands.sort((a, b) => {
+              const simA = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[a]) ?? 0), 0) / picked.length;
+              const simB = picked.reduce((acc, p) => acc + ((corpus.pairCosSim?.[p]?.[b]) ?? 0), 0) / picked.length;
+              return simA - simB;
+            });
+            const topK = cands.slice(0, Math.max(6, Math.floor(cands.length * 0.35)));
+            picked.push(topK[Math.floor(rng() * topK.length)]);
+          }
+        } else {
+          const compat0 = corpus.compatibility[c0] || [];
+          const start = Math.floor(compat0.length * 0.25);
+          const end = Math.ceil(compat0.length * 0.75);
+          const windowPool = compat0.length >= 6 ? compat0.slice(start, end) : compat0;
+          for (const cand of seededShuffle(windowPool, rng)) {
+            if (picked.every(p => (corpus.compatibility[p] || []).includes(cand))) {
+              picked.push(cand);
+              if (picked.length === 4) break;
+            }
           }
         }
         if (picked.length < 4) continue;
 
-        const cDist = evaluateCandidateQuad(picked);
+        const cDist = evaluateCandidateQuad(picked, targetGrade);
         if (cDist === null) continue;
 
         let combinedCandDist = cDist;
@@ -2219,7 +2280,8 @@
         passes.push(passRes);
       }
 
-      // Verify each lobe has >= 4 valid candidates (margin > 0.35); if a prompt variant had < 4, re-run with primary prompt
+      // Verify each lobe has the required anchor candidates (margin > 0.35); if a prompt variant had fewer, re-run with primary prompt
+      const minLiveAnchors = targetGrade === 'hard' ? 2 : 4;
       for (let i = 0; i < 4; i++) {
         const cid = catIds[i];
         const cat = corpus.categories[cid];
@@ -2238,7 +2300,7 @@
           }
           return c;
         };
-        if (countValid() < 4 && chosenPrompts[i] !== cat.prompt) {
+        if (countValid() < minLiveAnchors && chosenPrompts[i] !== cat.prompt) {
           chosenPrompts[i] = cat.prompt;
           const retryRes = await runMaskedForwardPass(cat.prompt, () => myGen !== buildGeneration);
           if (myGen !== buildGeneration || !retryRes) return false;
@@ -2247,12 +2309,11 @@
       }
 
       const buildLiveSelection = () => {
-        const liveDist = computeLiveProbeCosDist(passes);
-        const pDist = typeof liveDist === 'number' ? liveDist : probeCosDist;
+        const pDist = probeCosDist;
         const livePools = catIds.map((cid, i) => {
           const cat = corpus.categories[cid];
           const pool = (cat.wordPool && cat.wordPool.length >= 4) ? cat.wordPool : cat.words;
-          const items = pool.map(we => {
+          const items = pool.map((we, poolRank) => {
             const lobeVals = [0, 1, 2, 3].map(k => passes[k].logits[we.tokenId]);
             const ownL = lobeVals[i];
             let maxOther = -Infinity;
@@ -2263,10 +2324,12 @@
               word: we.word,
               tokenId: we.tokenId,
               tokenStr: we.tokenStr,
+              poolRank,
               ownLogit: ownL,
               margin: ownL - maxOther,
               wordVec: buildWordEmbeddingVec(we.word, lobeVals, catIds),
               wordCosDist: 0.75,
+              hardScore: 0.75,
             };
           });
           items.sort((a, b) => b.margin - a.margin);
@@ -2321,8 +2384,8 @@
       const elapsed = Math.round(performance.now() - t0);
       inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
     } else {
-      // PRE-DISSECTED WARD MODE (Uses full 48x392 poolLogits matrix scored on each category's primary prompt!)
-      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds) !== null;
+      // PRE-DISSECTED WARD MODE (Uses full 56x476 poolLogits matrix scored on each category's primary prompt!)
+      const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds, targetGrade) !== null;
       if (hasPoolMatrix && !isCanonicalSeed1) {
         const wardPools = buildWardPoolsForQuad(catIds);
         const wardSelRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);

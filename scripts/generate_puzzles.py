@@ -82,15 +82,15 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         ["piano", "violin", "clarinet", "flute", "cello", "oboe", "trumpet", "harp", "trombone", "guitar", "saxophone"],
     ),
     (
-        "colors",
-        "PAINT PIGMENTS",
-        "OCCIPITAL LOBE // CHROMA-V1",
+        "locksmith",
+        "LOCKSMITH HARDWARE",
+        "PARIETAL TUMBLER // SHACKLE",
         [
-            "the painter mixed a bright shade of [MASK] paint.",
-            "across the canvas, the artist brushed vivid [MASK] pigment.",
-            "the neon sign glowed with a brilliant [MASK] hue.",
+            "to secure the heavy door, the locksmith fastened the iron [MASK].",
+            "on the dungeon gate hung a rusted iron [MASK].",
+            "the burglar picked the brass [MASK] on the vault door.",
         ],
-        ["purple", "yellow", "green", "red", "blue", "orange", "pink", "crimson", "scarlet", "indigo", "turquoise"],
+        ["lock", "clasp", "bolt", "chain", "bar", "key", "hook"],
     ),
     (
         "planets",
@@ -112,7 +112,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "inside the foundry, molten [MASK] poured into the mold.",
             "the armor plating was hammered from thick [MASK].",
         ],
-        ["steel", "copper", "brass", "iron", "bronze", "titanium", "aluminum", "nickel"],
+        ["steel", "copper", "brass", "iron", "bronze", "titanium", "aluminum", "nickel", "zinc", "lead", "tin"],
     ),
     (
         "weather",
@@ -189,7 +189,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "in the arena, the gladiator swung his deadly [MASK].",
             "the knight unsheathed his bloodstained [MASK].",
         ],
-        ["sword", "axe", "dagger", "spear", "blade", "mace", "lance", "halberd"],
+        ["sword", "axe", "dagger", "spear", "blade", "mace", "lance", "pike"],
     ),
     (
         "organs",
@@ -211,7 +211,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the logging camp harvested timber from giant [MASK] trees.",
             "wind rustled through the branches of the old [MASK] tree.",
         ],
-        ["pine", "oak", "cedar", "willow", "maple", "birch", "cypress", "elm", "redwood"],
+        ["pine", "oak", "cedar", "willow", "maple", "birch", "cypress", "elm", "redwood", "ash"],
     ),
     (
         "sports",
@@ -225,37 +225,37 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         ["basketball", "baseball", "football", "soccer", "volleyball", "tennis", "hockey", "rugby", "golf"],
     ),
     (
-        "clothes",
-        "WINTER GEAR",
-        "THERMAL CORTEX // INSULATION",
+        "book",
+        "BOOK PUBLISHING",
+        "BROCA'S FOLIO // MANUSCRIPT",
         [
-            "before stepping into the blizzard, he put on his warm [MASK].",
-            "to survive the freezing expedition, she packed a thick [MASK].",
-            "bundled against the frost, the hiker wore a heavy [MASK].",
+            "the editor proofread the [MASK] of the hardcover book before publication.",
+            "the librarian opened the leather-bound book and read the [MASK].",
+            "the printing press bound the [MASK] of the new novel.",
         ],
-        ["jacket", "gloves", "boots", "sweater", "coat", "scarf", "cloak", "hoodie"],
+        ["edition", "title", "volume", "preface", "margin", "page", "spine", "chapter", "index", "prologue", "jacket"],
     ),
     (
-        "months",
-        "CALENDAR MONTHS",
-        "PINEAL GLAND // ANNUAL CYCLE",
+        "chess",
+        "CHESS BOARD",
+        "PREFRONTAL GAMBIT // GRANDMASTER",
         [
-            "the festival is held every year in the month of [MASK].",
-            "the calendar marked the deadline in the month of [MASK].",
-            "the annual harvest begins each year in [MASK].",
+            "on the chessboard, the grandmaster captured the [MASK].",
+            "during the chess tournament, she sacrificed her [MASK] for checkmate.",
+            "across the checkered board, the player advanced his [MASK].",
         ],
-        ["october", "june", "december", "april", "july", "august", "january", "november", "september", "february"],
+        ["knight", "rook", "pawn", "king", "castle", "queen", "bishop"],
     ),
     (
-        "days",
-        "DAYS OF THE WEEK",
-        "SUPRACHIASMATIC NUCLEUS // WEEK",
+        "cards",
+        "POKER TABLE",
+        "STRIATAL WAGER // DECK",
         [
-            "the office meeting was scheduled for next [MASK] morning.",
-            "the weekly broadcast airs every [MASK] night.",
-            "the courthouse docket is heard on [MASK] afternoon.",
+            "at the card table, the poker dealer revealed a [MASK].",
+            "in the casino, the gambler drew a winning [MASK] from the pack.",
+            "he shuffled the playing cards and dealt a [MASK].",
         ],
-        ["tuesday", "monday", "thursday", "friday", "wednesday", "saturday", "sunday"],
+        ["joker", "spade", "suit", "trump", "club", "deck", "jack", "flush", "ace"],
     ),
     (
         "emotions",
@@ -269,26 +269,26 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         ["anger", "fear", "guilt", "sorrow", "shame", "rage", "despair", "envy", "hatred"],
     ),
     (
-        "furniture",
-        "PARLOR SEATING",
-        "PROPRIOCEPTIVE LOBE // POSTURE",
+        "dental",
+        "DENTAL CLINIC",
+        "TRIGEMINAL NERVE // ENAMEL",
         [
-            "in the living room, he sat down on the leather [MASK].",
-            "beside the fireplace stood an upholstered [MASK].",
-            "the parlor was furnished with a wooden [MASK] and table.",
+            "at the dental clinic, the dentist examined the patient's tooth [MASK].",
+            "the orthodontist scraped the calcified [MASK] from the tooth.",
+            "under the bright lamp, the dentist drilled into the decayed [MASK].",
         ],
-        ["couch", "sofa", "bench", "chair", "stool", "recliner", "armchair", "mattress"],
+        ["enamel", "cavity", "root", "gum", "decay", "canal", "plaque", "crown", "brace", "filling"],
     ),
     (
-        "vehicles",
-        "HIGHWAY VEHICLES",
-        "LOCOMOTOR PLEXUS // ASPHALT",
+        "tree_parts",
+        "TIMBER ANATOMY",
+        "XYLEM CORTEX // CAMBIUM",
         [
-            "in heavy traffic, the driver parked his [MASK] on the street.",
-            "down the highway sped a roaring [MASK].",
-            "outside the garage stood a customized [MASK].",
+            "the woodsman chopped through the thick [MASK] of the tree.",
+            "in the forest, moss grew along the ancient tree's [MASK].",
+            "the botanist peeled a sample of rough [MASK] from the trunk.",
         ],
-        ["car", "truck", "jeep", "motorcycle", "van", "bus", "tractor", "ambulance", "limousine"],
+        ["bark", "foliage", "branch", "canopy", "trunk", "stump", "sap", "twig", "timber"],
     ),
     (
         "birds",
@@ -299,7 +299,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "from the cliffside nest swooped a hunting [MASK].",
             "across the mountain ridge glided a feathered [MASK].",
         ],
-        ["eagle", "owl", "falcon", "hawk", "vulture", "raven", "crow", "condor"],
+        ["eagle", "owl", "falcon", "hawk", "vulture", "raven", "crow", "condor", "heron"],
     ),
     (
         "sea_life",
@@ -310,7 +310,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the submarine sonar detected a massive marine [MASK].",
             "near the coral reef glided a wild [MASK].",
         ],
-        ["octopus", "whale", "turtle", "shark", "dolphin", "squid", "seal", "lobster"],
+        ["octopus", "whale", "shark", "dolphin", "squid", "seal", "lobster", "salmon", "tuna"],
     ),
     (
         "bugs",
@@ -328,54 +328,44 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         "ROYAL COURT",
         "PREFRONTAL HIERARCHY // THRONE",
         [
-            "on the royal throne sat the crowned [MASK] of the realm.",
-            "the heralds bowed before the reigning [MASK].",
-            "inside the castle reigned the royal [MASK].",
+            "the heralds bowed before the reigning [MASK] of the realm.",
+            "on the velvet throne sat the crowned [MASK].",
+            "inside the royal court ruled the noble [MASK].",
         ],
-        ["king", "queen", "prince", "emperor", "monarch", "princess", "duke", "sultan"],
+        ["monarch", "emperor", "prince", "princess", "duke", "sultan", "baron", "sovereign"],
     ),
     (
-        "family",
-        "BLOOD RELATIVES",
-        "OXYTOCIN CIRCUIT // KINSHIP",
+        "ship",
+        "SHIP ANATOMY",
+        "VESTIBULAR KEEL // MARITIME",
         [
-            "at the family reunion, she hugged her [MASK].",
-            "around the holiday table sat her [MASK] and cousins.",
-            "in the family portrait stood his [MASK].",
+            "ocean waves crashed against the wooden [MASK] of the ship.",
+            "the captain stood near the [MASK] of the sailing vessel.",
+            "below the waterline, barnacles clung to the ship's [MASK].",
         ],
-        ["brother", "sister", "father", "mother", "uncle", "aunt", "grandmother", "grandfather", "nephew", "niece"],
+        ["hull", "keel", "cabin", "galley", "rudder", "helm", "mast", "stern", "bow", "anchor"],
     ),
     (
-        "rooms",
-        "HOUSEHOLD ROOMS",
-        "ENTORHINAL GRID // FLOORPLAN",
+        "garment",
+        "TAILORED GARMENTS",
+        "TACTILE LOOM // STITCH",
         [
-            "she walked down the stairs into the [MASK].",
-            "the blueprint showed a spacious [MASK] on the first floor.",
-            "he locked the door to the upstairs [MASK].",
+            "the tailor stitched the silk [MASK] onto the coat.",
+            "she fastened the brass [MASK] of her tailored coat.",
+            "the seamstress mended the torn [MASK] of the shirt.",
         ],
-        ["kitchen", "bathroom", "bedroom", "cellar", "attic", "hallway", "garage", "parlor", "basement"],
+        ["zipper", "sleeve", "strap", "seam", "collar", "button", "hood", "buckle", "pocket", "fringe"],
     ),
     (
-        "sciences",
-        "ACADEMIC SCIENCES",
-        "NEOCORTEX // EMPIRICAL LOGIC",
+        "firearms",
+        "FIREARM MECHANISM",
+        "BALLISTIC REFLEX // ORDNANCE",
         [
-            "at the university, the professor taught a course in [MASK].",
-            "the doctoral candidate published a thesis in [MASK].",
-            "the nobel prize was awarded for research in [MASK].",
+            "the gunsmith cleaned the [MASK] of the pistol.",
+            "on the firing range, the marksman checked the rifle's [MASK].",
+            "smoke curled from the steel [MASK] of the revolver.",
         ],
-        [
-            "physics",
-            "mathematics",
-            "psychology",
-            "biology",
-            "chemistry",
-            "astronomy",
-            "geology",
-            "genetics",
-            "sociology",
-        ],
+        ["holster", "muzzle", "barrel", "recoil", "cartridge", "chamber", "trigger", "sight", "stock"],
     ),
     (
         "spices",
@@ -386,7 +376,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "in the mortar, the cook ground fresh [MASK] and herbs.",
             "the recipe called for a pinch of dried [MASK].",
         ],
-        ["garlic", "cinnamon", "basil", "ginger", "thyme", "oregano", "parsley", "rosemary", "mustard"],
+        ["garlic", "cinnamon", "basil", "ginger", "thyme", "oregano", "parsley", "rosemary", "mustard", "sage"],
     ),
     (
         "fabrics",
@@ -394,10 +384,10 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         "SOMATOSENSORY CORTEX // THREAD",
         [
             "the dress was tailored from fine woven [MASK].",
-            "the merchant unrolled a bolt ofdyed [MASK] fabric.",
+            "the merchant unrolled a bolt of dyed [MASK] fabric.",
             "the royal curtains were draped in heavy [MASK].",
         ],
-        ["linen", "wool", "silk", "cotton", "satin", "velvet", "lace", "denim", "canvas", "cashmere"],
+        ["linen", "wool", "silk", "cotton", "satin", "velvet", "lace", "denim", "canvas", "tweed"],
     ),
     (
         "bones",
@@ -408,7 +398,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "in the catacombs lay a bleached human [MASK].",
             "the orthopedic surgeon bolted a titanium plate to the [MASK].",
         ],
-        ["skull", "pelvis", "spine", "jaw", "femur", "rib", "collarbone", "ankle", "wrist"],
+        ["skull", "pelvis", "jaw", "femur", "rib", "collarbone", "sternum"],
     ),
     (
         "crimes",
@@ -427,21 +417,21 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
         "NIGHTMARE GANGLIA // UNDEAD",
         [
             "in the cursed graveyard lurked a bloodthirsty [MASK].",
-            "from the gothic crypt crawled aflesh-eating [MASK].",
+            "from the gothic crypt crawled a flesh-eating [MASK].",
             "the villagers fled in terror from the undead [MASK].",
         ],
-        ["demon", "ghost", "zombie", "vampire", "werewolf", "ghoul", "banshee", "skeleton", "witch"],
+        ["demon", "ghost", "zombie", "vampire", "werewolf", "ghoul", "banshee", "witch"],
     ),
     (
-        "genres",
-        "FICTION GENRES",
-        "WERNICKE'S AREA // STORYBOOK",
+        "geology",
+        "TECTONIC GEOLOGY",
+        "LITHOSPHERIC CORTEX // MAGMA",
         [
-            "the library shelf was packed with [MASK] novels.",
-            "the bestselling author wrote pulp [MASK] stories.",
-            "the magazine published serialized [MASK] fiction.",
+            "the volcano erupted through the tectonic [MASK] of the earth.",
+            "seismographs detected a deep fracture in the earth's [MASK].",
+            "geologists drilled core samples from the rocky [MASK].",
         ],
-        ["romance", "horror", "mystery", "fantasy", "thriller", "detective", "adventure", "crime"],
+        ["crust", "ridge", "mantle", "fault", "core", "bedrock", "trench", "crater", "magma", "lava"],
     ),
     (
         "elements",
@@ -463,21 +453,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the orchestra struck up the rhythm of a lively [MASK].",
             "at the masquerade ball, the couples twirled in a [MASK].",
         ],
-        [
-            "waltz",
-            "jig",
-            "tango",
-            "ballet",
-            "polka",
-            "samba",
-            "rumba",
-            "mambo",
-            "disco",
-            "salsa",
-            "swing",
-            "tap",
-            "reel",
-        ],
+        ["waltz", "jig", "tango", "ballet", "salsa", "swing", "tap", "reel"],
     ),
     (
         "flowers",
@@ -488,18 +464,18 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the botanist sketched the petals of a wild [MASK].",
             "in the spring garden blossomed a delicate [MASK].",
         ],
-        ["orchid", "tulip", "lotus", "lily", "rose", "violet", "daisy", "poppy", "iris"],
+        ["orchid", "tulip", "lotus", "lily", "rose", "violet", "daisy", "poppy"],
     ),
     (
-        "chants",
-        "SACRED CHANTS",
-        "TEMPORAL GYRUS // RITUAL",
+        "river",
+        "RIVER HYDROLOGY",
+        "FLUVIAL PLEXUS // ESTUARY",
         [
-            "in the ancient temple, the monks chanted a sacred [MASK].",
-            "beneath the cathedral dome echoed a solemn [MASK].",
-            "the high priest recited an ancient [MASK].",
+            "the canoe drifted down the muddy [MASK] of the river.",
+            "after the spring thaw, floodwaters overflowed the river [MASK].",
+            "fishermen cast their nets across the shallow river [MASK].",
         ],
-        ["hymn", "chant", "psalm", "mantra", "prayer", "blessing", "proverb", "ballad"],
+        ["rapids", "bank", "mouth", "estuary", "fork", "stream", "basin", "creek", "delta", "channel", "bed"],
     ),
     (
         "tools",
@@ -510,7 +486,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "in the workshop, the mechanic tightened the bolt with a [MASK].",
             "on the workbench lay a heavy steel [MASK] and pliers.",
         ],
-        ["hammer", "wrench", "screwdriver", "pliers", "chisel", "saw", "drill", "clamp", "mallet", "shovel"],
+        ["hammer", "wrench", "saw", "drill", "clamp", "mallet", "shovel", "file", "plane"],
     ),
     (
         "kitchenware",
@@ -521,7 +497,7 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the chef poured boiling stock into the copper [MASK].",
             "in the kitchen sink soaked a greasy [MASK] and ladle.",
         ],
-        ["skillet", "kettle", "pot", "pan", "cauldron", "wok", "teapot", "pitcher", "bowl", "platter"],
+        ["skillet", "kettle", "pot", "pan", "cauldron", "wok", "teapot", "bowl", "platter", "ladle"],
     ),
     (
         "reptiles",
@@ -532,7 +508,19 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "through the marsh grass slithered a venomous [MASK].",
             "inside the glass terrarium coiled a spotted [MASK].",
         ],
-        ["snake", "lizard", "crocodile", "alligator", "cobra", "viper", "python", "gecko", "iguana", "serpent", "boa"],
+        [
+            "snake",
+            "lizard",
+            "crocodile",
+            "alligator",
+            "cobra",
+            "viper",
+            "python",
+            "gecko",
+            "iguana",
+            "serpent",
+            "turtle",
+        ],
     ),
     (
         "predators",
@@ -554,18 +542,18 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "the pilgrims traveled across the valley to the ancient [MASK].",
             "behind thick granite walls rose the fortified [MASK].",
         ],
-        ["castle", "temple", "palace", "cathedral", "chapel", "fortress", "monastery", "shrine", "tower", "citadel"],
+        ["temple", "palace", "cathedral", "chapel", "fortress", "monastery", "shrine", "tower", "citadel"],
     ),
     (
         "currency",
-        "HARD CURRENCY",
+        "MINTED CURRENCY",
         "NUCLEUS ACCUMBENS // MINT",
         [
             "the foreign exchange counter traded gold and [MASK] bills.",
             "the teller counted out a stack of crisp [MASK] notes.",
             "the merchant accepted payment in silver [MASK].",
         ],
-        ["dollar", "pound", "franc", "peso", "yen", "coin", "cent", "penny", "dime", "euro"],
+        ["dollar", "pound", "coin", "cent", "penny", "dime", "euro", "mark"],
     ),
     (
         "medical",
@@ -601,6 +589,94 @@ RAW_CATEGORIES: list[tuple[str, str, str, list[str], list[str]]] = [
             "on the porcelain plate sat a freshly baked [MASK].",
         ],
         ["cake", "pie", "cookie", "tart", "pastry", "muffin", "brownie", "donut", "biscuit", "pudding"],
+    ),
+    (
+        "clock",
+        "CLOCKWORK MECHANISM",
+        "SUPRACHIASMATIC // HOROLOGY",
+        [
+            "the watchmaker repaired the broken [MASK] inside the grandfather clock.",
+            "at midnight, the brass [MASK] of the clock tower began to move.",
+            "he wound the tiny [MASK] of the antique pocket watch.",
+        ],
+        ["dial", "bell", "pendulum", "gear", "face", "hand", "alarm", "spring"],
+    ),
+    (
+        "baseball",
+        "BASEBALL DIAMOND",
+        "CEREBELLAR ARC // INNING",
+        [
+            "in the baseball game, the batter hit a [MASK] into the field.",
+            "under the stadium lights, the [MASK] stepped onto the baseball diamond.",
+            "the crowd roared as the baseball [MASK] made the play.",
+        ],
+        ["homer", "pitcher", "single", "catcher", "triple", "foul", "inning", "double", "umpire", "mound"],
+    ),
+    (
+        "theater",
+        "THEATER STAGE",
+        "TEMPORAL PROSCENIUM // DRAMA",
+        [
+            "before opening night at the theater, the actors rehearsed the [MASK].",
+            "backstage at the playhouse, the stagehands prepared the [MASK].",
+            "as the spotlight dimmed, the theater [MASK] took its place.",
+        ],
+        ["script", "scene", "encore", "stage", "monologue", "cast", "curtain", "crew", "prop", "cue"],
+    ),
+    (
+        "sheet_music",
+        "MUSICAL NOTATION",
+        "AUDITORY STAFF // HARMONY",
+        [
+            "the pianist played a minor [MASK] in the symphony.",
+            "on the sheet music, the conductor marked the [MASK].",
+            "the choir rehearsed the opening [MASK] of the score.",
+        ],
+        ["note", "melody", "chord", "harmony", "chorus", "octave", "rhythm", "tempo", "pitch", "scale"],
+    ),
+    (
+        "eye",
+        "OCULAR ANATOMY",
+        "OPTIC CHIASM // RETINA",
+        [
+            "the eye doctor shone a light into the patient's [MASK].",
+            "through the microscope, the optometrist examined the damaged [MASK].",
+            "bright sunlight caused a painful reflex in her [MASK].",
+        ],
+        ["retina", "pupil", "socket", "brow", "iris", "lens", "vision", "glare", "blink"],
+    ),
+    (
+        "limb",
+        "LIMB & FOOT ANATOMY",
+        "MOTOR HOMUNCULUS // TENDON",
+        [
+            "the barefoot runner sprained his [MASK] on the trail.",
+            "the physical therapist wrapped an elastic brace around the swollen [MASK].",
+            "after the marathon, a sharp cramp seized her [MASK].",
+        ],
+        ["ankle", "wrist", "elbow", "thigh", "calf", "heel", "shin", "palm", "sole"],
+    ),
+    (
+        "court",
+        "JUDICIAL COURT",
+        "PREFRONTAL TRIBUNAL // DOCKET",
+        [
+            "in the courtroom, the judge read the [MASK] to the jury.",
+            "the defense attorney filed an emergency [MASK] with the court.",
+            "after three days of testimony, the magistrate issued the [MASK].",
+        ],
+        ["verdict", "sentence", "trial", "appeal", "witness", "bail", "parole", "custody", "warrant"],
+    ),
+    (
+        "camera",
+        "CAMERA OPTICS",
+        "OCCIPITAL APERTURE // SHUTTER",
+        [
+            "the photographer adjusted the camera [MASK] to capture the portrait.",
+            "in the darkroom, the photojournalist checked the [MASK] setting.",
+            "before snapping the photograph, she calibrated the [MASK].",
+        ],
+        ["aperture", "zoom", "shutter", "exposure", "focus", "filter", "flash", "film"],
     ),
 ]
 
@@ -747,20 +823,71 @@ def generate() -> None:
     rest_quads = sorted(all_quads_list[1:], key=lambda q: -quad_min_margin(q))
     all_quads_list = [p0_quad] + rest_quads
 
-    # Compute L2-normalized mean-centered cortical embeddings per category (divid3-style cosine similarity)
-    centered_pool = full_pool_logits - full_pool_logits.mean(axis=1, keepdims=True)
+    # Compute column-centered (unigram-bias-removed) L2-normalized cortical embeddings + cross-pool decoy z-scores
+    col_centered = full_pool_logits - full_pool_logits.mean(axis=0, keepdims=True)
+    centered_pool = col_centered - col_centered.mean(axis=1, keepdims=True)
     norms = np.linalg.norm(centered_pool, axis=1, keepdims=True)
     normed_pool = centered_pool / np.clip(norms, 1e-12, None)
-    pair_cos_matrix = normed_pool @ normed_pool.T
+    col_cos_matrix = normed_pool @ normed_pool.T
+
+    # Extract 128-D ALBERT-v2 token embeddings directly from model_fp16.onnx and combine with 56-D cortical probe profile
+    onnx_bytes = (MODEL_DIR / "onnx" / "model_fp16.onnx").read_bytes()
+    emb_header = b"albert.embeddings.word_embeddings.weightJ\x80\xe0\xd4\x03"
+    emb_offset = onnx_bytes.index(emb_header) + len(emb_header)
+    token_emb_table = (
+        np.frombuffer(onnx_bytes, dtype=np.float16, count=30000 * 128, offset=emb_offset)
+        .reshape(30000, 128)
+        .astype(np.float32)
+    )
+
+    pool_tok_emb = token_emb_table[pool_tids]
+    pool_tok_emb = pool_tok_emb - pool_tok_emb.mean(axis=0, keepdims=True)
+    pool_tok_emb = pool_tok_emb / np.clip(np.linalg.norm(pool_tok_emb, axis=1, keepdims=True), 1e-12, None)
+
+    word_probe = col_centered.T
+    word_probe = word_probe / np.clip(np.linalg.norm(word_probe, axis=1, keepdims=True), 1e-12, None)
+
+    combined_word_feat = np.concatenate([0.6 * pool_tok_emb, 0.4 * word_probe], axis=1)
+    combined_word_feat = combined_word_feat - combined_word_feat.mean(axis=0, keepdims=True)
+    u_mat, s_vals, _ = np.linalg.svd(combined_word_feat, full_matrices=False)
+    word_vecs_16 = u_mat[:, :16] * s_vals[:16]
+    word_vecs_16 = word_vecs_16 / np.clip(np.linalg.norm(word_vecs_16, axis=1, keepdims=True), 1e-12, None)
+
+    word_vecs_out = {
+        w: [round(float(x), 4) for x in word_vecs_16[idx]] for idx, (_, w, _) in enumerate(all_pool_entries)
+    }
+
+    # Measure polysemous cross-pool decoy activation + false-flag word-embedding similarity across category pools
+    row_mean = full_pool_logits.mean(axis=1, keepdims=True)
+    row_std = full_pool_logits.std(axis=1, keepdims=True) + 1e-6
+    z_pool = (full_pool_logits - row_mean) / row_std
+    cat_word_indices = [[idx for idx, (ci, _, _) in enumerate(all_pool_entries) if ci == i] for i in range(n_cats)]
+
+    pair_cos_matrix = np.zeros((n_cats, n_cats), dtype=np.float32)
+    for i in range(n_cats):
+        vecs_i = word_vecs_16[cat_word_indices[i]]
+        for j in range(n_cats):
+            if i == j:
+                continue
+            max_i_on_j = float(np.max(z_pool[j, cat_word_indices[i]]))
+            max_j_on_i = float(np.max(z_pool[i, cat_word_indices[j]]))
+            decoy_z = max(max_i_on_j, max_j_on_i)
+            decoy_sim = float(np.clip((decoy_z - 0.5) / 2.4, -0.2, 0.92))
+            vecs_j = word_vecs_16[cat_word_indices[j]]
+            cross_word_sims = np.sort((vecs_i @ vecs_j.T).ravel())[::-1]
+            top_word_sim = float(np.mean(cross_word_sims[:2]))
+            base_cos = float(col_cos_matrix[i, j])
+            blended = 0.40 * base_cos + 0.30 * decoy_sim + 0.30 * top_word_sim
+            pair_cos_matrix[i, j] = float(np.clip(max(base_cos, blended, 0.75 * top_word_sim), -0.8, 0.92))
 
     # Build compatibility adjacency list, pairwise margin map & cosine similarity map for live procedural generation
-    # Sorted by cosine similarity descending (smallest embedding distance / most similar first, most orthogonal last)
+    # Sorted by cosine/decoy similarity descending (smallest embedding distance / most entangled first, most orthogonal last)
     compat_map = {}
     pair_margins_out = {}
     pair_cos_out = {}
     for i in range(n_cats):
         cid_i = categories_out[i]["id"]
-        compat_neighbors = [j for j in range(n_cats) if compat[i, j]]
+        compat_neighbors = [j for j in range(n_cats) if j != i]
         compat_neighbors.sort(key=lambda j: -float(pair_cos_matrix[i, j]))
         compat_map[cid_i] = [categories_out[j]["id"] for j in compat_neighbors]
         pair_margins_out[cid_i] = {
@@ -810,6 +937,7 @@ def generate() -> None:
         "pairCosSim": pair_cos_out,
         "poolWordIndex": pool_word_to_idx,
         "poolLogits": pool_logits_out,
+        "wordVecs": word_vecs_out,
         "puzzles": puzzles,
     }
 

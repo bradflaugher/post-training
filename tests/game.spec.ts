@@ -170,10 +170,16 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.locator('#grade-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('HARD · Δ');
     await expect(page.locator('.token-tile')).toHaveCount(16);
+    const hardBadgeText = (await page.locator('#grade-btn').textContent()) ?? '';
+    const hardDelta = parseFloat(hardBadgeText.split('Δ')[1] ?? '1');
+    expect(hardDelta).toBeLessThan(0.62);
 
     await page.locator('#grade-btn').click();
     await expect(page.locator('#grade-btn')).toContainText('EASY · Δ');
     await expect(page.locator('.token-tile')).toHaveCount(16);
+    const easyBadgeText = (await page.locator('#grade-btn').textContent()) ?? '';
+    const easyDelta = parseFloat(easyBadgeText.split('Δ')[1] ?? '0');
+    expect(easyDelta).toBeGreaterThanOrEqual(0.8);
 
     // Verify clicking #new-case-btn rolls a fresh random seed while keeping EASY difficulty
     const seedBeforeRefresh = await page.locator('#seed-btn').textContent();
@@ -184,11 +190,13 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
 
     // Verify 32-bit Math.imul seed hashing distinguishes large seeds (1588089239 vs 3923223191)
     await page.goto('/index.html?lite=1&seed=1588089239');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     const wordsB = await page.locator('.token-word').allTextContents();
     expect(wordsA.join(',')).not.toBe(wordsB.join(','));
 
     // Verify shared seed=1&grade=clean link preserves canonical seed 1 board
     await page.goto('/index.html?lite=1&seed=1&grade=clean');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     const canonicalWords = await page.locator('.token-word').allTextContents();
     expect(canonicalWords).toContain('vanilla');
   });
