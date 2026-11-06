@@ -2,6 +2,10 @@
 
 **[post-training.win](https://post-training.win/)** · **[Privacy Policy](https://post-training.win/privacy.html)**
 
+<p align="center">
+  <img src="docs/gameplay.gif" width="100%" alt="A post-training round: pick four tokens and amputate. A wrong guess flashes ONE TOKEN OFF. Each solved group reveals the masked sentence the model was probed with and its softmax probability and logit for each word.">
+</p>
+
 A 90s comic-gore word connection game powered by a tiny on-device Small Language Model (`Xenova/albert-base-v2`, 11.8M parameters, ~22 MB fp16 ONNX) running **100% client-side in your browser** via WebAssembly.
 
 Inspired by classic 4×4 word-grouping puzzles, edge keyboard next-word prediction models, and the visceral black-ink / crimson / acid-green aesthetic of 1990s underground splatter comics.
