@@ -238,12 +238,18 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
   test('advancing during the closing animation never reopens the report over the fresh board', async ({ page }) => {
     await page.goto('/index.html?lite=1&seed=1');
     const lobes = await readLobes(page);
-    for (const id of Object.keys(lobes)) {
+    const ids = Object.keys(lobes);
+    for (const id of ids.slice(0, 3)) {
       await clamp(page, lobes[id]);
       await page.locator('#submit-btn').click();
     }
-    // NEXT PATIENT is already live while the report's opening delay is still pending
-    await page.locator('#next-patient-btn').click();
+    await clamp(page, lobes[ids[3]]);
+    // NEXT PATIENT is already live while the report's opening delay is still pending. Both clicks run in one
+    // task so the advance always lands inside that delay, however slow the browser is.
+    await page.evaluate(() => {
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      (document.querySelector('#next-patient-btn') as HTMLButtonElement).click();
+    });
     await expect(page.locator('.token-tile')).toHaveCount(16);
     await page.waitForTimeout(900);
     await expect(page.locator('#debrief-dialog')).toBeHidden();
@@ -536,11 +542,16 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     // Live path: NEXT PATIENT during the report's opening delay starts an async 4-pass build; the stale report
     // must not open over it while the old case is still nominally on the table
     const liveLobes = await readLobes(page);
-    for (const id of Object.keys(liveLobes)) {
+    const liveIds = Object.keys(liveLobes);
+    for (const id of liveIds.slice(0, 3)) {
       await clamp(page, liveLobes[id]);
       await page.locator('#submit-btn').click();
     }
-    await page.locator('#next-patient-btn').click();
+    await clamp(page, liveLobes[liveIds[3]]);
+    await page.evaluate(() => {
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      (document.querySelector('#next-patient-btn') as HTMLButtonElement).click();
+    });
     await page.waitForTimeout(900);
     await expect(page.locator('#debrief-dialog')).toBeHidden();
     await expect(page.locator('.token-tile')).toHaveCount(16);
