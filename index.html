@@ -1813,6 +1813,7 @@
     dailyBest: 0,
     dailyLast: '',
     dailyDone: {}, // 'YYYY-MM-DD' -> 1 (won) | 0 (flatlined)
+    dailyProgress: null, // the one unfiled Daily Case in flight, so a refresh cannot hand back spent charges
   };
 
   function rankForXp(xp) {
@@ -1837,8 +1838,11 @@
     const today = localDateStr();
     if (typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return today;
     const d = new Date(`${raw}T12:00:00`);
-    if (Number.isNaN(d.getTime()) || localDateStr(d) !== raw || raw > today) return today;
-    return raw;
+    if (Number.isNaN(d.getTime()) || localDateStr(d) !== raw) return today;
+    // A link shared from a time zone ahead of this one can carry tomorrow's local date; it must open the same board
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return raw > localDateStr(tomorrow) ? today : raw;
   }
 
   function dailyGradeFor(dateStr) {
@@ -1925,6 +1929,22 @@
           if (typeof v === 'number' && Number.isFinite(v) && v >= 0) stats[key] = Math.floor(v);
         }
         if (typeof data.stats.dailyLast === 'string') stats.dailyLast = data.stats.dailyLast;
+        const prog = data.stats.dailyProgress;
+        if (prog && typeof prog === 'object' && typeof prog.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(prog.date)) {
+          const strList = v => (Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, 64) : []);
+          stats.dailyProgress = {
+            date: prog.date,
+            current: prog.current === true,
+            mistakes: Math.max(0, Math.min(MAX_MISTAKES - 1, Math.floor(Number(prog.mistakes) || 0))),
+            solved: strList(prog.solved),
+            tried: strList(prog.tried),
+            biopsied: strList(prog.biopsied),
+            guessLog: Array.isArray(prog.guessLog)
+              ? prog.guessLog.filter(r => Array.isArray(r) && r.length === 4 && r.every(n => Number.isInteger(n) && n >= 0 && n < 4)).slice(0, 16)
+              : [],
+            firstSolvedTier: Math.max(0, Math.min(4, Math.floor(Number(prog.firstSolvedTier) || 0))),
+          };
+        }
         if (data.stats.dailyDone && typeof data.stats.dailyDone === 'object') {
           for (const [day, res] of Object.entries(data.stats.dailyDone)) {
             if (/^\d{4}-\d{2}-\d{2}$/.test(day)) stats.dailyDone[day] = res ? 1 : 0;
@@ -2987,6 +3007,8 @@
       title: dailyDate ? `DAILY ${dailyDate} // ${opName}` : `CASE #${caseNumStr} // ${opName}`,
       symptom: basePuzzle.symptom,
       daily: dailyDate,
+      // Streak credit depends on the case being the current one when it was wheeled in, not when it is finished
+      dailyCurrent: dailyDate !== null && dailyDate === localDateStr(),
       lobes,
       tokens,
       wordLogitMap,
@@ -2994,15 +3016,56 @@
     };
 
     resetRoundState();
+    const resumed = restoreDailyProgress();
     updateModeIndicator();
     renderFullSurgicalBoard();
     if (dailyDate) {
       const already = Object.prototype.hasOwnProperty.call(stats.dailyDone, dailyDate);
       setTelemetry(already
         ? `📅 DAILY CASE ${dailyDate} ALREADY FILED — THIS REPLAY IS OFF THE RECORD`
+        : resumed
+        ? `📅 DAILY CASE ${dailyDate} RESUMED — ${MAX_MISTAKES - mistakesMade} DEFIB CHARGES AND ${MAX_BIOPSIES - biopsiesUsed} NEEDLES LEFT. THE CHART REMEMBERS.`
         : `📅 DAILY CASE ${dailyDate} — ${formatGradeBadge(finalGrade)} — SAME BOARD FOR EVERY SURGEON ON EARTH. ONE SHOT.`);
     }
     return true;
+  }
+
+  // Snapshot an unfiled Daily Case after every spent charge, needle or severed lobe
+  function saveDailyProgress() {
+    const c = currentCase;
+    if (!c || !c.daily || c.scored || Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily)) return;
+    stats.dailyProgress = {
+      date: c.daily,
+      current: c.dailyCurrent === true,
+      mistakes: mistakesMade,
+      solved: solvedLobeIds.slice(),
+      tried: Array.from(previousGuesses),
+      biopsied: Array.from(biopsied.keys()),
+      guessLog: guessLog.map(r => r.slice()),
+      firstSolvedTier: c.firstSolvedTier || 0,
+    };
+    writeSaveState();
+  }
+
+  // Resume that snapshot when the same unfiled Daily Case is dealt again (refresh, reopen, or navigating back)
+  function restoreDailyProgress() {
+    const c = currentCase;
+    const prog = stats.dailyProgress;
+    if (!c || !c.daily || !prog || prog.date !== c.daily) return false;
+    if (Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily)) return false;
+    const lobeIds = c.lobes.map(l => l.id);
+    const words = new Set(c.tokens.map(t => t.word));
+    mistakesMade = Math.min(MAX_MISTAKES - 1, prog.mistakes);
+    solvedLobeIds = prog.solved.filter((id, i, arr) => lobeIds.includes(id) && arr.indexOf(id) === i).slice(0, 3);
+    for (const key of prog.tried) previousGuesses.add(key);
+    guessLog = prog.guessLog.map(r => r.slice());
+    for (const w of prog.biopsied) {
+      if (words.has(w) && biopsied.size < MAX_BIOPSIES) biopsied.set(w, computeTokenSignature(w));
+    }
+    biopsiesUsed = Math.min(MAX_BIOPSIES, prog.biopsied.length);
+    c.firstSolvedTier = prog.firstSolvedTier;
+    c.dailyCurrent = c.dailyCurrent || prog.current;
+    return mistakesMade > 0 || solvedLobeIds.length > 0 || biopsiesUsed > 0;
   }
 
   function resetRoundState() {
@@ -3324,6 +3387,7 @@
       renderSolvedLobes();
       renderTokenGrid();
       updateActionButtons();
+      if (solvedLobeIds.length < 4) saveDailyProgress();
 
       if (solvedLobeIds.length === 4) {
         finalizeCase(true);
@@ -3347,6 +3411,7 @@
         setTelemetry(`❌ SYNAPTIC REJECTION! (${MAX_MISTAKES - mistakesMade} DEFIB CHARGES REMAINING)`);
       }
 
+      if (mistakesMade < MAX_MISTAKES) saveDailyProgress();
       if (mistakesMade >= MAX_MISTAKES) {
         // Reveal remaining lobes and show flatline report
         finalizeCase(false);
@@ -3389,6 +3454,7 @@
       if (sig[k] > sig[top]) top = k;
     }
     const readout = sig.map((pr, k) => `${PROBE_LETTERS[k]} ${(pr * 100).toFixed(0)}%`).join(' · ');
+    saveDailyProgress();
     setTelemetry(`🔬 BIOPSY "${target.toUpperCase()}": ${readout} — PROBE ${PROBE_LETTERS[top]} FIRES HARDEST. TOKENS WITH MATCHING SIGNATURES SHARE A LOBE.`);
     renderTokenGrid();
     updateActionButtons();
@@ -3434,8 +3500,10 @@
     }
     if (c.daily) {
       stats.dailyDone[c.daily] = won ? 1 : 0;
-      if (c.daily === localDateStr()) {
-        const y = new Date();
+      stats.dailyProgress = null;
+      if (c.dailyCurrent) {
+        // Measured from the case's own date, so a case finished after midnight still chains to the next day
+        const y = new Date(`${c.daily}T12:00:00`);
         y.setDate(y.getDate() - 1);
         stats.dailyStreak = won ? (stats.dailyLast === localDateStr(y) ? stats.dailyStreak + 1 : 1) : 0;
         stats.dailyBest = Math.max(stats.dailyBest, stats.dailyStreak);

@@ -255,6 +255,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
     const biopsyBtn = page.locator('#biopsy-btn');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     await expect(biopsyBtn).toHaveText(/BIOPSY 3$/);
 
     // Nothing clamped: no needle is spent
@@ -315,7 +316,25 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const lobes = await readLobes(page);
     const boardKey = (m: Record<string, string[]>) => Object.keys(m).sort().map(k => `${k}:${[...m[k]].sort().join(',')}`).join('|');
 
-    for (const id of Object.keys(lobes)) {
+    // One shot means one shot: a spent charge, a spent needle and a severed lobe all survive a refresh
+    const ids = Object.keys(lobes);
+    await clamp(page, [...lobes[ids[0]].slice(0, 3), lobes[ids[1]][0]]);
+    await page.locator('#submit-btn').click();
+    await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
+    await page.locator('#biopsy-btn').click();
+    await expect(page.locator('#biopsy-btn')).toHaveText(/BIOPSY 2$/);
+    await page.locator('#clear-btn').click();
+    await clamp(page, lobes[ids[0]]);
+    await page.locator('#submit-btn').click();
+    await expect(page.locator('.solved-lobe')).toHaveCount(1);
+    await page.reload();
+    await expect(page.locator('.token-tile')).toHaveCount(12);
+    await expect(page.locator('.solved-lobe')).toHaveCount(1);
+    await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
+    await expect(page.locator('#biopsy-btn')).toHaveText(/BIOPSY 2$/);
+    await expect(page.locator('#telemetry-msg')).toContainText('RESUMED');
+
+    for (const id of ids.slice(1)) {
       await clamp(page, lobes[id]);
       await page.locator('#submit-btn').click();
     }
@@ -341,6 +360,15 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('#debrief-field-note')).toContainText('FIELD NOTE 01/20 — REVIEW');
     await expect(page.locator('#debrief-stats-grid')).toContainText('1/20');
     expect((await page.locator('#debrief-grid-text').textContent()) ?? '').not.toContain('XP');
+
+    // A link shared from a time zone that is a calendar day ahead keeps its date instead of being rewritten
+    const tomorrow = await page.evaluate(() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
+    await page.goto(`/index.html?daily=${tomorrow}`);
+    await expect(page.locator('#case-title')).toContainText(`DAILY ${tomorrow}`);
 
     // A surgeon with a record who has not filed today's case boots straight into it
     await page.goto('/index.html');
@@ -391,6 +419,7 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
 
+    await expect(page.locator('.token-tile')).toHaveCount(16);
     await page.locator('#lab-btn').click();
     await expect(page.locator('#lab-dialog')).toBeVisible();
     await expect(page.locator('#lab-board-results')).toContainText('Amputate a cortical lobe');
