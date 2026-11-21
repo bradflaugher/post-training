@@ -3486,18 +3486,15 @@
     await loadCorpusOnce();
     // Render immediately using verified fallback logits so the board is playable in <50ms!
     await buildCaseFromSeed(currentSeed, true);
-    const bootGen = buildGeneration;
     updateModeIndicator();
 
     // Load the live 22MB ONNX model in the background; once ready, live procedural surgery is active!
     if (!wardMode) {
       const ok = await initModel();
       if (ok) {
-        if (buildGeneration === bootGen && solvedLobeIds.length === 0 && mistakesMade === 0 && selectedWords.size === 0) {
-          await buildCaseFromSeed(currentSeed);
-        } else {
-          updateModeIndicator();
-        }
+        // Never rebuild the visible board: it would reshuffle tiles under the player.
+        // Live surgery applies from the next case onward.
+        updateModeIndicator();
       }
     }
   })();

@@ -259,7 +259,9 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
 
   test('loads the on-device ALBERT-v2 SLM in Live Mode and runs real WASM forward passes', async ({ page }) => {
     await page.goto('/index.html?seed=1');
-    await expect(page.locator('#status-led')).toHaveAttribute('data-state', 'ready', { timeout: 60_000 });
+    await expect(page.locator('#mode-btn')).toContainText('WARD → LIVE', { timeout: 60_000 });
+    // The initial board stays put (no reshuffle); live mode applies from the next case.
+    await page.keyboard.press('n');
     await expect(page.locator('#mode-btn')).toHaveAttribute('data-mode', 'live');
     await expect(page.locator('#inference-timing')).toContainText('LIVE SLM');
 
