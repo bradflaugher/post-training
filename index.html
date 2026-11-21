@@ -849,6 +849,32 @@
   .heatmap .hm-cell { color: var(--bone); background: rgba(57, 255, 20, calc(var(--heat) * 0.62)); }
   .heatmap .hm-cell.own { outline: 1.5px solid var(--bone); outline-offset: -1.5px; }
   .heatmap .hm-cell.decoy { outline: 1.5px dashed var(--pink); outline-offset: -1.5px; }
+  /* Shareable report: long header and URL lines wrap inside the box instead of running off a phone screen */
+  .share-report {
+    background: var(--ink);
+    border: 2px solid var(--bone);
+    padding: 0.6rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--bone);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .share-report .tier-glyph {
+    display: inline-block;
+    width: 1.15em;
+    height: 1.15em;
+    line-height: 1.15em;
+    margin: 1px 1px 1px 0;
+    text-align: center;
+    overflow: hidden;
+    vertical-align: middle;
+  }
   .teach-note {
     font-size: 0.74rem;
     color: var(--bone-dim);
@@ -1422,7 +1448,7 @@
     </div>
     <div class="field-note" id="debrief-field-note"></div>
     <div class="stats-grid" id="debrief-stats-grid"></div>
-    <pre id="debrief-grid-text" style="background:var(--ink);border:2px solid var(--bone);padding:0.75rem;font-family:var(--font-mono);font-size:0.74rem;overflow-x:auto;color:var(--bone);"></pre>
+    <pre id="debrief-grid-text" class="share-report"></pre>
   </div>
   <div class="dlg-foot">
     <button type="button" class="act-btn" id="copy-report-btn">📋 COPY REPORT</button>
@@ -3613,7 +3639,7 @@
       [stats.bestStreak, 'BEST STREAK'],
       [stats.xp, 'XP'],
       [stats.flawless, 'FLAWLESS'],
-      [stats.dailyStreak, 'DAILY STREAK'],
+      [stats.dailyStreak, 'DAILY RUN'],
       [`${stats.notes}/${FIELD_NOTES.length}`, 'FIELD NOTES'],
     ];
     for (const [val, label] of cells) {
@@ -3778,7 +3804,8 @@
       row.map(li => TIER_GLYPHS[(currentCase.lobes[li]?.tier || 1) - 1]).join('')
     );
     const reportText = [
-      `POST-TRAINING 🩸 ${caseTag} [${modeTag} · ${gradeTag}]`,
+      `POST-TRAINING 🩸 ${caseTag}`,
+      `[${modeTag} · ${gradeTag}]`,
       ...guessRows,
       won
         ? `STATUS: LOBOTOMIZED · 4/4 CORTICAL LOBES SEVERED · ${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB INTACT · STREAK ${streak}`
@@ -3787,7 +3814,19 @@
       shareUrl,
     ].join('\n');
 
-    debriefGridText.textContent = reportText;
+    // Same text as the clipboard copy, but each tier glyph sits in a fixed-width cell: phone fonts draw
+    // ░ ▒ ▓ █ at different widths, which left the guess grid ragged.
+    debriefGridText.replaceChildren();
+    for (const part of reportText.split(/([░▒▓█])/u)) {
+      if (/^[░▒▓█]$/u.test(part)) {
+        const cell = document.createElement('span');
+        cell.className = 'tier-glyph';
+        cell.textContent = part;
+        debriefGridText.appendChild(cell);
+      } else if (part) {
+        debriefGridText.append(part);
+      }
+    }
     debriefDialog.showModal();
   }
 

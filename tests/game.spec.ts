@@ -167,6 +167,21 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('#debrief-stats-grid')).toContainText('1/20');
     await expect(page.locator('#streak-badge')).toHaveText('STREAK: 1');
 
+    // The share report wraps inside its box on a phone: nothing in the autopsy body runs off-screen sideways,
+    // and every guess-grid glyph sits in an equal-width cell
+    const reportFits = await page.evaluate(() => {
+      const pre = document.querySelector('#debrief-grid-text') as HTMLElement;
+      const body = document.querySelector('#debrief-dialog .dlg-body') as HTMLElement;
+      const widths = Array.from(pre.querySelectorAll('.tier-glyph'), el => Math.round(el.getBoundingClientRect().width * 10));
+      return (
+        pre.scrollWidth <= pre.clientWidth + 1 &&
+        body.scrollWidth <= body.clientWidth + 1 &&
+        widths.length >= 20 &&
+        new Set(widths).size === 1
+      );
+    });
+    expect(reportFits).toBe(true);
+
     // Verify #copy-report-btn and #next-case-btn stay inside the dialog and do not overflow their boxes on mobile
     const buttonsFit = await page.evaluate(() => {
       const dlg = document.querySelector('#debrief-dialog')?.getBoundingClientRect();
