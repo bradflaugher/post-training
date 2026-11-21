@@ -849,6 +849,32 @@
   .heatmap .hm-cell { color: var(--bone); background: rgba(57, 255, 20, calc(var(--heat) * 0.62)); }
   .heatmap .hm-cell.own { outline: 1.5px solid var(--bone); outline-offset: -1.5px; }
   .heatmap .hm-cell.decoy { outline: 1.5px dashed var(--pink); outline-offset: -1.5px; }
+  /* Shareable report: long header and URL lines wrap inside the box instead of running off a phone screen */
+  .share-report {
+    background: var(--ink);
+    border: 2px solid var(--bone);
+    padding: 0.6rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--bone);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .share-report .tier-glyph {
+    display: inline-block;
+    width: 1.15em;
+    height: 1.15em;
+    line-height: 1.15em;
+    margin: 1px 1px 1px 0;
+    text-align: center;
+    overflow: hidden;
+    vertical-align: middle;
+  }
   .teach-note {
     font-size: 0.74rem;
     color: var(--bone-dim);
@@ -893,6 +919,14 @@
     flex: 1 1 auto;
     min-width: 0;
   }
+  .action-bar .act-btn[hidden] { display: none; }
+  /* Case closed: the surgical tools are swapped for the two ways forward, and the way on pulses */
+  #next-patient-btn { animation: nextPulse 1.3s ease-in-out infinite; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 3px 3px 0 var(--acid), 5px 5px 0 var(--ink); }
+    50% { box-shadow: 3px 3px 0 var(--acid), 5px 5px 0 var(--ink), 0 0 14px 3px rgba(57, 255, 20, 0.75); }
+  }
+  html.calm-screen #next-patient-btn { animation: none; }
   @media (max-width: 430px) {
     /* Four labelled controls must fit a phone without pushing the console sideways */
     .action-bar .btn-ico { display: none; }
@@ -1289,6 +1323,8 @@
     <button type="button" class="act-btn" id="biopsy-btn" title="Biopsy your last clamped token: see how strongly each of the 4 hidden probes fires for it (B)"><span class="btn-ico" aria-hidden="true">💉 </span>BIOPSY 3</button>
     <button type="button" class="act-btn" id="clear-btn" disabled title="Unclamp all selected tokens (Esc)"><span class="btn-ico" aria-hidden="true">✕ </span>CLEAR</button>
     <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 clamped tokens (Enter)"><span class="btn-ico" aria-hidden="true">🩸 </span>AMPUTATE (0/4)</button>
+    <button type="button" class="act-btn" id="report-btn" hidden title="Reopen the Post-Op Autopsy Report (R)"><span class="btn-ico" aria-hidden="true">📋 </span>AUTOPSY REPORT</button>
+    <button type="button" class="act-btn primary" id="next-patient-btn" hidden title="Wheel in the next patient (N or Enter)"><span class="btn-ico" aria-hidden="true">🔪 </span>NEXT PATIENT</button>
   </section>
 
   <!-- Building-Style Horizontal Dot-Matrix Marquee Ticker -->
@@ -1422,7 +1458,7 @@
     </div>
     <div class="field-note" id="debrief-field-note"></div>
     <div class="stats-grid" id="debrief-stats-grid"></div>
-    <pre id="debrief-grid-text" style="background:var(--ink);border:2px solid var(--bone);padding:0.75rem;font-family:var(--font-mono);font-size:0.74rem;overflow-x:auto;color:var(--bone);"></pre>
+    <pre id="debrief-grid-text" class="share-report"></pre>
   </div>
   <div class="dlg-foot">
     <button type="button" class="act-btn" id="copy-report-btn">📋 COPY REPORT</button>
@@ -1471,6 +1507,8 @@
   const biopsyBtn = $('biopsy-btn');
   const clearBtn = $('clear-btn');
   const submitBtn = $('submit-btn');
+  const reportBtn = $('report-btn');
+  const nextPatientBtn = $('next-patient-btn');
   const telemetryTrack = $('telemetry-track');
   const telemetryMsg = $('telemetry-msg');
   const telemetryClone = $('telemetry-clone');
@@ -2752,8 +2790,33 @@
     return fallbackSeed;
   }
 
-  async function buildCaseFromSeed(seedNum, forceWard = false, opts = {}) {
+  // A finished case stays "closed and actionable" only until the next build starts. Every predicate that offers
+  // the post-case controls (bar, shortcuts, report) goes through this, so nothing can act on a board that is
+  // already being replaced underneath it.
+  function caseIsClosed() {
+    return Boolean(currentCase) && solvedLobeIds.length >= 4 && currentCase.builtGeneration === buildGeneration;
+  }
+
+  // Run one build under a fresh generation. If it is still the newest build when it ends and dealt nothing
+  // (model failure, refused custom board), the case on the table takes that generation so its controls return.
+  async function runBuild(builder) {
     const myGen = ++buildGeneration;
+    updateActionButtons();
+    try {
+      return await builder(myGen);
+    } finally {
+      if (buildGeneration === myGen && currentCase && currentCase.builtGeneration !== myGen) {
+        currentCase.builtGeneration = myGen;
+        updateActionButtons();
+      }
+    }
+  }
+
+  function buildCaseFromSeed(seedNum, forceWard = false, opts = {}) {
+    return runBuild(myGen => buildCaseFromSeedInner(seedNum, forceWard, opts, myGen));
+  }
+
+  async function buildCaseFromSeedInner(seedNum, forceWard, opts, myGen) {
     const uSeed = (seedNum >>> 0) || 1;
     const dailyDate = typeof opts.daily === 'string' ? opts.daily : null;
     if (dailyDate) forceWard = true; // identical board for every surgeon, on every device
@@ -3001,6 +3064,7 @@
       : PROCEDURAL_OPERATIONS[(Math.imul(uSeed, 2246822519) >>> 0) % PROCEDURAL_OPERATIONS.length];
 
     currentCase = {
+      builtGeneration: myGen,
       seed: uSeed,
       mode: liveBuilt ? 'live' : 'ward',
       grade: finalGrade,
@@ -3325,6 +3389,14 @@
     const count = selectedWords.size;
     clearBtn.disabled = count === 0;
     const caseOver = !currentCase || solvedLobeIds.length >= 4;
+    // Once the case is closed there is nothing left to shuffle, biopsy or amputate: show only the ways forward
+    const finished = Boolean(currentCase) && solvedLobeIds.length >= 4;
+    for (const btn of [shuffleBtn, biopsyBtn, clearBtn, submitBtn]) btn.hidden = finished;
+    reportBtn.hidden = !finished;
+    nextPatientBtn.hidden = !finished;
+    // While the next patient is being wheeled in (live builds take a moment) the old case can no longer be acted on
+    reportBtn.disabled = finished && !caseIsClosed();
+    nextPatientBtn.disabled = finished && !caseIsClosed();
     setActionLabel(biopsyBtn, '💉', `BIOPSY ${MAX_BIOPSIES - biopsiesUsed}`);
     biopsyBtn.disabled = caseOver || biopsiesUsed >= MAX_BIOPSIES;
     if (count === 4 && previousGuesses.has(getSelectionKey(selectedWords))) {
@@ -3339,6 +3411,19 @@
   // ───────────────────────────────────────────────────────────────────────
   // Submit / Amputate 4 Selected Tokens
   // ───────────────────────────────────────────────────────────────────────
+  // The report opens after the final animation, but only if that same case is still on the table:
+  // advancing to the next patient during the delay must not reopen it over the fresh board.
+  function scheduleDebrief(won, delayMs) {
+    const closedCase = currentCase;
+    setTimeout(() => {
+      // Skip if a new build has started (even a live one still awaiting its forward passes), or if the player
+      // already opened this case's report by hand and may have dismissed it
+      if (currentCase === closedCase && caseIsClosed() && !closedCase.debriefShown && !debriefDialog.open) {
+        showDebriefModal(won);
+      }
+    }, delayMs);
+  }
+
   function submitSelection() {
     if (!currentCase || selectedWords.size !== 4) return;
     const comboKey = getSelectionKey(selectedWords);
@@ -3394,7 +3479,7 @@
 
       if (solvedLobeIds.length === 4) {
         finalizeCase(true);
-        setTimeout(() => showDebriefModal(true), 550);
+        scheduleDebrief(true, 550);
       }
     } else {
       // Record this 4-word combination so mashing Amputate or re-selecting it cannot cost another charge!
@@ -3427,7 +3512,7 @@
         renderSolvedLobes();
         renderTokenGrid();
         updateActionButtons();
-        setTimeout(() => showDebriefModal(false), 650);
+        scheduleDebrief(false, 650);
       }
     }
   }
@@ -3518,7 +3603,7 @@
   }
 
   function shuffleTokens() {
-    if (!currentCase) return;
+    if (!currentCase || solvedLobeIds.length >= 4) return;
     for (let i = currentCase.tokens.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [currentCase.tokens[i], currentCase.tokens[j]] = [currentCase.tokens[j], currentCase.tokens[i]];
@@ -3613,7 +3698,7 @@
       [stats.bestStreak, 'BEST STREAK'],
       [stats.xp, 'XP'],
       [stats.flawless, 'FLAWLESS'],
-      [stats.dailyStreak, 'DAILY STREAK'],
+      [stats.dailyStreak, 'DAILY RUN'],
       [`${stats.notes}/${FIELD_NOTES.length}`, 'FIELD NOTES'],
     ];
     for (const [val, label] of cells) {
@@ -3710,6 +3795,7 @@
   // Post-Op Autopsy Report Modal (Clinical Debrief — No Colored Emoji Squares)
   // ───────────────────────────────────────────────────────────────────────
   function showDebriefModal(won) {
+    if (currentCase) currentCase.debriefShown = true;
     const headerLine = won
       ? `SURGERY SUCCESSFUL // PATIENT SURVIVED (${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB LEFT · STREAK ${streak})`
       : `PATIENT FLATLINED // CRANIAL HEMORRHAGE`;
@@ -3778,7 +3864,8 @@
       row.map(li => TIER_GLYPHS[(currentCase.lobes[li]?.tier || 1) - 1]).join('')
     );
     const reportText = [
-      `POST-TRAINING 🩸 ${caseTag} [${modeTag} · ${gradeTag}]`,
+      `POST-TRAINING 🩸 ${caseTag}`,
+      `[${modeTag} · ${gradeTag}]`,
       ...guessRows,
       won
         ? `STATUS: LOBOTOMIZED · 4/4 CORTICAL LOBES SEVERED · ${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB INTACT · STREAK ${streak}`
@@ -3787,7 +3874,19 @@
       shareUrl,
     ].join('\n');
 
-    debriefGridText.textContent = reportText;
+    // Same text as the clipboard copy, but each tier glyph sits in a fixed-width cell: phone fonts draw
+    // ░ ▒ ▓ █ at different widths, which left the guess grid ragged.
+    debriefGridText.replaceChildren();
+    for (const part of reportText.split(/([░▒▓█])/u)) {
+      if (/^[░▒▓█]$/u.test(part)) {
+        const cell = document.createElement('span');
+        cell.className = 'tier-glyph';
+        cell.textContent = part;
+        debriefGridText.appendChild(cell);
+      } else if (part) {
+        debriefGridText.append(part);
+      }
+    }
     debriefDialog.showModal();
   }
 
@@ -3873,12 +3972,15 @@
     'main','evalle','joyah','jaenelle','lucivar','saetan','kaskae','tersa','surreal',
   ]);
 
-  async function synthesizeCustomBoardFromPrompts(rawPrompts) {
+  function synthesizeCustomBoardFromPrompts(rawPrompts) {
     if (!modelReady || !tokenizer || !maskedModel || !idToTokenMap) {
       telemetryMsg.textContent = 'WAIT FOR THE ON-DEVICE SLM TO FINISH LOADING BEFORE SYNTHESIZING CUSTOM BOARDS.';
-      return;
+      return Promise.resolve();
     }
-    const myGen = ++buildGeneration;
+    return runBuild(myGen => synthesizeCustomBoardInner(rawPrompts, myGen));
+  }
+
+  async function synthesizeCustomBoardInner(rawPrompts, myGen) {
     const prompts = rawPrompts.map(p => {
       const clean = (p || '').trim() || "the surgeon's monitor flashed a bright [MASK] signal.";
       return clean.includes('[MASK]') ? clean : `${clean.replace(/[.?!]+$/, '')} [MASK].`;
@@ -3997,6 +4099,7 @@
     const customGrade = gradeFromCosDist(customBoardDist);
 
     currentCase = {
+      builtGeneration: myGen,
       seed: currentSeed,
       mode: 'live',
       grade: customGrade,
@@ -4069,6 +4172,8 @@
       difficultyOverride = normalizeGrade(currentCase?.grade || 'easy');
     }
     writeSaveState();
+    // A fresh patient gets the opening instructions back (not the previous case's last readout)
+    setTelemetry('CLAMP 4 RELATED TOKENS & AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES');
     buildCaseFromSeed(rollRandomSeed());
   }
 
@@ -4252,7 +4357,25 @@
   });
 
   debriefCloseBtn.addEventListener('click', () => debriefDialog.close());
+  // However the report is dismissed (✕, Esc, backdrop), say plainly what to do next
+  let advancingFromDebrief = false;
+  debriefDialog.addEventListener('close', () => {
+    if (advancingFromDebrief) {
+      advancingFromDebrief = false;
+      return;
+    }
+    if (caseIsClosed()) {
+      setTelemetry('CASE CLOSED — HIT 🔪 NEXT PATIENT (N) FOR A FRESH BOARD, OR 📋 AUTOPSY REPORT TO REVIEW WHAT THE MODEL SAW.');
+      nextPatientBtn.focus({ preventScroll: true });
+    }
+  });
+  function reopenDebrief() {
+    if (caseIsClosed() && !debriefDialog.open) showDebriefModal(currentCase.won === true);
+  }
+  reportBtn.addEventListener('click', reopenDebrief);
+  nextPatientBtn.addEventListener('click', () => rollNewRandomCaseWithCurrentDifficulty());
   nextCaseBtn.addEventListener('click', () => {
+    advancingFromDebrief = true; // the close event fires later; it clears this flag itself
     debriefDialog.close();
     rollNewRandomCaseWithCurrentDifficulty();
   });
@@ -4270,7 +4393,18 @@
     if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
     if (labDialog.open || helpDialog.open || debriefDialog.open) return;
 
-    if (e.key === 'Enter' && selectedWords.size === 4) {
+    const caseClosed = caseIsClosed();
+    // A focused control keeps its own Enter activation: AUTOPSY REPORT opens the report, a footer link navigates
+    const onControl = Boolean(e.target && e.target.closest && e.target.closest('button, a[href], summary, [role="button"]'));
+    if (e.key === 'Enter' && onControl && solvedLobeIds.length >= 4) {
+      return;
+    } else if (caseClosed && e.key === 'Enter') {
+      e.preventDefault();
+      rollNewRandomCaseWithCurrentDifficulty();
+    } else if (caseClosed && (e.key === 'r' || e.key === 'R')) {
+      e.preventDefault();
+      reopenDebrief();
+    } else if (e.key === 'Enter' && selectedWords.size === 4) {
       e.preventDefault();
       submitSelection();
     } else if (e.key === 'Escape') {

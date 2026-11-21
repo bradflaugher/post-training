@@ -167,6 +167,21 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('#debrief-stats-grid')).toContainText('1/20');
     await expect(page.locator('#streak-badge')).toHaveText('STREAK: 1');
 
+    // The share report wraps inside its box on a phone: nothing in the autopsy body runs off-screen sideways,
+    // and every guess-grid glyph sits in an equal-width cell
+    const reportFits = await page.evaluate(() => {
+      const pre = document.querySelector('#debrief-grid-text') as HTMLElement;
+      const body = document.querySelector('#debrief-dialog .dlg-body') as HTMLElement;
+      const widths = Array.from(pre.querySelectorAll('.tier-glyph'), el => Math.round(el.getBoundingClientRect().width * 10));
+      return (
+        pre.scrollWidth <= pre.clientWidth + 1 &&
+        body.scrollWidth <= body.clientWidth + 1 &&
+        widths.length >= 20 &&
+        new Set(widths).size === 1
+      );
+    });
+    expect(reportFits).toBe(true);
+
     // Verify #copy-report-btn and #next-case-btn stay inside the dialog and do not overflow their boxes on mobile
     const buttonsFit = await page.evaluate(() => {
       const dlg = document.querySelector('#debrief-dialog')?.getBoundingClientRect();
@@ -185,6 +200,89 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
       );
     });
     expect(buttonsFit).toBe(true);
+
+    // Closing the report must not strand the player: the surgical tools give way to a pulsing NEXT PATIENT
+    // and a way back into the report, and the whole console still fits the phone
+    await page.locator('#debrief-close-btn').click();
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    for (const id of ['#shuffle-btn', '#biopsy-btn', '#clear-btn', '#submit-btn']) {
+      await expect(page.locator(id)).toBeHidden();
+    }
+    await expect(page.locator('#next-patient-btn')).toBeVisible();
+    await expect(page.locator('#report-btn')).toBeVisible();
+    await expect(page.locator('#telemetry-msg')).toContainText('NEXT PATIENT');
+    const closedFits = await page.evaluate(() =>
+      document.documentElement.scrollWidth <= window.innerWidth && document.documentElement.scrollHeight <= window.innerHeight
+    );
+    expect(closedFits).toBe(true);
+
+    // Keyboard: Enter on the focused AUTOPSY REPORT button opens the report rather than skipping to a new board
+    await page.locator('#report-btn').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#debrief-dialog')).toBeVisible();
+    await expect(page.locator('#debrief-summary')).toContainText('SURGERY SUCCESSFUL');
+    await expect(page.locator('#seed-btn')).toContainText('#0001');
+    await page.locator('#debrief-close-btn').click();
+
+    // NEXT PATIENT deals a fresh board and hands the tools back
+    await page.locator('#next-patient-btn').click();
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
+    await expect(page.locator('#next-patient-btn')).toBeHidden();
+    await expect(page.locator('#shuffle-btn')).toBeVisible();
+    await expect(page.locator('#submit-btn')).toBeVisible();
+    await expect(page.locator('#seed-btn')).not.toContainText('#0001');
+    await expect(page.locator('#telemetry-msg')).not.toContainText('CASE CLOSED');
+  });
+
+  test('advancing during the closing animation never reopens the report over the fresh board', async ({ page }) => {
+    await page.goto('/index.html?lite=1&seed=1');
+    const lobes = await readLobes(page);
+    const ids = Object.keys(lobes);
+    for (const id of ids.slice(0, 3)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await clamp(page, lobes[ids[3]]);
+    // NEXT PATIENT is already live while the report's opening delay is still pending. Both clicks run in one
+    // task so the advance always lands inside that delay, however slow the browser is.
+    await page.evaluate(() => {
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      (document.querySelector('#next-patient-btn') as HTMLButtonElement).click();
+    });
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
+  });
+
+  test('a report opened and dismissed by hand is not reopened by its own timer, and Enter on a link still navigates', async ({ page }) => {
+    await page.goto('/index.html?lite=1&seed=1');
+    const lobes = await readLobes(page);
+    const ids = Object.keys(lobes);
+    for (const id of ids.slice(0, 3)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await clamp(page, lobes[ids[3]]);
+    // Open the report by hand and dismiss it, all inside the automatic report's opening delay
+    const openedByHand = await page.evaluate(() => {
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      (document.querySelector('#report-btn') as HTMLButtonElement).click();
+      const dlg = document.querySelector('#debrief-dialog') as HTMLDialogElement;
+      const wasOpen = dlg.open;
+      dlg.close();
+      return wasOpen;
+    });
+    expect(openedByHand).toBe(true);
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.solved-lobe')).toHaveCount(4);
+
+    // On a closed case, Enter on a focused footer link follows the link instead of dealing a new patient
+    await page.locator('.footer-nav a[href="/privacy.html"]').focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/privacy\.html/);
   });
 
   test('cycles cosine-distance difficulty grades, rolls random seeds on refresh/grade change, and synthesizes billions of procedural seeds', async ({ page }) => {
@@ -469,6 +567,31 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.keyboard.press('n');
     await expect(page.locator('#mode-btn')).toHaveAttribute('data-mode', 'live');
     await expect(page.locator('#inference-timing')).toContainText('LIVE SLM');
+
+    // Live path: NEXT PATIENT during the report's opening delay starts an async 4-pass build; the stale report
+    // must not open over it while the old case is still nominally on the table
+    const liveLobes = await readLobes(page);
+    const liveIds = Object.keys(liveLobes);
+    for (const id of liveIds.slice(0, 3)) {
+      await clamp(page, liveLobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await clamp(page, liveLobes[liveIds[3]]);
+    const lockedWhileBuilding = await page.evaluate(() => {
+      const report = document.querySelector('#report-btn') as HTMLButtonElement;
+      const next = document.querySelector('#next-patient-btn') as HTMLButtonElement;
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      const armed = !report.disabled && !next.disabled;
+      next.click();
+      // The live build is now awaiting its forward passes: the old case must no longer be actionable
+      report.click();
+      return armed && report.disabled && next.disabled && !(document.querySelector('#debrief-dialog') as HTMLDialogElement).open;
+    });
+    expect(lockedWhileBuilding).toBe(true);
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
 
     // Open Lab and run a live custom sentence forward pass
     await page.locator('#lab-btn').click();
