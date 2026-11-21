@@ -2750,6 +2750,7 @@
     const lobes = [];
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     const useLive = !forceWard && !wardMode && modelReady;
+    let liveBuilt = false;
     let avgWordCosDist = 0.75;
 
     // In Live SLM mode, pick a prompt variant per lobe; in Ward mode (or canonical seed 1), use the scored primary prompt!
@@ -2835,8 +2836,9 @@
       };
 
       let liveEval = buildLiveSelection();
-      // If a non-primary prompt variant pushed the live board outside the target grade band, retry primary prompts
-      if (!isCanonicalSeed1 && !matchesGradeBand(liveEval.bDist, targetGrade)) {
+      // If a non-primary prompt variant pushed the live board outside the target grade band, or left it with a
+      // second valid solution, retry with the primary prompts
+      if (!isCanonicalSeed1 && (liveEval.sel.ambiguous || !matchesGradeBand(liveEval.bDist, targetGrade))) {
         let retriedAny = false;
         for (let i = 0; i < 4; i++) {
           const cat = corpus.categories[catIds[i]];
@@ -2853,36 +2855,45 @@
         }
       }
 
-      probeCosDist = liveEval.pDist;
-      avgWordCosDist = liveEval.sel.avgWordCosDist;
-      for (let i = 0; i < 4; i++) {
-        const cid = catIds[i];
-        const cat = corpus.categories[cid];
-        lobes.push({
-          id: cid,
-          label: cat.label,
-          lobe: cat.lobe,
-          prompt: chosenPrompts[i],
-          words: liveEval.sel.chosen[i],
-        });
-      }
+      // A live board that still admits a second 4/4/4/4 split is never dealt: fall through to the verified Ward build
+      if (!liveEval.sel.ambiguous) {
+        probeCosDist = liveEval.pDist;
+        avgWordCosDist = liveEval.sel.avgWordCosDist;
+        for (let i = 0; i < 4; i++) {
+          const cid = catIds[i];
+          const cat = corpus.categories[cid];
+          lobes.push({
+            id: cid,
+            label: cat.label,
+            lobe: cat.lobe,
+            prompt: chosenPrompts[i],
+            words: liveEval.sel.chosen[i],
+          });
+        }
 
-      for (let i = 0; i < 4; i++) {
-        for (const lobe of lobes) {
-          for (const we of lobe.words) {
-            wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
+        for (let i = 0; i < 4; i++) {
+          for (const lobe of lobes) {
+            for (const we of lobe.words) {
+              wordLogitMap[i].set(we.word, passes[i].logits[we.tokenId]);
+            }
           }
         }
+        const elapsed = Math.round(performance.now() - t0);
+        inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
+        liveBuilt = true;
       }
-      const elapsed = Math.round(performance.now() - t0);
-      inferenceTiming.textContent = `LIVE SLM SYNTHESIS: ${elapsed}ms`;
-    } else {
+    }
+    if (!liveBuilt) {
       // PRE-DISSECTED WARD MODE (Uses full 56x476 poolLogits matrix scored on each category's primary prompt!)
       const hasPoolMatrix = corpus.poolLogits && corpus.poolWordIndex && evaluateCandidateQuad(catIds, targetGrade) !== null;
+      let sel = null;
       if (hasPoolMatrix && !isCanonicalSeed1) {
         const wardPools = buildWardPoolsForQuad(catIds);
         const wardSelRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
-        const sel = selectQuadWordsFromPools(wardPools, targetGrade, wardSelRng, false);
+        sel = selectQuadWordsFromPools(wardPools, targetGrade, wardSelRng, false);
+      }
+      // An unrepairable selection is discarded in favour of the pre-verified fallback case below
+      if (sel && !sel.ambiguous) {
         avgWordCosDist = sel.avgWordCosDist;
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
@@ -2905,7 +2916,10 @@
           }
         }
       } else {
-        catIds = basePuzzle.categories.slice();
+        if (catIds.join('|') !== basePuzzle.categories.join('|')) {
+          catIds = basePuzzle.categories.slice();
+          probeCosDist = evaluateCandidateQuad(catIds, 'hard') ?? probeCosDist;
+        }
         const all16Words = [];
         for (let i = 0; i < 4; i++) {
           const cid = catIds[i];
@@ -2966,7 +2980,7 @@
 
     currentCase = {
       seed: uSeed,
-      mode: useLive ? 'live' : 'ward',
+      mode: liveBuilt ? 'live' : 'ward',
       grade: finalGrade,
       requestedGrade: targetGrade,
       cosDist: boardCosDist,
@@ -3395,7 +3409,10 @@
     c.tierBonus = tierBonus;
     c.offRecord = Boolean(c.daily && Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily));
     if (c.offRecord) {
-      c.noteIdx = stats.played % FIELD_NOTES.length;
+      // A replay earns nothing and may only review a field note that is already declassified
+      c.score = 0;
+      c.tierBonus = 0;
+      c.noteIdx = stats.notes > 0 ? stats.played % stats.notes : 0;
       return;
     }
     stats.played += 1;
@@ -3417,8 +3434,6 @@
     }
     if (c.daily) {
       stats.dailyDone[c.daily] = won ? 1 : 0;
-      const days = Object.keys(stats.dailyDone).sort();
-      while (days.length > 60) delete stats.dailyDone[days.shift()];
       if (c.daily === localDateStr()) {
         const y = new Date();
         y.setDate(y.getDate() - 1);
@@ -3631,7 +3646,7 @@
     const c = currentCase;
     if (debriefScore && c) {
       const bits = [];
-      if (won) {
+      if (won && !c.offRecord) {
         const g = normalizeGrade(c.grade || 'easy');
         bits.push(`+${c.score ?? 0} XP`);
         bits.push(`${g.toUpperCase()} BASE ${GRADE_BASE_XP[g]} · +${50 * (MAX_MISTAKES - mistakesMade)} DEFIB · −${25 * biopsiesUsed} BIOPSY${c.tierBonus ? ' · +50 TIER IV SEVERED FIRST' : ''}`);
@@ -3697,7 +3712,7 @@
       won
         ? `STATUS: LOBOTOMIZED · 4/4 CORTICAL LOBES SEVERED · ${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB INTACT · STREAK ${streak}`
         : `STATUS: FLATLINED · CRANIAL HEMORRHAGE`,
-      `${won ? `+${currentCase.score ?? 0} XP · ` : ''}${biopsiesUsed} BIOPS${biopsiesUsed === 1 ? 'Y' : 'IES'} · ░▒▓█ = TIER I→IV`,
+      `${won && !currentCase.offRecord ? `+${currentCase.score ?? 0} XP · ` : ''}${biopsiesUsed} BIOPS${biopsiesUsed === 1 ? 'Y' : 'IES'} · ░▒▓█ = TIER I→IV`,
       shareUrl,
     ].join('\n');
 

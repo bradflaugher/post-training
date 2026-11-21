@@ -330,6 +330,17 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('.token-tile')).toHaveCount(16);
     expect(boardKey(await readLobes(page))).toBe(boardKey(lobes));
     await expect(page.locator('#telemetry-msg')).toContainText('OFF THE RECORD');
+    for (const id of Object.keys(lobes)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await expect(page.locator('#debrief-dialog')).toBeVisible();
+    await expect(page.locator('#debrief-score')).toContainText('+0 XP');
+    await expect(page.locator('#debrief-score')).toContainText('OFF THE RECORD');
+    // A replay may only review a field note that is already declassified, and its report claims no XP
+    await expect(page.locator('#debrief-field-note')).toContainText('FIELD NOTE 01/20 — REVIEW');
+    await expect(page.locator('#debrief-stats-grid')).toContainText('1/20');
+    expect((await page.locator('#debrief-grid-text').textContent()) ?? '').not.toContain('XP');
 
     // A surgeon with a record who has not filed today's case boots straight into it
     await page.goto('/index.html');
