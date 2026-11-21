@@ -3382,6 +3382,15 @@
   // ───────────────────────────────────────────────────────────────────────
   // Submit / Amputate 4 Selected Tokens
   // ───────────────────────────────────────────────────────────────────────
+  // The report opens after the final animation, but only if that same case is still on the table:
+  // advancing to the next patient during the delay must not reopen it over the fresh board.
+  function scheduleDebrief(won, delayMs) {
+    const closedCase = currentCase;
+    setTimeout(() => {
+      if (currentCase === closedCase && !debriefDialog.open) showDebriefModal(won);
+    }, delayMs);
+  }
+
   function submitSelection() {
     if (!currentCase || selectedWords.size !== 4) return;
     const comboKey = getSelectionKey(selectedWords);
@@ -3437,7 +3446,7 @@
 
       if (solvedLobeIds.length === 4) {
         finalizeCase(true);
-        setTimeout(() => showDebriefModal(true), 550);
+        scheduleDebrief(true, 550);
       }
     } else {
       // Record this 4-word combination so mashing Amputate or re-selecting it cannot cost another charge!
@@ -3470,7 +3479,7 @@
         renderSolvedLobes();
         renderTokenGrid();
         updateActionButtons();
-        setTimeout(() => showDebriefModal(false), 650);
+        scheduleDebrief(false, 650);
       }
     }
   }
@@ -4347,7 +4356,10 @@
     if (labDialog.open || helpDialog.open || debriefDialog.open) return;
 
     const caseClosed = Boolean(currentCase) && solvedLobeIds.length >= 4;
-    if (caseClosed && e.key === 'Enter') {
+    // A focused button keeps its own Enter activation (e.g. AUTOPSY REPORT must open the report, not skip it)
+    if (caseClosed && e.key === 'Enter' && tag === 'button') {
+      return;
+    } else if (caseClosed && e.key === 'Enter') {
       e.preventDefault();
       rollNewRandomCaseWithCurrentDifficulty();
     } else if (caseClosed && (e.key === 'r' || e.key === 'R')) {

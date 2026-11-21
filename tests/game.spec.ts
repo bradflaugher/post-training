@@ -216,9 +216,12 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     );
     expect(closedFits).toBe(true);
 
-    await page.locator('#report-btn').click();
+    // Keyboard: Enter on the focused AUTOPSY REPORT button opens the report rather than skipping to a new board
+    await page.locator('#report-btn').focus();
+    await page.keyboard.press('Enter');
     await expect(page.locator('#debrief-dialog')).toBeVisible();
     await expect(page.locator('#debrief-summary')).toContainText('SURGERY SUCCESSFUL');
+    await expect(page.locator('#seed-btn')).toContainText('#0001');
     await page.locator('#debrief-close-btn').click();
 
     // NEXT PATIENT deals a fresh board and hands the tools back
@@ -230,6 +233,21 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('#submit-btn')).toBeVisible();
     await expect(page.locator('#seed-btn')).not.toContainText('#0001');
     await expect(page.locator('#telemetry-msg')).not.toContainText('CASE CLOSED');
+  });
+
+  test('advancing during the closing animation never reopens the report over the fresh board', async ({ page }) => {
+    await page.goto('/index.html?lite=1&seed=1');
+    const lobes = await readLobes(page);
+    for (const id of Object.keys(lobes)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    // NEXT PATIENT is already live while the report's opening delay is still pending
+    await page.locator('#next-patient-btn').click();
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
   });
 
   test('cycles cosine-distance difficulty grades, rolls random seeds on refresh/grade change, and synthesizes billions of procedural seeds', async ({ page }) => {
