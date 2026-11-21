@@ -200,6 +200,36 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
       );
     });
     expect(buttonsFit).toBe(true);
+
+    // Closing the report must not strand the player: the surgical tools give way to a pulsing NEXT PATIENT
+    // and a way back into the report, and the whole console still fits the phone
+    await page.locator('#debrief-close-btn').click();
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    for (const id of ['#shuffle-btn', '#biopsy-btn', '#clear-btn', '#submit-btn']) {
+      await expect(page.locator(id)).toBeHidden();
+    }
+    await expect(page.locator('#next-patient-btn')).toBeVisible();
+    await expect(page.locator('#report-btn')).toBeVisible();
+    await expect(page.locator('#telemetry-msg')).toContainText('NEXT PATIENT');
+    const closedFits = await page.evaluate(() =>
+      document.documentElement.scrollWidth <= window.innerWidth && document.documentElement.scrollHeight <= window.innerHeight
+    );
+    expect(closedFits).toBe(true);
+
+    await page.locator('#report-btn').click();
+    await expect(page.locator('#debrief-dialog')).toBeVisible();
+    await expect(page.locator('#debrief-summary')).toContainText('SURGERY SUCCESSFUL');
+    await page.locator('#debrief-close-btn').click();
+
+    // NEXT PATIENT deals a fresh board and hands the tools back
+    await page.locator('#next-patient-btn').click();
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
+    await expect(page.locator('#next-patient-btn')).toBeHidden();
+    await expect(page.locator('#shuffle-btn')).toBeVisible();
+    await expect(page.locator('#submit-btn')).toBeVisible();
+    await expect(page.locator('#seed-btn')).not.toContainText('#0001');
+    await expect(page.locator('#telemetry-msg')).not.toContainText('CASE CLOSED');
   });
 
   test('cycles cosine-distance difficulty grades, rolls random seeds on refresh/grade change, and synthesizes billions of procedural seeds', async ({ page }) => {

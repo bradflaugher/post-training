@@ -919,6 +919,14 @@
     flex: 1 1 auto;
     min-width: 0;
   }
+  .action-bar .act-btn[hidden] { display: none; }
+  /* Case closed: the surgical tools are swapped for the two ways forward, and the way on pulses */
+  #next-patient-btn { animation: nextPulse 1.3s ease-in-out infinite; }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 3px 3px 0 var(--acid), 5px 5px 0 var(--ink); }
+    50% { box-shadow: 3px 3px 0 var(--acid), 5px 5px 0 var(--ink), 0 0 14px 3px rgba(57, 255, 20, 0.75); }
+  }
+  html.calm-screen #next-patient-btn { animation: none; }
   @media (max-width: 430px) {
     /* Four labelled controls must fit a phone without pushing the console sideways */
     .action-bar .btn-ico { display: none; }
@@ -1315,6 +1323,8 @@
     <button type="button" class="act-btn" id="biopsy-btn" title="Biopsy your last clamped token: see how strongly each of the 4 hidden probes fires for it (B)"><span class="btn-ico" aria-hidden="true">💉 </span>BIOPSY 3</button>
     <button type="button" class="act-btn" id="clear-btn" disabled title="Unclamp all selected tokens (Esc)"><span class="btn-ico" aria-hidden="true">✕ </span>CLEAR</button>
     <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 clamped tokens (Enter)"><span class="btn-ico" aria-hidden="true">🩸 </span>AMPUTATE (0/4)</button>
+    <button type="button" class="act-btn" id="report-btn" hidden title="Reopen the Post-Op Autopsy Report (R)"><span class="btn-ico" aria-hidden="true">📋 </span>AUTOPSY REPORT</button>
+    <button type="button" class="act-btn primary" id="next-patient-btn" hidden title="Wheel in the next patient (N or Enter)"><span class="btn-ico" aria-hidden="true">🔪 </span>NEXT PATIENT</button>
   </section>
 
   <!-- Building-Style Horizontal Dot-Matrix Marquee Ticker -->
@@ -1497,6 +1507,8 @@
   const biopsyBtn = $('biopsy-btn');
   const clearBtn = $('clear-btn');
   const submitBtn = $('submit-btn');
+  const reportBtn = $('report-btn');
+  const nextPatientBtn = $('next-patient-btn');
   const telemetryTrack = $('telemetry-track');
   const telemetryMsg = $('telemetry-msg');
   const telemetryClone = $('telemetry-clone');
@@ -3351,6 +3363,11 @@
     const count = selectedWords.size;
     clearBtn.disabled = count === 0;
     const caseOver = !currentCase || solvedLobeIds.length >= 4;
+    // Once the case is closed there is nothing left to shuffle, biopsy or amputate: show only the ways forward
+    const finished = Boolean(currentCase) && solvedLobeIds.length >= 4;
+    for (const btn of [shuffleBtn, biopsyBtn, clearBtn, submitBtn]) btn.hidden = finished;
+    reportBtn.hidden = !finished;
+    nextPatientBtn.hidden = !finished;
     setActionLabel(biopsyBtn, '💉', `BIOPSY ${MAX_BIOPSIES - biopsiesUsed}`);
     biopsyBtn.disabled = caseOver || biopsiesUsed >= MAX_BIOPSIES;
     if (count === 4 && previousGuesses.has(getSelectionKey(selectedWords))) {
@@ -3544,7 +3561,7 @@
   }
 
   function shuffleTokens() {
-    if (!currentCase) return;
+    if (!currentCase || solvedLobeIds.length >= 4) return;
     for (let i = currentCase.tokens.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [currentCase.tokens[i], currentCase.tokens[j]] = [currentCase.tokens[j], currentCase.tokens[i]];
@@ -4108,6 +4125,8 @@
       difficultyOverride = normalizeGrade(currentCase?.grade || 'easy');
     }
     writeSaveState();
+    // A fresh patient gets the opening instructions back (not the previous case's last readout)
+    setTelemetry('CLAMP 4 RELATED TOKENS & AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES');
     buildCaseFromSeed(rollRandomSeed());
   }
 
@@ -4291,7 +4310,25 @@
   });
 
   debriefCloseBtn.addEventListener('click', () => debriefDialog.close());
+  // However the report is dismissed (✕, Esc, backdrop), say plainly what to do next
+  let advancingFromDebrief = false;
+  debriefDialog.addEventListener('close', () => {
+    if (advancingFromDebrief) {
+      advancingFromDebrief = false;
+      return;
+    }
+    if (currentCase && solvedLobeIds.length >= 4) {
+      setTelemetry('CASE CLOSED — HIT 🔪 NEXT PATIENT (N) FOR A FRESH BOARD, OR 📋 AUTOPSY REPORT TO REVIEW WHAT THE MODEL SAW.');
+      nextPatientBtn.focus({ preventScroll: true });
+    }
+  });
+  function reopenDebrief() {
+    if (currentCase && solvedLobeIds.length >= 4 && !debriefDialog.open) showDebriefModal(currentCase.won === true);
+  }
+  reportBtn.addEventListener('click', reopenDebrief);
+  nextPatientBtn.addEventListener('click', () => rollNewRandomCaseWithCurrentDifficulty());
   nextCaseBtn.addEventListener('click', () => {
+    advancingFromDebrief = true; // the close event fires later; it clears this flag itself
     debriefDialog.close();
     rollNewRandomCaseWithCurrentDifficulty();
   });
@@ -4309,7 +4346,14 @@
     if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
     if (labDialog.open || helpDialog.open || debriefDialog.open) return;
 
-    if (e.key === 'Enter' && selectedWords.size === 4) {
+    const caseClosed = Boolean(currentCase) && solvedLobeIds.length >= 4;
+    if (caseClosed && e.key === 'Enter') {
+      e.preventDefault();
+      rollNewRandomCaseWithCurrentDifficulty();
+    } else if (caseClosed && (e.key === 'r' || e.key === 'R')) {
+      e.preventDefault();
+      reopenDebrief();
+    } else if (e.key === 'Enter' && selectedWords.size === 4) {
       e.preventDefault();
       submitSelection();
     } else if (e.key === 'Escape') {
