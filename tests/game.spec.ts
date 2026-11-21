@@ -1,4 +1,23 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// Tiles carry their true lobe in data-lobe-id, so specs can clamp exact groups without spoiling the UI
+async function readLobes(page: Page): Promise<Record<string, string[]>> {
+  await expect(page.locator('.token-tile')).toHaveCount(16);
+  return page.evaluate(() => {
+    const out: Record<string, string[]> = {};
+    document.querySelectorAll<HTMLElement>('.token-tile').forEach(el => {
+      const id = el.dataset.lobeId || '';
+      (out[id] ||= []).push(el.dataset.word || '');
+    });
+    return out;
+  });
+}
+
+async function clamp(page: Page, words: string[]): Promise<void> {
+  for (const w of words) {
+    await page.locator(`.token-tile[data-word="${w}"]`).click();
+  }
+}
 
 test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
   test('renders 16 mystery tokens with zero category spoilers, keeps header on one line, and fits mobile & laptop viewports', async ({ page }) => {
@@ -56,11 +75,9 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
 
-    // Use HINT 4 times to clamp all 4 tokens of the first unsolved lobe (ice_cream)
-    const hintBtn = page.locator('#hint-btn');
-    for (let i = 0; i < 4; i++) {
-      await hintBtn.click();
-    }
+    // Clamp all 4 tokens of the ice_cream lobe
+    const lobes = await readLobes(page);
+    await clamp(page, lobes.ice_cream);
 
     const selectedTiles = page.locator('.token-tile.selected');
     await expect(selectedTiles).toHaveCount(4);
@@ -75,6 +92,9 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(solvedLobe).toHaveCount(1);
     await expect(solvedLobe.first()).toContainText('the best ice cream flavor is [MASK].');
     await expect(solvedLobe.first()).toContainText('%');
+    // The declassified banner is stamped with its probe letter and entanglement tier (I–IV)
+    await expect(solvedLobe.first().locator('.tier-tag')).toHaveText(/^[αβγδ]·(I|II|III|IV)$/);
+    await expect(solvedLobe.first()).toHaveAttribute('data-tier', /^[1-4]$/);
     await expect(page.locator('#active-probe-title')).toContainText('1/4 LOBES');
     await expect(page.locator('.token-tile')).toHaveCount(12);
 
@@ -88,11 +108,9 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
   test('detects One-Away (3/4 synapses aligned), decrements defibrillator charge on mistake, and blocks duplicate guesses', async ({ page }) => {
     await page.goto('/index.html?lite=1&seed=1');
 
-    // Stimulate 3 correct tokens for Probe 01
-    const hintBtn = page.locator('#hint-btn');
-    await hintBtn.click();
-    await hintBtn.click();
-    await hintBtn.click();
+    // Clamp 3 correct tokens of one lobe
+    const lobes = await readLobes(page);
+    await clamp(page, lobes.ice_cream.slice(0, 3));
 
     // Pick 1 token from a different lobe
     const nonMatchingTile = page.locator('.token-tile:not([data-lobe-id="ice_cream"])').first();
@@ -116,13 +134,17 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=1');
 
-    const hintBtn = page.locator('#hint-btn');
     const submitBtn = page.locator('#submit-btn');
+    const lobes = await readLobes(page);
+    const lobeIds = Object.keys(lobes);
 
-    for (let lobe = 0; lobe < 4; lobe++) {
-      for (let k = 0; k < 4; k++) {
-        await hintBtn.click();
-      }
+    // One deliberate misfire first, so the report has a mixed row to draw
+    await clamp(page, [...lobes[lobeIds[0]].slice(0, 3), lobes[lobeIds[1]][0]]);
+    await submitBtn.click();
+    await page.locator('#clear-btn').click();
+
+    for (const id of lobeIds) {
+      await clamp(page, lobes[id]);
       await submitBtn.click();
     }
 
@@ -133,6 +155,17 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     const shareText = (await page.locator('#debrief-grid-text').textContent()) ?? '';
     expect(shareText).toContain('mode=ward');
     expect(shareText).not.toMatch(/[🟥🟩🟨🟪]/u);
+    // Spoiler-free guess grid: 5 attempts, each drawn in entanglement-tier glyphs
+    expect(shareText.split('\n').filter(line => /^[░▒▓█]{4}$/u.test(line))).toHaveLength(5);
+
+    // The autopsy teaches: XP breakdown, a 16×4 logit heatmap, a declassified field note, and the surgeon's record
+    // EASY base 100 + 3 defib charges left × 50 (+50 if the tier-IV lobe happened to fall first)
+    await expect(page.locator('#debrief-score')).toContainText(/\+(250|300) XP/);
+    await expect(page.locator('#debrief-heatmap .hm-cell')).toHaveCount(64);
+    await expect(page.locator('#debrief-heatmap .hm-cell.own')).toHaveCount(16);
+    await expect(page.locator('#debrief-field-note')).toContainText('FIELD NOTE 01/20 — DECLASSIFIED: TOKENS');
+    await expect(page.locator('#debrief-stats-grid')).toContainText('1/20');
+    await expect(page.locator('#streak-badge')).toHaveText('STREAK: 1');
 
     // Verify #copy-report-btn and #next-case-btn stay inside the dialog and do not overflow their boxes on mobile
     const buttonsFit = await page.evaluate(() => {
@@ -216,6 +249,131 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('.token-tile')).toHaveCount(16);
     const canonicalWords = await page.locator('.token-word').allTextContents();
     expect(canonicalWords).toContain('vanilla');
+  });
+
+  test('biopsies a clamped token into a 4-probe activation signature, limited to 3 needles per case', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/index.html?lite=1&seed=1');
+    const biopsyBtn = page.locator('#biopsy-btn');
+    await expect(biopsyBtn).toHaveText(/BIOPSY 3$/);
+
+    // Nothing clamped: no needle is spent
+    await biopsyBtn.click();
+    await expect(biopsyBtn).toHaveText(/BIOPSY 3$/);
+    await expect(page.locator('#telemetry-msg')).toContainText('CLAMP A TOKEN FIRST');
+
+    const lobes = await readLobes(page);
+    const [first, second, third, fourth] = lobes.ice_cream;
+    await clamp(page, [first]);
+    await biopsyBtn.click();
+    await expect(biopsyBtn).toHaveText(/BIOPSY 2$/);
+    const tile = page.locator(`.token-tile[data-word="${first}"]`);
+    await expect(tile).toHaveClass(/biopsied/);
+    await expect(tile.locator('.token-sig i')).toHaveCount(4);
+    await expect(page.locator('#telemetry-msg')).toContainText(`BIOPSY "${first.toUpperCase()}"`);
+
+    // The signature is a probability distribution over the 4 hidden probes, and two tokens of one lobe peak on the same probe
+    const peakOf = async (word: string) => {
+      const title = (await page.locator(`.token-tile[data-word="${word}"]`).getAttribute('title')) ?? '';
+      const pcts = Array.from(title.matchAll(/(\d+)%/g), m => Number(m[1]));
+      expect(pcts).toHaveLength(4);
+      expect(Math.abs(pcts.reduce((a, b) => a + b, 0) - 100)).toBeLessThanOrEqual(2);
+      return pcts.indexOf(Math.max(...pcts));
+    };
+    await clamp(page, [second]);
+    await biopsyBtn.click();
+    expect(await peakOf(second)).toBe(await peakOf(first));
+
+    // Re-biopsying the same token is refused; the third needle empties the tray
+    await page.locator('#clear-btn').click();
+    await clamp(page, [first]);
+    await biopsyBtn.click();
+    await expect(biopsyBtn).toHaveText(/BIOPSY 1$/);
+    await clamp(page, [third]);
+    await biopsyBtn.click();
+    await expect(biopsyBtn).toHaveText(/BIOPSY 0$/);
+    await expect(biopsyBtn).toBeDisabled();
+    await clamp(page, [second, fourth]);
+    await page.locator('#submit-btn').click();
+    await expect(page.locator('.solved-lobe')).toHaveCount(1);
+
+    // The whole console still fits a phone with no sideways overflow
+    const noOverflow = await page.evaluate(() =>
+      document.documentElement.scrollWidth <= window.innerWidth && document.documentElement.scrollHeight <= window.innerHeight
+    );
+    expect(noOverflow).toBe(true);
+  });
+
+  test('deals a deterministic Daily Case, files it once, and wheels returning surgeons to today\'s case', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    // 2024-01-01 was a Monday: the week opens with an EASY board
+    await page.goto('/index.html?daily=2024-01-01');
+    await expect(page.locator('#case-title')).toContainText('DAILY 2024-01-01');
+    await expect(page.locator('#seed-btn')).toContainText('2024-01-01');
+    await expect(page.locator('#grade-btn')).toContainText('EASY');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    const lobes = await readLobes(page);
+    const boardKey = (m: Record<string, string[]>) => Object.keys(m).sort().map(k => `${k}:${[...m[k]].sort().join(',')}`).join('|');
+
+    for (const id of Object.keys(lobes)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await expect(page.locator('#debrief-dialog')).toBeVisible();
+    const shareText = (await page.locator('#debrief-grid-text').textContent()) ?? '';
+    expect(shareText).toContain('DAILY 2024-01-01');
+    expect(shareText).toContain('daily=2024-01-01');
+    await expect(page.locator('#debrief-score')).not.toContainText('OFF THE RECORD');
+
+    // Same date, same board; a replay is off the record and earns nothing
+    await page.goto('/index.html?daily=2024-01-01');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    expect(boardKey(await readLobes(page))).toBe(boardKey(lobes));
+    await expect(page.locator('#telemetry-msg')).toContainText('OFF THE RECORD');
+
+    // A surgeon with a record who has not filed today's case boots straight into it
+    await page.goto('/index.html');
+    await expect(page.locator('#case-title')).toContainText('DAILY');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+
+    // The manual shows the record and exactly one declassified field note
+    await page.locator('#help-btn').click();
+    await expect(page.locator('#help-stats-grid')).toContainText('1/20');
+    await expect(page.locator('#field-notes-list details')).toHaveCount(1);
+    await expect(page.locator('#help-rank-line')).toContainText('RANK:');
+  });
+
+  test('verifies every dealt board has exactly one solution under the model\'s own logits, with red herrings on HARD', async ({ page }) => {
+    await page.goto('/index.html?lite=1&seed=1');
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    const audit = await page.evaluate(() => {
+      type Audit = { lobes: string[]; words: string[][]; herrings: string[]; ambiguous: boolean };
+      const auditFn = (window as unknown as { __ptAudit: (seed: number, grade: string) => Audit }).__ptAudit;
+      const out: Record<string, { ambiguous: number; withHerrings: number; malformed: number; lobes: number }> = {};
+      for (const grade of ['easy', 'medium', 'hard']) {
+        const seenLobes = new Set<string>();
+        const row = { ambiguous: 0, withHerrings: 0, malformed: 0, lobes: 0 };
+        for (let i = 0; i < 150; i++) {
+          const a = auditFn(2000 + i * 7919, grade);
+          const flat = a.words.flat();
+          if (a.lobes.length !== 4 || flat.length !== 16 || new Set(flat).size !== 16) row.malformed += 1;
+          if (a.ambiguous) row.ambiguous += 1;
+          if (a.herrings.length) row.withHerrings += 1;
+          a.lobes.forEach(l => seenLobes.add(l));
+        }
+        row.lobes = seenLobes.size;
+        out[grade] = row;
+      }
+      return out;
+    });
+    for (const grade of ['easy', 'medium', 'hard']) {
+      expect(audit[grade].malformed).toBe(0);
+      expect(audit[grade].ambiguous).toBe(0);
+      expect(audit[grade].lobes).toBeGreaterThanOrEqual(100);
+    }
+    // HARD boards plant decoys far more often than EASY ones
+    expect(audit.hard.withHerrings).toBeGreaterThan(audit.easy.withHerrings);
+    expect(audit.hard.withHerrings).toBeGreaterThanOrEqual(75);
   });
 
   test('opens Live Lobotomy Lab and Surgical Manual dialogs cleanly with properly bounded footer buttons on mobile', async ({ page }) => {

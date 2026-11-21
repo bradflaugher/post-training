@@ -26,10 +26,10 @@ class PuzzleTests(unittest.TestCase):
 
     def test_schema_and_uniqueness(self) -> None:
         cats = self.data["categories"]
-        self.assertGreaterEqual(len(cats), 108)
+        self.assertGreaterEqual(len(cats), 148)
         self.assertGreaterEqual(len(self.data["puzzles"]), 256)
         word_vecs = self.data.get("wordVecs", {})
-        self.assertGreaterEqual(len(word_vecs), 950)
+        self.assertGreaterEqual(len(word_vecs), 1350)
         seen = set()
         for cid, c in cats.items():
             self.assertEqual(cid, c["id"])
@@ -37,6 +37,10 @@ class PuzzleTests(unittest.TestCase):
             self.assertGreaterEqual(len(c["wordPool"]), 5)
             for p in c["prompts"]:
                 self.assertIn("[MASK]", p)
+            # A token that names its own lobe is a giveaway, never a puzzle
+            label_words = set(c["label"].lower().replace("&", " ").split())
+            for we in c["wordPool"]:
+                self.assertNotIn(we["word"], label_words, f"{we['word']} leaks the label of {cid}")
             for we in c["wordPool"]:
                 self.assertNotIn(we["word"], seen)
                 seen.add(we["word"])

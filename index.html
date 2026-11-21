@@ -767,12 +767,139 @@
     filter: drop-shadow(0 0 3px var(--amber));
   }
 
-  /* ── Action Bar: Shuffle / Hint / Clear / Amputate ── */
-  .action-bar {
+  /* ── Entanglement tiers (I = clean split … IV = most entangled lobe on the board) ── */
+  .solved-lobe[data-tier="1"] { --tier: var(--acid); }
+  .solved-lobe[data-tier="2"] { --tier: var(--amber); }
+  .solved-lobe[data-tier="3"] { --tier: var(--pink); }
+  .solved-lobe[data-tier="4"] { --tier: var(--purple); }
+  .solved-lobe[data-tier] { border-color: var(--tier); }
+  .solved-lobe[data-tier] .solved-title { color: var(--tier); }
+  .solved-lobe[data-tier="4"] .solved-title { color: #ff7ae6; }
+  .tier-tag {
+    font-family: var(--font-mono);
+    font-size: 0.58em;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    background: var(--tier, var(--amber));
+    padding: 0.05em 0.35em;
+    margin-right: 0.35em;
+    text-shadow: none;
+    vertical-align: middle;
+  }
+  /* ── Biopsy signature: how hard each of the 4 hidden probes fires for one token ── */
+  .token-sig {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+  .token-sig i {
+    display: block;
+    width: 5px;
+    min-height: 1px;
+    background: var(--cyan);
+    box-shadow: 0 0 3px rgba(0, 245, 212, 0.7);
+  }
+  .token-sig i[data-tier="1"] { background: var(--acid); }
+  .token-sig i[data-tier="2"] { background: var(--amber); }
+  .token-sig i[data-tier="3"] { background: var(--pink); }
+  .token-sig i[data-tier="4"] { background: var(--purple); }
+  .token-tile.biopsied { border-style: dashed; }
+  .token-tile.biopsied .token-clamp-badge { color: var(--cyan); }
+  .token-tile.selected.biopsied .token-clamp-badge { color: var(--amber); }
+
+  /* ── Post-op teaching panels ── */
+  .debrief-score {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--amber);
+  }
+  .panel-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--pink);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .heatmap {
+    display: grid;
+    grid-template-columns: minmax(4.6rem, 1.5fr) repeat(4, 1fr);
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 800;
+  }
+  .heatmap > * {
+    padding: 0.14rem 0.25rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .heatmap .hm-head { color: var(--bone-dim); }
+  .heatmap .hm-word { text-align: left; text-transform: uppercase; color: var(--bone); background: var(--ink); border-left: 4px solid var(--bone-dim); }
+  .heatmap .hm-word[data-tier="1"] { border-left-color: var(--acid); }
+  .heatmap .hm-word[data-tier="2"] { border-left-color: var(--amber); }
+  .heatmap .hm-word[data-tier="3"] { border-left-color: var(--pink); }
+  .heatmap .hm-word[data-tier="4"] { border-left-color: var(--purple); }
+  .heatmap .hm-cell { color: var(--bone); background: rgba(57, 255, 20, calc(var(--heat) * 0.62)); }
+  .heatmap .hm-cell.own { outline: 1.5px solid var(--bone); outline-offset: -1.5px; }
+  .heatmap .hm-cell.decoy { outline: 1.5px dashed var(--pink); outline-offset: -1.5px; }
+  .teach-note {
+    font-size: 0.74rem;
+    color: var(--bone-dim);
+    line-height: 1.4;
+  }
+  .field-note {
+    border: 2px dashed var(--cyan);
+    background: rgba(0, 245, 212, 0.06);
+    padding: 0.5rem 0.6rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+  .field-note strong { color: var(--cyan); font-family: var(--font-mono); font-size: 0.72rem; display: block; margin-bottom: 0.2rem; }
+  .field-notes-list { display: flex; flex-direction: column; gap: 0.25rem; }
+  .field-notes-list details {
+    border: 1px solid rgba(244, 238, 224, 0.25);
+    padding: 0.3rem 0.5rem;
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+  .field-notes-list summary { cursor: pointer; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; color: var(--cyan); }
+  .field-notes-list .locked { opacity: 0.5; font-family: var(--font-mono); font-size: 0.7rem; padding: 0.3rem 0.5rem; border: 1px dashed rgba(244, 238, 224, 0.25); }
+  .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    text-align: center;
+  }
+  .stats-grid div { background: var(--ink); border: 1.5px solid var(--bone-dim); padding: 0.3rem 0.15rem; }
+  .stats-grid b { display: block; font-size: 0.98rem; color: var(--acid); }
+  .stats-grid span { font-size: 0.54rem; color: var(--bone-dim); text-transform: uppercase; }
+  .rank-line { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--amber); }
+
+  /* ── Action Bar: Shuffle / Biopsy / Clear / Amputate ── */
+  .action-bar {
+    display: flex;
     gap: 0.34rem;
     flex-shrink: 0;
+  }
+  .action-bar .act-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  @media (max-width: 430px) {
+    /* Four labelled controls must fit a phone without pushing the console sideways */
+    .action-bar .btn-ico { display: none; }
+    .action-bar .act-btn { letter-spacing: 0.02em; padding-left: 0.15rem; padding-right: 0.15rem; }
+  }
+  @media (max-width: 345px) {
+    .action-bar .act-btn { font-size: 0.64rem; }
   }
   .act-btn {
     background: var(--panel);
@@ -1158,10 +1285,10 @@
 
   <!-- Surgical Action Bar (Self-explanatory labels, zero lightning bolt overuse) -->
   <section class="action-bar" aria-label="Surgical controls">
-    <button type="button" class="act-btn" id="shuffle-btn" title="Shuffle remaining tokens on the operating table (S)">🔀 SHUFFLE</button>
-    <button type="button" class="act-btn" id="hint-btn" title="Dose cortical hint: clamp a high-logit token for an unsolved lobe (H)">💉 HINT</button>
-    <button type="button" class="act-btn" id="clear-btn" disabled title="Unclamp all selected tokens (Esc)">✕ CLEAR</button>
-    <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 clamped tokens (Enter)">🩸 AMPUTATE (0/4)</button>
+    <button type="button" class="act-btn" id="shuffle-btn" title="Shuffle remaining tokens on the operating table (S)"><span class="btn-ico" aria-hidden="true">🔀 </span>SHUFFLE</button>
+    <button type="button" class="act-btn" id="biopsy-btn" title="Biopsy your last clamped token: see how strongly each of the 4 hidden probes fires for it (B)"><span class="btn-ico" aria-hidden="true">💉 </span>BIOPSY 3</button>
+    <button type="button" class="act-btn" id="clear-btn" disabled title="Unclamp all selected tokens (Esc)"><span class="btn-ico" aria-hidden="true">✕ </span>CLEAR</button>
+    <button type="button" class="act-btn primary" id="submit-btn" disabled title="Sever the 4 clamped tokens (Enter)"><span class="btn-ico" aria-hidden="true">🩸 </span>AMPUTATE (0/4)</button>
   </section>
 
   <!-- Building-Style Horizontal Dot-Matrix Marquee Ticker -->
@@ -1169,14 +1296,14 @@
     <div class="telemetry-viewport">
       <div class="telemetry-track" id="telemetry-track">
         <span class="telemetry-msg" id="telemetry-msg">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES</span>
-        <span class="telemetry-clone" id="telemetry-clone" aria-hidden="true">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES   ///   108 CORTICAL LOBES · 324 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES &amp; WORDS</span>
+        <span class="telemetry-clone" id="telemetry-clone" aria-hidden="true">CLAMP 4 RELATED TOKENS &amp; AMPUTATE TO DECLASSIFY EACH HIDDEN SLM SENTENCE PROBE + SOFTMAX PROBABILITIES   ///   4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES &amp; WORDS</span>
       </div>
     </div>
   </div>
 
   <footer class="footer-nav">
     <button type="button" id="footer-lab-btn">Lobotomy Lab</button>
-    <button type="button" id="footer-seed-btn">Seed (#)</button>
+    <button type="button" id="footer-daily-btn">Daily Case</button>
     <button type="button" id="footer-calm-btn">Calm Screen: OFF</button>
     <a href="/privacy.html">Privacy</a>
     <a href="https://github.com/bradflaugher/post-training" target="_blank" rel="noopener">Source</a>
@@ -1234,8 +1361,13 @@
     <ul style="margin-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;">
       <li><strong>Clamp 4 Tokens &amp; Amputate:</strong> Select 4 related tokens on the 4×4 grid and hit <strong>🩸 AMPUTATE</strong> (or press <kbd>Enter</kbd>).</li>
       <li><strong>Declassify the Hidden Probes:</strong> Sentence probes and token probabilities stay encrypted while you solve. Every time you amputate a category, its cortical banner rips open to reveal the exact <code>[MASK]</code> sentence probe, softmax probabilities (<code>%</code>), and raw logits (<code>z</code>).</li>
+      <li><strong>One Solution, Planted Decoys:</strong> Every board is checked against the model's own logits so exactly one 4×4 split exists. <strong>Red-herring tokens</strong> score well on a second probe too — the model is genuinely torn about them, and so will you be.</li>
+      <li><strong>Entanglement Tiers I–IV:</strong> Each lobe is ranked by how cleanly the model separates it from the rest of the board. <strong>I</strong> is a clean cut; <strong>IV</strong> is the most entangled lobe on the table. Sever IV first for bragging rights and bonus XP.</li>
+      <li><strong>💉 Biopsy (3 per case):</strong> Clamp a token and hit <strong>BIOPSY</strong> (<kbd>B</kbd>) to read its activation signature — four bars showing how hard each hidden probe α β γ δ fires for that token. Tokens with matching signatures share a lobe. Each biopsy costs XP.</li>
       <li><strong>Embedding Distance Difficulty (Δ):</strong> Select <strong>EASY</strong> (wide cosine embedding distance between sentences &amp; words), <strong>MEDIUM</strong>, or <strong>HARD</strong> (tight cosine distance where both sentence probes and board words sit close together in embedding space).</li>
+      <li><strong>📅 Daily Case:</strong> One shared board per day, the same for every surgeon on Earth. Monday is a clean cut; the weekend is a bloodbath.</li>
     </ul>
+    <button type="button" class="act-btn primary" id="daily-btn" style="min-height:40px;">📅 OPERATE ON TODAY'S DAILY CASE</button>
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);"/>
     <div style="display:flex;flex-direction:column;gap:0.45rem;">
       <span style="font-family:var(--font-mono);font-size:0.74rem;color:var(--amber);font-weight:800;">DIFFICULTY // COSINE EMBEDDING DISTANCE (Δ):</span>
@@ -1254,6 +1386,18 @@
         <button type="button" class="act-btn" id="seed-random-btn" style="padding:0.45rem 0.9rem;min-height:40px;">🎲 RANDOM</button>
       </div>
     </div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);"/>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+      <span style="font-family:var(--font-mono);font-size:0.74rem;color:var(--amber);font-weight:800;">SURGEON'S RECORD:</span>
+      <div class="rank-line" id="help-rank-line"></div>
+      <div class="stats-grid" id="help-stats-grid"></div>
+    </div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);"/>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+      <span style="font-family:var(--font-mono);font-size:0.74rem;color:var(--cyan);font-weight:800;" id="field-notes-title">📓 FIELD NOTES // HOW LANGUAGE MODELS WORK:</span>
+      <p class="teach-note">Every case you finish declassifies one field note, illustrated with real numbers from the patient on your table.</p>
+      <div class="field-notes-list" id="field-notes-list"></div>
+    </div>
   </div>
   <div class="dlg-foot">
     <button type="button" class="act-btn" id="wipe-save-btn" style="border-color:var(--crimson);color:var(--crimson);">WIPE SAVE &amp; CACHES</button>
@@ -1269,7 +1413,15 @@
   </div>
   <div class="dlg-body">
     <div id="debrief-summary" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--acid);font-weight:800;"></div>
+    <div id="debrief-score" class="debrief-score"></div>
     <div id="debrief-lobes-list" class="debrief-lobes-list"></div>
+    <div>
+      <div class="panel-kicker">🧠 WHAT THE MODEL SAW — LOGIT HEATMAP (16 TOKENS × 4 PROBES):</div>
+      <div class="heatmap" id="debrief-heatmap"></div>
+      <p class="teach-note" id="debrief-heatmap-note" style="margin-top:0.35rem;"></p>
+    </div>
+    <div class="field-note" id="debrief-field-note"></div>
+    <div class="stats-grid" id="debrief-stats-grid"></div>
     <pre id="debrief-grid-text" style="background:var(--ink);border:2px solid var(--bone);padding:0.75rem;font-family:var(--font-mono);font-size:0.74rem;overflow-x:auto;color:var(--bone);"></pre>
   </div>
   <div class="dlg-foot">
@@ -1282,7 +1434,7 @@
   const TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
   const MODEL_ID = 'Xenova/albert-base-v2';
   const MODEL_DTYPE = 'fp16';
-  const PUZZLES_VERSION = '6';
+  const PUZZLES_VERSION = '7';
   const PUZZLES_URL = `/puzzles.json?v=${PUZZLES_VERSION}`;
   const SAVE_KEY = 'post-training-save';
   const LOADING_SENTINEL = 'post-training-loading';
@@ -1316,14 +1468,14 @@
   const solvedStackEl = $('solved-stack');
   const tokenGridEl = $('token-grid');
   const shuffleBtn = $('shuffle-btn');
-  const hintBtn = $('hint-btn');
+  const biopsyBtn = $('biopsy-btn');
   const clearBtn = $('clear-btn');
   const submitBtn = $('submit-btn');
   const telemetryTrack = $('telemetry-track');
   const telemetryMsg = $('telemetry-msg');
   const telemetryClone = $('telemetry-clone');
   const footerLabBtn = $('footer-lab-btn');
-  const footerSeedBtn = $('footer-seed-btn');
+  const footerDailyBtn = $('footer-daily-btn');
   const footerCalmBtn = $('footer-calm-btn');
 
   const labDialog = $('lab-dialog');
@@ -1349,16 +1501,26 @@
   const seedLoadBtn = $('seed-load-btn');
   const seedRandomBtn = $('seed-random-btn');
   const wipeSaveBtn = $('wipe-save-btn');
+  const dailyBtn = $('daily-btn');
+  const helpRankLine = $('help-rank-line');
+  const helpStatsGrid = $('help-stats-grid');
+  const fieldNotesTitle = $('field-notes-title');
+  const fieldNotesList = $('field-notes-list');
 
   const debriefDialog = $('debrief-dialog');
   const debriefCloseBtn = $('debrief-close-btn');
   const debriefSummary = $('debrief-summary');
   const debriefLobesList = $('debrief-lobes-list');
+  const debriefScore = $('debrief-score');
+  const debriefHeatmap = $('debrief-heatmap');
+  const debriefHeatmapNote = $('debrief-heatmap-note');
+  const debriefFieldNote = $('debrief-field-note');
+  const debriefStatsGrid = $('debrief-stats-grid');
   const debriefGridText = $('debrief-grid-text');
   const copyReportBtn = $('copy-report-btn');
   const nextCaseBtn = $('next-case-btn');
 
-  const TICKER_FEED_SUFFIX = '   ///   108 CORTICAL LOBES · 324 PROMPTS · 4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES & WORDS';
+  let TICKER_FEED_SUFFIX = '   ///   4.29B PROCEDURAL SEEDS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES & WORDS';
   function setTelemetry(text) {
     telemetryMsg.textContent = text;
     if (telemetryClone) {
@@ -1622,6 +1784,72 @@
   let calmScreen = false;
   let difficultyOverride = 'auto'; // 'auto' | 'easy' | 'medium' | 'hard'
   let recentLobeIds = [];
+  let savedSeed = 1; // Last free-play seed (a Daily Case never overwrites it)
+  const MAX_BIOPSIES = 3;
+  let biopsiesUsed = 0;
+  const biopsied = new Map(); // word -> [4 probe activations summing to 1]
+  let guessLog = []; // one entry per amputation attempt: the 4 lobe indexes that were clamped
+  const PROBE_LETTERS = ['α', 'β', 'γ', 'δ'];
+  const TIER_ROMAN = ['I', 'II', 'III', 'IV'];
+  const TIER_GLYPHS = ['░', '▒', '▓', '█'];
+  const GRADE_BASE_XP = { easy: 100, medium: 200, hard: 300 };
+  const RANKS = [
+    [0, 'MED STUDENT'],
+    [400, 'INTERN'],
+    [1500, 'RESIDENT'],
+    [4000, 'FELLOW'],
+    [8000, 'ATTENDING'],
+    [15000, 'CHIEF OF NEUROSURGERY'],
+    [30000, 'MAD SCIENTIST'],
+  ];
+  const stats = {
+    played: 0,
+    wins: 0,
+    bestStreak: 0,
+    xp: 0,
+    flawless: 0,
+    notes: 0, // number of declassified field notes
+    dailyStreak: 0,
+    dailyBest: 0,
+    dailyLast: '',
+    dailyDone: {}, // 'YYYY-MM-DD' -> 1 (won) | 0 (flatlined)
+  };
+
+  function rankForXp(xp) {
+    let idx = 0;
+    for (let i = 0; i < RANKS.length; i++) {
+      if (xp >= RANKS[i][0]) idx = i;
+    }
+    const next = RANKS[idx + 1] || null;
+    return { title: RANKS[idx][1], next: next ? next[1] : null, toNext: next ? next[0] - xp : 0 };
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // Daily Case: one shared board per calendar day (always built from the committed logits)
+  // ───────────────────────────────────────────────────────────────────────
+  function localDateStr(d = new Date()) {
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
+  function parseDailyParam(raw) {
+    const today = localDateStr();
+    if (typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return today;
+    const d = new Date(`${raw}T12:00:00`);
+    if (Number.isNaN(d.getTime()) || localDateStr(d) !== raw || raw > today) return today;
+    return raw;
+  }
+
+  function dailyGradeFor(dateStr) {
+    const dow = new Date(`${dateStr}T12:00:00`).getDay();
+    return ['hard', 'easy', 'easy', 'medium', 'medium', 'medium', 'hard'][dow] || 'medium';
+  }
+
+  function dailySeedFor(dateStr) {
+    const h = hashSeedString(`DAILY//${dateStr}`);
+    return h === 1 ? 2 : h;
+  }
 
   const PROCEDURAL_OPERATIONS = [
     'PRE-FRONTAL LOBOTOMY',
@@ -1687,7 +1915,22 @@
       if (!raw) return;
       const data = JSON.parse(raw);
       if (typeof data.streak === 'number') streak = data.streak;
-      if (typeof data.seed === 'number' && data.seed >= 1) currentSeed = data.seed;
+      if (typeof data.seed === 'number' && data.seed >= 1) {
+        currentSeed = data.seed;
+        savedSeed = data.seed;
+      }
+      if (data.stats && typeof data.stats === 'object') {
+        for (const key of ['played', 'wins', 'bestStreak', 'xp', 'flawless', 'notes', 'dailyStreak', 'dailyBest']) {
+          const v = data.stats[key];
+          if (typeof v === 'number' && Number.isFinite(v) && v >= 0) stats[key] = Math.floor(v);
+        }
+        if (typeof data.stats.dailyLast === 'string') stats.dailyLast = data.stats.dailyLast;
+        if (data.stats.dailyDone && typeof data.stats.dailyDone === 'object') {
+          for (const [day, res] of Object.entries(data.stats.dailyDone)) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(day)) stats.dailyDone[day] = res ? 1 : 0;
+          }
+        }
+      }
       if (typeof data.soundEnabled === 'boolean') soundEnabled = data.soundEnabled;
       if (typeof data.calmScreen === 'boolean') calmScreen = data.calmScreen;
       if (typeof data.wardMode === 'boolean') wardMode = data.wardMode;
@@ -1705,8 +1948,9 @@
   function writeSaveState() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        seed: currentSeed,
+        seed: savedSeed,
         streak,
+        stats,
         soundEnabled,
         calmScreen,
         wardMode,
@@ -1738,6 +1982,21 @@
     const res = await fetch(PUZZLES_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status} loading puzzles.json`);
     corpus = await res.json();
+    // Every lobe may share a board with every other lobe; neighbours are listed most-entangled first.
+    if (!corpus.compatibility && corpus.pairCosSim) {
+      corpus.compatibility = {};
+      for (const [cid, row] of Object.entries(corpus.pairCosSim)) {
+        corpus.compatibility[cid] = Object.keys(row);
+      }
+    }
+    const lobeCount = Object.keys(corpus.categories).length;
+    let promptCount = 0;
+    let tokenCount = 0;
+    for (const cat of Object.values(corpus.categories)) {
+      promptCount += (cat.prompts || []).length;
+      tokenCount += (cat.wordPool || []).length;
+    }
+    TICKER_FEED_SUFFIX = `   ///   ${lobeCount} CORTICAL LOBES · ${promptCount} PROMPTS · ${tokenCount} TOKENS · 4.29B PROCEDURAL SEEDS   ///   EVERY BOARD HAS EXACTLY ONE SOLUTION — VERIFIED BY THE MODEL'S OWN LOGITS   ///   SMALLER EMBEDDING DISTANCE (Δ) = MORE SIMILAR PROBES & WORDS`;
     return corpus;
   }
 
@@ -2076,8 +2335,124 @@
     return picked.slice(0, 4);
   }
 
-  // Select 4 words per lobe and compute pairwise word cosine distance strictly against the 16 selected board words
+  // A token "fits" a rival lobe when that lobe's own probe scores it at least as high as the lobe's weakest real member.
+  // Such tokens are the board's red herrings: the model itself would accept them in the wrong group.
+  function findBoardCrossers(chosen) {
+    const floors = chosen.map((list, j) => {
+      let lo = Infinity;
+      for (const w of list) lo = Math.min(lo, w.lobeVals[j]);
+      return lo;
+    });
+    const crossers = [];
+    for (let i = 0; i < chosen.length; i++) {
+      for (const item of chosen[i]) {
+        const alts = [];
+        let excess = -Infinity;
+        for (let j = 0; j < chosen.length; j++) {
+          if (j !== i && item.lobeVals[j] >= floors[j]) {
+            alts.push(j);
+            excess = Math.max(excess, item.lobeVals[j] - floors[j]);
+          }
+        }
+        if (alts.length) crossers.push({ item, from: i, alts, excess });
+      }
+    }
+    return crossers;
+  }
+
+  // Red herrings are welcome, a second valid solution is not. Returns the tokens that would swap lobes in an
+  // alternate 4/4/4/4 partition the model also accepts, or null when the intended split is the only one.
+  function findAlternatePartition(crossers) {
+    if (!crossers.length) return null;
+    if (crossers.length > 9) return crossers.slice();
+    const delta = [0, 0, 0, 0];
+    const moved = [];
+    const dfs = k => {
+      if (k === crossers.length) return moved.length > 0 && delta.every(d => d === 0);
+      if (dfs(k + 1)) return true;
+      const c = crossers[k];
+      for (const j of c.alts) {
+        delta[c.from] -= 1;
+        delta[j] += 1;
+        moved.push(c);
+        if (dfs(k + 1)) return true;
+        moved.pop();
+        delta[c.from] += 1;
+        delta[j] -= 1;
+      }
+      return false;
+    };
+    return dfs(0) ? moved.slice() : null;
+  }
+
+  // Select 4 words per lobe, then evict tokens until the board has exactly one solution under the model's logits
   function selectQuadWordsFromPools(pools, targetGrade, rng, isCanonicalSeed1) {
+    let work = pools;
+    let sel = selectQuadWordsOnce(work, targetGrade, rng, isCanonicalSeed1);
+    sel.ambiguous = false;
+    if (isCanonicalSeed1) return sel;
+    for (let round = 0; round < 12; round++) {
+      const cycle = findAlternatePartition(findBoardCrossers(sel.chosen));
+      if (!cycle) return sel;
+      const bannable = cycle.filter(c => work[c.from].length > 4).sort((a, b) => b.excess - a.excess);
+      if (!bannable.length) break;
+      const victim = bannable[0];
+      work = work.map((items, i) => (i === victim.from ? items.filter(w => w !== victim.item) : items));
+      sel = selectQuadWordsOnce(work, targetGrade, rng, false);
+    }
+    sel.ambiguous = findAlternatePartition(findBoardCrossers(sel.chosen)) !== null;
+    return sel;
+  }
+
+  // Rank the 4 lobes by how cleanly the model separates them (tier I = widest gap … IV = most entangled) and
+  // list every red-herring token that a rival probe scores at least as high as that lobe's weakest member.
+  function analyzeBoard(lobes, wordLogitMap) {
+    const floors = lobes.map((lobe, j) => {
+      let lo = Infinity;
+      for (const we of lobe.words) lo = Math.min(lo, wordLogitMap[j].get(we.word) ?? 0);
+      return lo;
+    });
+    const herrings = [];
+    const gaps = lobes.map((_, j) => {
+      let maxRival = -Infinity;
+      lobes.forEach((other, i) => {
+        if (i === j) return;
+        for (const we of other.words) {
+          const z = wordLogitMap[j].get(we.word) ?? -Infinity;
+          if (z > maxRival) maxRival = z;
+          if (z >= floors[j]) herrings.push({ word: we.word, from: i, to: j, z, floor: floors[j] });
+        }
+      });
+      return floors[j] - maxRival;
+    });
+    const order = [0, 1, 2, 3].sort((a, b) => gaps[b] - gaps[a]);
+    order.forEach((lobeIdx, rank) => {
+      lobes[lobeIdx].tier = rank + 1;
+      lobes[lobeIdx].gap = gaps[lobeIdx];
+    });
+    lobes.forEach((lobe, i) => {
+      lobe.letter = PROBE_LETTERS[i];
+    });
+    herrings.sort((a, b) => (b.z - b.floor) - (a.z - a.floor));
+    return herrings;
+  }
+
+  // Biopsy signature: z-score a token inside each probe's column of 16 board logits (removes the probe's own bias),
+  // then softmax across the 4 probes. A clean token lights one bar; a red herring lights two.
+  function computeTokenSignature(word) {
+    const all = currentCase.tokens.map(t => t.word);
+    const zs = [0, 1, 2, 3].map(k => {
+      const col = all.map(w => currentCase.wordLogitMap[k].get(w) ?? 0);
+      const mean = col.reduce((a, b) => a + b, 0) / col.length;
+      const variance = col.reduce((a, b) => a + (b - mean) * (b - mean), 0) / col.length;
+      const sd = Math.sqrt(variance) || 1;
+      return (((currentCase.wordLogitMap[k].get(word) ?? 0) - mean) / sd) * 1.7;
+    });
+    return Array.from(softmaxArray(zs));
+  }
+
+  // One selection pass: 4 words per lobe + pairwise word cosine distance measured against the 16 selected board words
+  function selectQuadWordsOnce(pools, targetGrade, rng, isCanonicalSeed1) {
     const jitterScale = isCanonicalSeed1 ? 0 : (targetGrade === 'easy' ? 0.045 : 0.085);
     for (const items of pools) {
       for (const item of items) {
@@ -2179,6 +2554,7 @@
           tokenStr: we.tokenStr,
           poolRank,
           ownLogit: ownL,
+          lobeVals,
           margin: ownL - maxOther,
           wordVec: buildWordEmbeddingVec(we.word, lobeVals, quadIds),
           wordCosDist: 0.75,
@@ -2292,6 +2668,7 @@
         const candPools = buildWardPoolsForQuad(picked);
         const candRng = mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0);
         const candWords = selectQuadWordsFromPools(candPools, targetGrade, candRng, false);
+        if (candWords.ambiguous) continue;
         combinedCandDist = Math.max(0.12, Math.min(0.98, cDist * 0.65 + candWords.avgWordCosDist * 0.35));
       }
 
@@ -2353,15 +2730,18 @@
     return fallbackSeed;
   }
 
-  async function buildCaseFromSeed(seedNum, forceWard = false) {
+  async function buildCaseFromSeed(seedNum, forceWard = false, opts = {}) {
     const myGen = ++buildGeneration;
     const uSeed = (seedNum >>> 0) || 1;
+    const dailyDate = typeof opts.daily === 'string' ? opts.daily : null;
+    if (dailyDate) forceWard = true; // identical board for every surgeon, on every device
     currentSeed = uSeed;
+    if (!dailyDate) savedSeed = uSeed;
     writeSaveState();
     await loadCorpusOnce();
     if (myGen !== buildGeneration) return false;
 
-    const targetGrade = resolveTargetGrade(uSeed);
+    const targetGrade = normalizeGrade(opts.grade) !== 'auto' ? normalizeGrade(opts.grade) : resolveTargetGrade(uSeed);
     const quadInfo = selectDeterministicQuad(uSeed, targetGrade);
     let { catIds, probeCosDist } = quadInfo;
     const { rng, basePuzzle, isCanonicalSeed1 } = quadInfo;
@@ -2436,6 +2816,7 @@
               tokenStr: we.tokenStr,
               poolRank,
               ownLogit: ownL,
+              lobeVals,
               margin: ownL - maxOther,
               wordVec: buildWordEmbeddingVec(we.word, lobeVals, catIds),
               wordCosDist: 0.75,
@@ -2576,6 +2957,7 @@
     currentSeed = uSeed;
     recordRecentLobes(catIds);
     writeSaveState();
+    const herrings = analyzeBoard(lobes, wordLogitMap);
 
     const caseNumStr = uSeed === 1 ? '001' : String(((uSeed - 1) % 999) + 1).padStart(3, '0');
     const opName = uSeed === 1
@@ -2588,22 +2970,36 @@
       grade: finalGrade,
       requestedGrade: targetGrade,
       cosDist: boardCosDist,
-      title: `CASE #${caseNumStr} // ${opName}`,
+      title: dailyDate ? `DAILY ${dailyDate} // ${opName}` : `CASE #${caseNumStr} // ${opName}`,
       symptom: basePuzzle.symptom,
+      daily: dailyDate,
       lobes,
       tokens,
       wordLogitMap,
+      herrings,
     };
 
+    resetRoundState();
+    updateModeIndicator();
+    renderFullSurgicalBoard();
+    if (dailyDate) {
+      const already = Object.prototype.hasOwnProperty.call(stats.dailyDone, dailyDate);
+      setTelemetry(already
+        ? `📅 DAILY CASE ${dailyDate} ALREADY FILED — THIS REPLAY IS OFF THE RECORD`
+        : `📅 DAILY CASE ${dailyDate} — ${formatGradeBadge(finalGrade)} — SAME BOARD FOR EVERY SURGEON ON EARTH. ONE SHOT.`);
+    }
+    return true;
+  }
+
+  function resetRoundState() {
     activeProbeIdx = 0;
     selectedWords.clear();
     previousGuesses.clear();
     solvedLobeIds = [];
     mistakesMade = 0;
-
-    updateModeIndicator();
-    renderFullSurgicalBoard();
-    return true;
+    biopsiesUsed = 0;
+    biopsied.clear();
+    guessLog = [];
   }
 
   // ───────────────────────────────────────────────────────────────────────
@@ -2622,7 +3018,9 @@
       symSpan.textContent = ` // ${parts[1].trim()}`;
       caseTitleEl.appendChild(symSpan);
     }
-    seedBtn.textContent = `SEED: #${String(currentCase.seed).padStart(4, '0')}`;
+    seedBtn.textContent = currentCase.daily
+      ? `📅 ${currentCase.daily}`
+      : `SEED: #${String(currentCase.seed).padStart(4, '0')}`;
     const curGrade = normalizeGrade(currentCase.grade || 'easy');
     if (gradeBtn) {
       gradeBtn.textContent = formatGradeBadge(curGrade, currentCase.cosDist);
@@ -2691,12 +3089,21 @@
       const card = document.createElement('div');
       card.className = 'solved-lobe';
       card.dataset.lobeId = lobe.id;
+      if (lobe.tier) card.dataset.tier = String(lobe.tier);
 
       const head = document.createElement('div');
       head.className = 'solved-head';
       const title = document.createElement('span');
       title.className = 'solved-title';
-      title.textContent = `🩸 ${lobe.label}`;
+      if (lobe.tier) {
+        const tag = document.createElement('span');
+        tag.className = 'tier-tag';
+        tag.textContent = `${lobe.letter}·${TIER_ROMAN[lobe.tier - 1]}`;
+        tag.title = `Probe ${lobe.letter} — entanglement tier ${TIER_ROMAN[lobe.tier - 1]} of IV (logit gap to the nearest rival token: ${lobe.gap >= 0 ? '+' : ''}${lobe.gap.toFixed(1)})`;
+        title.append(tag, `🩸 ${lobe.label}`);
+      } else {
+        title.textContent = `🩸 ${lobe.label}`;
+      }
       const promptEl = document.createElement('span');
       promptEl.className = 'solved-prompt';
       promptEl.textContent = `"${lobe.prompt}"`;
@@ -2740,7 +3147,8 @@
 
       const tile = document.createElement('button');
       tile.type = 'button';
-      tile.className = `token-tile${isSelected ? ' selected' : ''}`;
+      const sig = biopsied.get(tok.word) || null;
+      tile.className = `token-tile${isSelected ? ' selected' : ''}${sig ? ' biopsied' : ''}`;
       tile.dataset.word = tok.word;
       tile.dataset.lobeId = tok.lobeId;
       tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
@@ -2761,7 +3169,7 @@
       botMeta.className = 'token-bottom-meta';
       const clampBadge = document.createElement('span');
       clampBadge.className = 'token-clamp-badge token-prob-val';
-      clampBadge.textContent = isSelected ? `🩸 CLAMP #0${clampOrder}` : 'UNCLAMPED';
+      clampBadge.textContent = isSelected ? `🩸 CLAMP #0${clampOrder}` : (sig ? 'BIOPSIED' : 'UNCLAMPED');
 
       const svgNS = 'http://www.w3.org/2000/svg';
       const ekgSvg = document.createElementNS(svgNS, 'svg');
@@ -2777,7 +3185,26 @@
       );
       ekgSvg.appendChild(path);
 
-      botMeta.append(clampBadge, ekgSvg);
+      if (sig) {
+        // Biopsied tokens trade the EKG trace for their 4-probe activation signature (α β γ δ, left to right)
+        const sigEl = document.createElement('span');
+        sigEl.className = 'token-sig';
+        sig.forEach((p, k) => {
+          const bar = document.createElement('i');
+          bar.style.height = `${Math.max(1, Math.round(p * 10))}px`;
+          const probeLobe = currentCase.lobes[k];
+          if (probeLobe && probeLobe.tier && solvedLobeIds.includes(probeLobe.id)) {
+            bar.dataset.tier = String(probeLobe.tier);
+          }
+          sigEl.appendChild(bar);
+        });
+        const sigText = sig.map((p, k) => `${PROBE_LETTERS[k]} ${(p * 100).toFixed(0)}%`).join(' · ');
+        tile.title = `Biopsy of ${tok.word.toUpperCase()}: ${sigText}`;
+        tile.setAttribute('aria-label', `${tok.word}, biopsy ${sigText}`);
+        botMeta.append(clampBadge, sigEl);
+      } else {
+        botMeta.append(clampBadge, ekgSvg);
+      }
       tile.append(topMeta, wordEl, botMeta);
 
       tile.addEventListener('click', e => {
@@ -2805,15 +3232,27 @@
     updateActionButtons();
   }
 
+  // Action labels keep their emoji in a span so narrow phones can drop the icon instead of overflowing
+  function setActionLabel(btn, icon, text) {
+    const ico = document.createElement('span');
+    ico.className = 'btn-ico';
+    ico.setAttribute('aria-hidden', 'true');
+    ico.textContent = `${icon} `;
+    btn.replaceChildren(ico, text);
+  }
+
   function updateActionButtons() {
     const count = selectedWords.size;
     clearBtn.disabled = count === 0;
+    const caseOver = !currentCase || solvedLobeIds.length >= 4;
+    setActionLabel(biopsyBtn, '💉', `BIOPSY ${MAX_BIOPSIES - biopsiesUsed}`);
+    biopsyBtn.disabled = caseOver || biopsiesUsed >= MAX_BIOPSIES;
     if (count === 4 && previousGuesses.has(getSelectionKey(selectedWords))) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'ALREADY TRIED';
     } else {
       submitBtn.disabled = count !== 4;
-      submitBtn.textContent = `🩸 AMPUTATE (${count}/4)`;
+      setActionLabel(submitBtn, '🩸', `AMPUTATE (${count}/4)`);
     }
   }
 
@@ -2836,6 +3275,8 @@
     for (const t of pickedTokens) {
       countsByLobe.set(t.lobeId, (countsByLobe.get(t.lobeId) || 0) + 1);
     }
+
+    guessLog.push(pickedTokens.map(t => t.lobeIdx));
 
     let maxMatch = 0;
     let matchedLobeId = null;
@@ -2860,7 +3301,9 @@
       if (solvedIdx >= 0) activeProbeIdx = solvedIdx;
 
       const solvedLobe = currentCase.lobes.find(l => l.id === matchedLobeId);
-      setTelemetry(`DECLASSIFIED LOBE: ${solvedLobe.label} — "${solvedLobe.prompt}"`);
+      if (solvedLobeIds.length === 1) currentCase.firstSolvedTier = solvedLobe.tier || 0;
+      const tierNote = solvedLobe.tier ? ` [PROBE ${solvedLobe.letter} · TIER ${TIER_ROMAN[solvedLobe.tier - 1]}]` : '';
+      setTelemetry(`DECLASSIFIED LOBE: ${solvedLobe.label}${tierNote} — "${solvedLobe.prompt}"`);
 
       renderProbes();
       renderClampTray();
@@ -2869,9 +3312,7 @@
       updateActionButtons();
 
       if (solvedLobeIds.length === 4) {
-        streak += 1;
-        writeSaveState();
-        applyPreferencesUI();
+        finalizeCase(true);
         setTimeout(() => showDebriefModal(true), 550);
       }
     } else {
@@ -2894,9 +3335,7 @@
 
       if (mistakesMade >= MAX_MISTAKES) {
         // Reveal remaining lobes and show flatline report
-        streak = 0;
-        writeSaveState();
-        applyPreferencesUI();
+        finalizeCase(false);
         for (const l of currentCase.lobes) {
           if (!solvedLobeIds.includes(l.id)) solvedLobeIds.push(l.id);
         }
@@ -2912,45 +3351,84 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Hint (Dose Cortical Hint) & Shuffle
+  // Biopsy (read one token's activation across the 4 hidden probes), Scoring & Shuffle
   // ───────────────────────────────────────────────────────────────────────
-  function stimulateHint() {
-    if (!currentCase) return;
-    const unsolvedLobes = currentCase.lobes
-      .map((l, idx) => ({ lobe: l, idx }))
-      .filter(entry => !solvedLobeIds.includes(entry.lobe.id));
-    if (unsolvedLobes.length === 0) return;
-
-    let targetEntry = unsolvedLobes[0];
-    for (const entry of unsolvedLobes) {
-      if (entry.lobe.words.some(we => selectedWords.has(we.word))) {
-        targetEntry = entry;
-        break;
-      }
+  function biopsySelectedToken() {
+    if (!currentCase || solvedLobeIds.length >= 4) return;
+    if (biopsiesUsed >= MAX_BIOPSIES) {
+      setTelemetry('💉 NO BIOPSY NEEDLES LEFT FOR THIS PATIENT.');
+      return;
     }
-
-    const targetProbe = targetEntry.lobe;
-    const activeMap = currentCase.wordLogitMap[targetEntry.idx];
-    const candidates = targetProbe.words
-      .filter(we => !selectedWords.has(we.word))
-      .sort((a, b) => (activeMap.get(b.word) ?? 0) - (activeMap.get(a.word) ?? 0));
-
-    if (candidates.length === 0) return;
-    if (selectedWords.size >= 4) {
-      for (const sw of Array.from(selectedWords)) {
-        if (!targetProbe.words.some(w => w.word === sw)) {
-          selectedWords.delete(sw);
-          break;
-        }
-      }
+    const target = Array.from(selectedWords).reverse().find(w => !biopsied.has(w));
+    if (!target) {
+      setTelemetry(selectedWords.size
+        ? '💉 THAT TOKEN IS ALREADY BIOPSIED — CLAMP A DIFFERENT ONE FIRST.'
+        : '💉 CLAMP A TOKEN FIRST, THEN BIOPSY IT TO SEE HOW HARD EACH HIDDEN PROBE α β γ δ FIRES FOR IT.');
+      return;
     }
-    const bestWord = candidates[0].word;
-    selectedWords.add(bestWord);
+    const sig = computeTokenSignature(target);
+    biopsied.set(target, sig);
+    biopsiesUsed += 1;
     playSound('probe');
-    setTelemetry(`💉 CORTICAL HINT: CLAMPED SYNAPSE "${bestWord.toUpperCase()}".`);
-    renderClampTray();
+    let top = 0;
+    for (let k = 1; k < sig.length; k++) {
+      if (sig[k] > sig[top]) top = k;
+    }
+    const readout = sig.map((pr, k) => `${PROBE_LETTERS[k]} ${(pr * 100).toFixed(0)}%`).join(' · ');
+    setTelemetry(`🔬 BIOPSY "${target.toUpperCase()}": ${readout} — PROBE ${PROBE_LETTERS[top]} FIRES HARDEST. TOKENS WITH MATCHING SIGNATURES SHARE A LOBE.`);
     renderTokenGrid();
     updateActionButtons();
+  }
+
+  // Book the finished case exactly once: XP, streaks, daily record and the next declassified field note
+  function finalizeCase(won) {
+    const c = currentCase;
+    if (!c || c.scored) return;
+    c.scored = true;
+    c.won = won;
+    const grade = normalizeGrade(c.grade || 'easy');
+    const chargesLeft = MAX_MISTAKES - mistakesMade;
+    const tierBonus = won && c.firstSolvedTier === 4 ? 50 : 0;
+    c.score = won
+      ? Math.max(10, (GRADE_BASE_XP[grade] || 100) + 50 * chargesLeft - 25 * biopsiesUsed + tierBonus)
+      : 0;
+    c.tierBonus = tierBonus;
+    c.offRecord = Boolean(c.daily && Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily));
+    if (c.offRecord) {
+      c.noteIdx = stats.played % FIELD_NOTES.length;
+      return;
+    }
+    stats.played += 1;
+    if (won) {
+      stats.wins += 1;
+      stats.xp += c.score;
+      streak += 1;
+      if (mistakesMade === 0 && biopsiesUsed === 0) stats.flawless += 1;
+    } else {
+      streak = 0;
+    }
+    stats.bestStreak = Math.max(stats.bestStreak, streak);
+    if (stats.notes < FIELD_NOTES.length) {
+      c.noteIdx = stats.notes;
+      c.noteIsNew = true;
+      stats.notes += 1;
+    } else {
+      c.noteIdx = stats.played % FIELD_NOTES.length;
+    }
+    if (c.daily) {
+      stats.dailyDone[c.daily] = won ? 1 : 0;
+      const days = Object.keys(stats.dailyDone).sort();
+      while (days.length > 60) delete stats.dailyDone[days.shift()];
+      if (c.daily === localDateStr()) {
+        const y = new Date();
+        y.setDate(y.getDate() - 1);
+        stats.dailyStreak = won ? (stats.dailyLast === localDateStr(y) ? stats.dailyStreak + 1 : 1) : 0;
+        stats.dailyBest = Math.max(stats.dailyBest, stats.dailyStreak);
+        stats.dailyLast = c.daily;
+      }
+    }
+    writeSaveState();
+    applyPreferencesUI();
   }
 
   function shuffleTokens() {
@@ -2964,6 +3442,185 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────
+  // Field Notes: a 20-step LLM curriculum, illustrated with live numbers from the patient on the table
+  // ───────────────────────────────────────────────────────────────────────
+  const CANNED_EXAMPLE = {
+    prompt: 'the best ice cream flavor is [MASK].',
+    word: 'VANILLA',
+    tokenId: 23704,
+    tokenStr: '▁vanilla',
+    z: 8.8,
+    word2: 'MINT',
+    z2: 7.4,
+    rivalLetter: 'β',
+    rivalZ: 0.2,
+    delta: 0.86,
+    herring: null,
+  };
+  const fmtZ = z => `${z >= 0 ? '+' : ''}${z.toFixed(1)}`;
+
+  // Only quote lobes the player has already declassified, so opening the manual mid-surgery never spoils a probe
+  function lessonExample() {
+    const c = currentCase;
+    if (!c) return CANNED_EXAMPLE;
+    let idx = solvedLobeIds.includes(c.lobes[activeProbeIdx]?.id) ? activeProbeIdx : -1;
+    if (idx < 0) idx = c.lobes.findIndex(l => solvedLobeIds.includes(l.id));
+    if (idx < 0) return CANNED_EXAMPLE;
+    const lobe = c.lobes[idx];
+    const ranked = lobe.words
+      .map(we => ({ we, z: c.wordLogitMap[idx].get(we.word) ?? 0 }))
+      .sort((a, b) => b.z - a.z);
+    const top = ranked[0];
+    const low = ranked[ranked.length - 1];
+    const rival = (idx + 1) % 4;
+    const h = (c.herrings || []).find(x => solvedLobeIds.includes(c.lobes[x.from].id) && solvedLobeIds.includes(c.lobes[x.to].id));
+    return {
+      prompt: lobe.prompt,
+      word: top.we.word.toUpperCase(),
+      tokenId: top.we.tokenId,
+      tokenStr: top.we.tokenStr || `▁${top.we.word}`,
+      z: top.z,
+      word2: low.we.word.toUpperCase(),
+      z2: low.z,
+      rivalLetter: PROBE_LETTERS[rival],
+      rivalZ: c.wordLogitMap[rival].get(top.we.word) ?? 0,
+      delta: typeof c.cosDist === 'number' ? c.cosDist : 0.75,
+      herring: h
+        ? { word: h.word.toUpperCase(), fromLabel: c.lobes[h.from].label, toLetter: PROBE_LETTERS[h.to], toLabel: c.lobes[h.to].label, z: h.z, floor: h.floor }
+        : null,
+    };
+  }
+
+  const FIELD_NOTES = [
+    ['TOKENS', e => `The model never sees letters. "${e.word}" reaches it as the integer #${e.tokenId} — one row in a 30,000-piece vocabulary (spelled "${e.tokenStr}", where ▁ marks the start of a word). Rarer words get chopped into several pieces, which is why every word on this table was chosen to be exactly one token.`],
+    ['MASKED LANGUAGE MODELING', e => `ALBERT learned language by playing one game billions of times: hide a word, then guess it from the rest of the sentence. Every lobe is that game replayed — "${e.prompt}" — and the tokens you amputate are guesses it rated highly. Chatbots play a sibling game: guess the NEXT token, over and over.`],
+    ['LOGITS', e => `For a single [MASK] the model emits a raw score — a logit — for all 30,000 tokens at once. On "${e.prompt}" it gave ${e.word} z=${fmtZ(e.z)} and ${e.word2} z=${fmtZ(e.z2)}. Logits have no units and can be negative; only the gaps between them matter.`],
+    ['SOFTMAX', e => `Softmax turns logits into probabilities: p = e^z ÷ (the sum of e^z over every token). Each +1 of logit multiplies the odds by e ≈ 2.72, so ${e.word} (z=${fmtZ(e.z)}) is about ${Math.exp(e.z - e.z2).toFixed(1)}× as likely as ${e.word2} (z=${fmtZ(e.z2)}) on that probe. Small gaps, big consequences.`],
+    ['CONTEXT IS EVERYTHING', e => `The same token gets a new score in every sentence. ${e.word} scored z=${fmtZ(e.z)} on its own probe but z=${fmtZ(e.rivalZ)} on probe ${e.rivalLetter}. Nothing about the token changed — only its neighbours did. That shift is exactly what a BIOPSY measures.`],
+    ['POLYSEMY & RED HERRINGS', e => (e.herring
+      ? `"${e.herring.word}" belongs to ${e.herring.fromLabel}, yet probe ${e.herring.toLetter} (${e.herring.toLabel}) scored it z=${fmtZ(e.herring.z)} — at least as high as that lobe's weakest true member (z=${fmtZ(e.herring.floor)}). The model holds every sense of a word at once until context picks one. That is polysemy, and it is where red herrings come from.`
+      : `Words like BASS, CROWN or MERCURY carry several senses. The model holds them all at once until context picks one, so such tokens score well on two probes at the same time. On HARD boards those are the red herrings — the model is exactly as torn as you are.`)],
+    ['ATTENTION', () => `How does it know which sense you mean? Attention: in each of its 12 layers, every token looks at every other token and pulls in whatever is relevant. [MASK] starts out blank and ends up as a summary of the whole sentence — and the 30,000 logits are read off that summary.`],
+    ['EMBEDDINGS', e => `Before any thinking happens, token #${e.tokenId} is swapped for a list of 128 numbers — its embedding. Training nudges those numbers until tokens used in similar ways point in similar directions. To a language model, meaning is geometry.`],
+    ['COSINE DISTANCE (Δ)', e => `The Δ on your difficulty badge is cosine distance: 0 means two vectors point the same way, 1 means unrelated. This board measured Δ${e.delta.toFixed(2)}. HARD boards are built from probes and tokens whose vectors nearly overlap — neighbours in meaning-space are the hardest to cut apart.`],
+    ['PARAMETERS', () => `This patient has 11.8 million parameters — adjustable numbers set during training. ALBERT's trick is reusing one layer's weights 12 times over. Frontier chatbots carry hundreds of billions of parameters, but they run the same arithmetic you are dissecting here.`],
+    ['PRE-TRAINING VS. POST-TRAINING', () => `Training ended long before you scrubbed in. Nothing you do here changes a single weight: this is inference — the frozen, post-training life of a model. Every forward pass pushes numbers through the same fixed network. The model does not learn from you; you learn from it.`],
+    ['QUANTIZATION', () => `The original weights are 32-bit floats. These were squeezed to 16 bits ("fp16"), halving the download to about 22 MB with almost no change in its answers. Quantization like this is how big models get small enough for laptops and phones.`],
+    ['ON-DEVICE INFERENCE', () => `In LIVE mode every forward pass runs inside this browser tab through WebAssembly. No server, no API key, nothing leaves your device. Small language models (SLMs) trade raw power for privacy, speed and zero cost per query.`],
+    ['PROMPT SENSITIVITY', () => `Reword a sentence and the whole distribution shifts. LIVE mode picks one of three phrasings per lobe, and the logits move with it. That fragility is why "prompt engineering" exists. Open the Lobotomy Lab, change one word, re-probe, and watch the ranking reshuffle.`],
+    ['FREQUENCY BIAS', () => `Models favour tokens they met often in training. A common word can outscore a rarer one that fits better, purely on familiarity. That is why a biopsy z-scores each token against the rest of the board first: it subtracts each probe's baseline enthusiasm.`],
+    ['GRAMMAR IS LEARNED, NOT TAUGHT', () => `Nobody handed this model a grammar book. Yet it files MIGHT with SHOULD, BENEATH with BEHIND and TALLER with FASTER, because those tokens fill the same slots in billions of sentences. Syntax falls out of statistics — watch for the grammar lobes.`],
+    ['SAMPLING & TEMPERATURE', () => `This game reads the model's full ranking. A chatbot instead samples ONE token from the softmax, appends it, and repeats. "Temperature" rescales the logits first: low makes it predictable, high makes it adventurous. Same model, different dice.`],
+    ['HALLUCINATION', () => `The model cannot say "I don't know." Softmax always sums to 100%, so even a nonsense sentence gets a confident-looking answer. Type gibberish into the Lobotomy Lab and see. Fluent, confident and wrong: a hallucination in miniature.`],
+    ['MODELS GRADING MODELS', () => `How do you check a puzzle that a machine wrote? With the same machine. Before a board is dealt, the game searches for any second way to split the 16 tokens that the logits would also accept, and evicts tokens until only one solution survives. Using models to evaluate model output is now standard practice in AI.`],
+    ['THE SAME RECIPE, 10,000× BIGGER', () => `Tokens, embeddings, attention, logits, softmax: that is the complete recipe for a modern LLM. Frontier models differ in scale (roughly 10,000× the parameters), in training data, and in reading strictly left to right. You have now performed surgery on the real thing.`],
+  ];
+
+  function renderStatsGrid(el) {
+    if (!el) return;
+    el.replaceChildren();
+    const winPct = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
+    const cells = [
+      [stats.played, 'CASES'],
+      [`${winPct}%`, 'SURVIVAL'],
+      [streak, 'STREAK'],
+      [stats.bestStreak, 'BEST STREAK'],
+      [stats.xp, 'XP'],
+      [stats.flawless, 'FLAWLESS'],
+      [stats.dailyStreak, 'DAILY STREAK'],
+      [`${stats.notes}/${FIELD_NOTES.length}`, 'FIELD NOTES'],
+    ];
+    for (const [val, label] of cells) {
+      const cell = document.createElement('div');
+      const b = document.createElement('b');
+      b.textContent = String(val);
+      const sp = document.createElement('span');
+      sp.textContent = label;
+      cell.append(b, sp);
+      el.appendChild(cell);
+    }
+  }
+
+  function rankLineText() {
+    const r = rankForXp(stats.xp);
+    return r.next
+      ? `RANK: ${r.title} — ${r.toNext} XP TO ${r.next}`
+      : `RANK: ${r.title} — TOP OF THE SURGICAL ROSTER`;
+  }
+
+  function renderFieldNotesList() {
+    if (!fieldNotesList) return;
+    fieldNotesList.replaceChildren();
+    fieldNotesTitle.textContent = `📓 FIELD NOTES // HOW LANGUAGE MODELS WORK (${stats.notes}/${FIELD_NOTES.length} DECLASSIFIED):`;
+    const ex = lessonExample();
+    FIELD_NOTES.forEach(([title, body], i) => {
+      if (i < stats.notes) {
+        const det = document.createElement('details');
+        const sum = document.createElement('summary');
+        sum.textContent = `${String(i + 1).padStart(2, '0')} — ${title}`;
+        const txt = document.createElement('div');
+        txt.textContent = body(ex);
+        det.append(sum, txt);
+        fieldNotesList.appendChild(det);
+      } else if (i === stats.notes) {
+        const locked = document.createElement('div');
+        locked.className = 'locked';
+        locked.textContent = `🔒 ${String(i + 1).padStart(2, '0')} — CLASSIFIED. FINISH A CASE TO DECLASSIFY (${FIELD_NOTES.length - stats.notes} REMAINING).`;
+        fieldNotesList.appendChild(locked);
+      }
+    });
+  }
+
+  function renderDebriefHeatmap() {
+    debriefHeatmap.replaceChildren();
+    const c = currentCase;
+    const corner = document.createElement('div');
+    corner.className = 'hm-head';
+    corner.textContent = 'TOKEN';
+    debriefHeatmap.appendChild(corner);
+    c.lobes.forEach((lobe, k) => {
+      const head = document.createElement('div');
+      head.className = 'hm-head';
+      head.textContent = `${PROBE_LETTERS[k]}·${TIER_ROMAN[(lobe.tier || 1) - 1]}`;
+      head.title = `${lobe.label} — "${lobe.prompt}"`;
+      debriefHeatmap.appendChild(head);
+    });
+    const allWords = c.lobes.flatMap(l => l.words.map(we => we.word));
+    const colRange = [0, 1, 2, 3].map(k => {
+      const col = allWords.map(w => c.wordLogitMap[k].get(w) ?? 0);
+      return [Math.min(...col), Math.max(...col)];
+    });
+    const decoys = new Set((c.herrings || []).map(h => `${h.word}|${h.to}`));
+    c.lobes.forEach((lobe, i) => {
+      for (const we of lobe.words) {
+        const wCell = document.createElement('div');
+        wCell.className = 'hm-word';
+        wCell.dataset.tier = String(lobe.tier || 1);
+        wCell.textContent = we.word;
+        debriefHeatmap.appendChild(wCell);
+        for (let k = 0; k < 4; k++) {
+          const z = c.wordLogitMap[k].get(we.word) ?? 0;
+          const [lo, hi] = colRange[k];
+          const cell = document.createElement('div');
+          cell.className = `hm-cell${k === i ? ' own' : ''}${decoys.has(`${we.word}|${k}`) ? ' decoy' : ''}`;
+          cell.style.setProperty('--heat', (hi > lo ? (z - lo) / (hi - lo) : 0).toFixed(3));
+          cell.textContent = fmtZ(z);
+          debriefHeatmap.appendChild(cell);
+        }
+      }
+    });
+    const hs = c.herrings || [];
+    const base = 'Each column is one sentence probe; each number is the raw logit the model gave that token in the [MASK] slot. Solid outline = the token\'s true lobe.';
+    if (hs.length) {
+      const h = hs[0];
+      const more = hs.length > 1 ? ` (+${hs.length - 1} more)` : '';
+      debriefHeatmapNote.textContent = `${base} Dashed pink = red herring: "${h.word.toUpperCase()}" (${c.lobes[h.from].label}) scored z=${fmtZ(h.z)} on probe ${PROBE_LETTERS[h.to]}, as high as a real ${c.lobes[h.to].label} member (weakest: ${fmtZ(h.floor)})${more}. The model was torn too — but only one full 4×4 split fits every probe.`;
+    } else {
+      debriefHeatmapNote.textContent = `${base} No red herrings on this table: no token scored high enough on a rival probe to pass as one of its members.`;
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
   // Post-Op Autopsy Report Modal (Clinical Debrief — No Colored Emoji Squares)
   // ───────────────────────────────────────────────────────────────────────
   function showDebriefModal(won) {
@@ -2971,6 +3628,30 @@
       ? `SURGERY SUCCESSFUL // PATIENT SURVIVED (${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB LEFT · STREAK ${streak})`
       : `PATIENT FLATLINED // CRANIAL HEMORRHAGE`;
     debriefSummary.textContent = headerLine;
+    const c = currentCase;
+    if (debriefScore && c) {
+      const bits = [];
+      if (won) {
+        const g = normalizeGrade(c.grade || 'easy');
+        bits.push(`+${c.score ?? 0} XP`);
+        bits.push(`${g.toUpperCase()} BASE ${GRADE_BASE_XP[g]} · +${50 * (MAX_MISTAKES - mistakesMade)} DEFIB · −${25 * biopsiesUsed} BIOPSY${c.tierBonus ? ' · +50 TIER IV SEVERED FIRST' : ''}`);
+      } else {
+        bits.push('+0 XP');
+      }
+      if (c.offRecord) bits.push('OFF THE RECORD (DAILY ALREADY FILED)');
+      bits.push(rankLineText());
+      debriefScore.textContent = bits.join(' // ');
+    }
+    if (c) {
+      renderDebriefHeatmap();
+      const noteIdx = typeof c.noteIdx === 'number' ? c.noteIdx : 0;
+      const [noteTitle, noteBody] = FIELD_NOTES[noteIdx % FIELD_NOTES.length];
+      debriefFieldNote.replaceChildren();
+      const noteHead = document.createElement('strong');
+      noteHead.textContent = `📓 FIELD NOTE ${String(noteIdx + 1).padStart(2, '0')}/${FIELD_NOTES.length}${c.noteIsNew ? ' — DECLASSIFIED' : ' — REVIEW'}: ${noteTitle}`;
+      debriefFieldNote.append(noteHead, noteBody(lessonExample()));
+      renderStatsGrid(debriefStatsGrid);
+    }
 
     if (debriefLobesList && currentCase) {
       debriefLobesList.replaceChildren();
@@ -2982,7 +3663,7 @@
         const topLine = document.createElement('div');
         topLine.style.color = 'var(--amber)';
         topLine.style.fontWeight = '900';
-        topLine.textContent = `🩸 ${lobe.label} — "${lobe.prompt}"`;
+        topLine.textContent = `${lobe.tier ? `[${lobe.letter}·${TIER_ROMAN[lobe.tier - 1]}] ` : ''}🩸 ${lobe.label} — "${lobe.prompt}"`;
         const wordsLine = document.createElement('div');
         wordsLine.style.color = 'var(--bone)';
         wordsLine.style.marginTop = '0.18rem';
@@ -2999,14 +3680,24 @@
     const activeGrade = normalizeGrade(currentCase?.grade || 'easy');
     const replayGrade = normalizeGrade(currentCase?.requestedGrade || activeGrade);
     const gradeTag = formatGradeBadge(activeGrade, currentCase?.cosDist);
-    const shareUrl = isWardCase
+    let shareUrl = isWardCase
       ? `https://post-training.win/?seed=${currentCase.seed}&grade=${replayGrade}&mode=ward`
       : `https://post-training.win/?seed=${currentCase.seed}&grade=${replayGrade}`;
+    if (currentCase.daily) shareUrl = `https://post-training.win/?daily=${currentCase.daily}&mode=ward`;
+    const caseTag = currentCase.daily
+      ? `DAILY ${currentCase.daily}`
+      : `SEED #${String(currentCase.seed).padStart(4, '0')}`;
+    // One row per amputation attempt; each glyph is the entanglement tier (░ I → █ IV) of a clamped token's true lobe
+    const guessRows = guessLog.map(row =>
+      row.map(li => TIER_GLYPHS[(currentCase.lobes[li]?.tier || 1) - 1]).join('')
+    );
     const reportText = [
-      `POST-TRAINING 🩸 SEED #${String(currentCase.seed).padStart(4, '0')} [${modeTag} · ${gradeTag}]`,
+      `POST-TRAINING 🩸 ${caseTag} [${modeTag} · ${gradeTag}]`,
+      ...guessRows,
       won
         ? `STATUS: LOBOTOMIZED · 4/4 CORTICAL LOBES SEVERED · ${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB INTACT · STREAK ${streak}`
         : `STATUS: FLATLINED · CRANIAL HEMORRHAGE`,
+      `${won ? `+${currentCase.score ?? 0} XP · ` : ''}${biopsiesUsed} BIOPS${biopsiesUsed === 1 ? 'Y' : 'IES'} · ░▒▓█ = TIER I→IV`,
       shareUrl,
     ].join('\n');
 
@@ -3194,17 +3885,15 @@
       cosDist: customBoardDist,
       title: `CUSTOM VIVISECTION // LIVE 30K-VOCAB SYNTHESIS`,
       symptom: 'USER-AUTHORED SENTENCE PROBES',
+      daily: null,
       lobes,
       tokens,
       wordLogitMap,
+      herrings: analyzeBoard(lobes, wordLogitMap),
     };
 
     wardMode = false;
-    activeProbeIdx = 0;
-    selectedWords.clear();
-    previousGuesses.clear();
-    solvedLobeIds = [];
-    mistakesMade = 0;
+    resetRoundState();
     writeSaveState();
 
     const ms = Math.round(performance.now() - t0);
@@ -3247,7 +3936,7 @@
   // Event Listeners & Keyboard Shortcuts
   // ───────────────────────────────────────────────────────────────────────
   shuffleBtn.addEventListener('click', shuffleTokens);
-  hintBtn.addEventListener('click', stimulateHint);
+  biopsyBtn.addEventListener('click', biopsySelectedToken);
   clearBtn.addEventListener('click', () => {
     selectedWords.clear();
     playSound('tap');
@@ -3301,7 +3990,15 @@
     });
   });
 
+  function startDailyCase(dateStr = localDateStr()) {
+    return buildCaseFromSeed(dailySeedFor(dateStr), true, { daily: dateStr, grade: dailyGradeFor(dateStr) });
+  }
+
   modeBtn.addEventListener('click', async () => {
+    if (currentCase && currentCase.daily) {
+      setTelemetry('📅 DAILY CASES ALWAYS USE THE COMMITTED PRE-DISSECTED LOGITS, SO EVERY SURGEON GETS THE IDENTICAL BOARD. ROLL A NEW CASE (N) FOR LIVE SLM SURGERY.');
+      return;
+    }
     if (wardMode) {
       wardMode = false;
       writeSaveState();
@@ -3329,6 +4026,10 @@
     errorBanner.classList.remove('visible');
     wardMode = false;
     await initModel();
+    if (currentCase && currentCase.daily) {
+      updateModeIndicator();
+      return;
+    }
     await buildCaseFromSeed(currentSeed);
   });
 
@@ -3377,11 +4078,24 @@
 
   function openHelp() {
     seedInput.value = String(currentSeed);
+    helpRankLine.textContent = rankLineText();
+    renderStatsGrid(helpStatsGrid);
+    renderFieldNotesList();
+    const today = localDateStr();
+    dailyBtn.textContent = Object.prototype.hasOwnProperty.call(stats.dailyDone, today)
+      ? `📅 DAILY ${today} FILED (${stats.dailyDone[today] ? 'SURVIVED' : 'FLATLINED'}) — REPLAY OFF THE RECORD`
+      : `📅 OPERATE ON TODAY'S DAILY CASE (${dailyGradeFor(today).toUpperCase()})`;
     helpDialog.showModal();
   }
+  function launchDaily() {
+    if (helpDialog.open) helpDialog.close();
+    playSound('probe');
+    startDailyCase();
+  }
+  dailyBtn.addEventListener('click', launchDaily);
+  footerDailyBtn.addEventListener('click', launchDaily);
   helpBtn.addEventListener('click', openHelp);
   seedBtn.addEventListener('click', openHelp);
-  footerSeedBtn.addEventListener('click', openHelp);
   helpCloseBtn.addEventListener('click', () => helpDialog.close());
   helpDoneBtn.addEventListener('click', () => helpDialog.close());
 
@@ -3449,9 +4163,12 @@
     } else if (e.key === 's' || e.key === 'S') {
       e.preventDefault();
       shuffleTokens();
-    } else if (e.key === 'h' || e.key === 'H') {
+    } else if (e.key === 'b' || e.key === 'B' || e.key === 'h' || e.key === 'H') {
       e.preventDefault();
-      stimulateHint();
+      biopsySelectedToken();
+    } else if (e.key === 'd' || e.key === 'D') {
+      e.preventDefault();
+      launchDaily();
     } else if (e.key === 'n' || e.key === 'N') {
       e.preventDefault();
       rollNewRandomCaseWithCurrentDifficulty();
@@ -3464,15 +4181,38 @@
     }
   });
 
+  // Read-only audit hook for the test suite: deal the Ward board for a seed without touching the live game
+  window.__ptAudit = (seed, grade) => {
+    if (!corpus) return null;
+    const uSeed = (seed >>> 0) || 1;
+    const g = normalizeGrade(grade) === 'auto' ? resolveTargetGrade(uSeed) : normalizeGrade(grade);
+    const quad = selectDeterministicQuad(uSeed, g);
+    const pools = buildWardPoolsForQuad(quad.catIds);
+    const sel = selectQuadWordsFromPools(pools, g, mulberry32(Math.imul(uSeed ^ 0x9e3779b9, 2654435761) >>> 0), quad.isCanonicalSeed1);
+    const crossers = findBoardCrossers(sel.chosen);
+    return {
+      lobes: quad.catIds,
+      words: sel.chosen.map(list => list.map(w => w.word)),
+      herrings: crossers.map(c => c.item.word),
+      ambiguous: findAlternatePartition(crossers) !== null,
+    };
+  };
+
   // ───────────────────────────────────────────────────────────────────────
   // Boot Sequence
   // ───────────────────────────────────────────────────────────────────────
   (async function boot() {
     loadSaveState();
     const params = new URLSearchParams(window.location.search);
+    let bootDaily = null;
     if (params.get('seed')) {
       currentSeed = hashSeedString(params.get('seed'));
       difficultyOverride = 'auto';
+    } else if (params.get('daily')) {
+      bootDaily = parseDailyParam(params.get('daily'));
+    } else if (stats.played > 0 && !Object.prototype.hasOwnProperty.call(stats.dailyDone, localDateStr())) {
+      // Returning surgeons are wheeled straight to today's shared case until they have filed it
+      bootDaily = localDateStr();
     }
     const gradeParam = params.get('grade');
     if (gradeParam) {
@@ -3485,7 +4225,11 @@
     applyPreferencesUI();
     await loadCorpusOnce();
     // Render immediately using verified fallback logits so the board is playable in <50ms!
-    await buildCaseFromSeed(currentSeed, true);
+    if (bootDaily) {
+      await startDailyCase(bootDaily);
+    } else {
+      await buildCaseFromSeed(currentSeed, true);
+    }
     updateModeIndicator();
 
     // Load the live 22MB ONNX model in the background; once ready, live procedural surgery is active!
