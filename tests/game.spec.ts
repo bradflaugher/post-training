@@ -256,6 +256,35 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('.solved-lobe')).toHaveCount(0);
   });
 
+  test('a report opened and dismissed by hand is not reopened by its own timer, and Enter on a link still navigates', async ({ page }) => {
+    await page.goto('/index.html?lite=1&seed=1');
+    const lobes = await readLobes(page);
+    const ids = Object.keys(lobes);
+    for (const id of ids.slice(0, 3)) {
+      await clamp(page, lobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await clamp(page, lobes[ids[3]]);
+    // Open the report by hand and dismiss it, all inside the automatic report's opening delay
+    const openedByHand = await page.evaluate(() => {
+      (document.querySelector('#submit-btn') as HTMLButtonElement).click();
+      (document.querySelector('#report-btn') as HTMLButtonElement).click();
+      const dlg = document.querySelector('#debrief-dialog') as HTMLDialogElement;
+      const wasOpen = dlg.open;
+      dlg.close();
+      return wasOpen;
+    });
+    expect(openedByHand).toBe(true);
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.solved-lobe')).toHaveCount(4);
+
+    // On a closed case, Enter on a focused footer link follows the link instead of dealing a new patient
+    await page.locator('.footer-nav a[href="/privacy.html"]').focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/privacy\.html/);
+  });
+
   test('cycles cosine-distance difficulty grades, rolls random seeds on refresh/grade change, and synthesizes billions of procedural seeds', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/index.html?lite=1&seed=3923223191');
@@ -548,10 +577,17 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
       await page.locator('#submit-btn').click();
     }
     await clamp(page, liveLobes[liveIds[3]]);
-    await page.evaluate(() => {
+    const lockedWhileBuilding = await page.evaluate(() => {
+      const report = document.querySelector('#report-btn') as HTMLButtonElement;
+      const next = document.querySelector('#next-patient-btn') as HTMLButtonElement;
       (document.querySelector('#submit-btn') as HTMLButtonElement).click();
-      (document.querySelector('#next-patient-btn') as HTMLButtonElement).click();
+      const armed = !report.disabled && !next.disabled;
+      next.click();
+      // The live build is now awaiting its forward passes: the old case must no longer be actionable
+      report.click();
+      return armed && report.disabled && next.disabled && !(document.querySelector('#debrief-dialog') as HTMLDialogElement).open;
     });
+    expect(lockedWhileBuilding).toBe(true);
     await page.waitForTimeout(900);
     await expect(page.locator('#debrief-dialog')).toBeHidden();
     await expect(page.locator('.token-tile')).toHaveCount(16);

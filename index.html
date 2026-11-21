@@ -2790,8 +2790,33 @@
     return fallbackSeed;
   }
 
-  async function buildCaseFromSeed(seedNum, forceWard = false, opts = {}) {
+  // A finished case stays "closed and actionable" only until the next build starts. Every predicate that offers
+  // the post-case controls (bar, shortcuts, report) goes through this, so nothing can act on a board that is
+  // already being replaced underneath it.
+  function caseIsClosed() {
+    return Boolean(currentCase) && solvedLobeIds.length >= 4 && currentCase.builtGeneration === buildGeneration;
+  }
+
+  // Run one build under a fresh generation. If it is still the newest build when it ends and dealt nothing
+  // (model failure, refused custom board), the case on the table takes that generation so its controls return.
+  async function runBuild(builder) {
     const myGen = ++buildGeneration;
+    updateActionButtons();
+    try {
+      return await builder(myGen);
+    } finally {
+      if (buildGeneration === myGen && currentCase && currentCase.builtGeneration !== myGen) {
+        currentCase.builtGeneration = myGen;
+        updateActionButtons();
+      }
+    }
+  }
+
+  function buildCaseFromSeed(seedNum, forceWard = false, opts = {}) {
+    return runBuild(myGen => buildCaseFromSeedInner(seedNum, forceWard, opts, myGen));
+  }
+
+  async function buildCaseFromSeedInner(seedNum, forceWard, opts, myGen) {
     const uSeed = (seedNum >>> 0) || 1;
     const dailyDate = typeof opts.daily === 'string' ? opts.daily : null;
     if (dailyDate) forceWard = true; // identical board for every surgeon, on every device
@@ -3039,6 +3064,7 @@
       : PROCEDURAL_OPERATIONS[(Math.imul(uSeed, 2246822519) >>> 0) % PROCEDURAL_OPERATIONS.length];
 
     currentCase = {
+      builtGeneration: myGen,
       seed: uSeed,
       mode: liveBuilt ? 'live' : 'ward',
       grade: finalGrade,
@@ -3368,6 +3394,9 @@
     for (const btn of [shuffleBtn, biopsyBtn, clearBtn, submitBtn]) btn.hidden = finished;
     reportBtn.hidden = !finished;
     nextPatientBtn.hidden = !finished;
+    // While the next patient is being wheeled in (live builds take a moment) the old case can no longer be acted on
+    reportBtn.disabled = finished && !caseIsClosed();
+    nextPatientBtn.disabled = finished && !caseIsClosed();
     setActionLabel(biopsyBtn, '💉', `BIOPSY ${MAX_BIOPSIES - biopsiesUsed}`);
     biopsyBtn.disabled = caseOver || biopsiesUsed >= MAX_BIOPSIES;
     if (count === 4 && previousGuesses.has(getSelectionKey(selectedWords))) {
@@ -3386,10 +3415,10 @@
   // advancing to the next patient during the delay must not reopen it over the fresh board.
   function scheduleDebrief(won, delayMs) {
     const closedCase = currentCase;
-    // buildGeneration moves the instant any new build starts, even a live one still awaiting its forward passes
-    const closedGeneration = buildGeneration;
     setTimeout(() => {
-      if (currentCase === closedCase && buildGeneration === closedGeneration && !debriefDialog.open) {
+      // Skip if a new build has started (even a live one still awaiting its forward passes), or if the player
+      // already opened this case's report by hand and may have dismissed it
+      if (currentCase === closedCase && caseIsClosed() && !closedCase.debriefShown && !debriefDialog.open) {
         showDebriefModal(won);
       }
     }, delayMs);
@@ -3766,6 +3795,7 @@
   // Post-Op Autopsy Report Modal (Clinical Debrief — No Colored Emoji Squares)
   // ───────────────────────────────────────────────────────────────────────
   function showDebriefModal(won) {
+    if (currentCase) currentCase.debriefShown = true;
     const headerLine = won
       ? `SURGERY SUCCESSFUL // PATIENT SURVIVED (${MAX_MISTAKES - mistakesMade}/${MAX_MISTAKES} DEFIB LEFT · STREAK ${streak})`
       : `PATIENT FLATLINED // CRANIAL HEMORRHAGE`;
@@ -3942,12 +3972,15 @@
     'main','evalle','joyah','jaenelle','lucivar','saetan','kaskae','tersa','surreal',
   ]);
 
-  async function synthesizeCustomBoardFromPrompts(rawPrompts) {
+  function synthesizeCustomBoardFromPrompts(rawPrompts) {
     if (!modelReady || !tokenizer || !maskedModel || !idToTokenMap) {
       telemetryMsg.textContent = 'WAIT FOR THE ON-DEVICE SLM TO FINISH LOADING BEFORE SYNTHESIZING CUSTOM BOARDS.';
-      return;
+      return Promise.resolve();
     }
-    const myGen = ++buildGeneration;
+    return runBuild(myGen => synthesizeCustomBoardInner(rawPrompts, myGen));
+  }
+
+  async function synthesizeCustomBoardInner(rawPrompts, myGen) {
     const prompts = rawPrompts.map(p => {
       const clean = (p || '').trim() || "the surgeon's monitor flashed a bright [MASK] signal.";
       return clean.includes('[MASK]') ? clean : `${clean.replace(/[.?!]+$/, '')} [MASK].`;
@@ -4066,6 +4099,7 @@
     const customGrade = gradeFromCosDist(customBoardDist);
 
     currentCase = {
+      builtGeneration: myGen,
       seed: currentSeed,
       mode: 'live',
       grade: customGrade,
@@ -4330,13 +4364,13 @@
       advancingFromDebrief = false;
       return;
     }
-    if (currentCase && solvedLobeIds.length >= 4) {
+    if (caseIsClosed()) {
       setTelemetry('CASE CLOSED — HIT 🔪 NEXT PATIENT (N) FOR A FRESH BOARD, OR 📋 AUTOPSY REPORT TO REVIEW WHAT THE MODEL SAW.');
       nextPatientBtn.focus({ preventScroll: true });
     }
   });
   function reopenDebrief() {
-    if (currentCase && solvedLobeIds.length >= 4 && !debriefDialog.open) showDebriefModal(currentCase.won === true);
+    if (caseIsClosed() && !debriefDialog.open) showDebriefModal(currentCase.won === true);
   }
   reportBtn.addEventListener('click', reopenDebrief);
   nextPatientBtn.addEventListener('click', () => rollNewRandomCaseWithCurrentDifficulty());
@@ -4359,9 +4393,10 @@
     if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
     if (labDialog.open || helpDialog.open || debriefDialog.open) return;
 
-    const caseClosed = Boolean(currentCase) && solvedLobeIds.length >= 4;
-    // A focused button keeps its own Enter activation (e.g. AUTOPSY REPORT must open the report, not skip it)
-    if (caseClosed && e.key === 'Enter' && tag === 'button') {
+    const caseClosed = caseIsClosed();
+    // A focused control keeps its own Enter activation: AUTOPSY REPORT opens the report, a footer link navigates
+    const onControl = Boolean(e.target && e.target.closest && e.target.closest('button, a[href], summary, [role="button"]'));
+    if (e.key === 'Enter' && onControl && solvedLobeIds.length >= 4) {
       return;
     } else if (caseClosed && e.key === 'Enter') {
       e.preventDefault();
