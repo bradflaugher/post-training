@@ -533,6 +533,19 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await expect(page.locator('#mode-btn')).toHaveAttribute('data-mode', 'live');
     await expect(page.locator('#inference-timing')).toContainText('LIVE SLM');
 
+    // Live path: NEXT PATIENT during the report's opening delay starts an async 4-pass build; the stale report
+    // must not open over it while the old case is still nominally on the table
+    const liveLobes = await readLobes(page);
+    for (const id of Object.keys(liveLobes)) {
+      await clamp(page, liveLobes[id]);
+      await page.locator('#submit-btn').click();
+    }
+    await page.locator('#next-patient-btn').click();
+    await page.waitForTimeout(900);
+    await expect(page.locator('#debrief-dialog')).toBeHidden();
+    await expect(page.locator('.token-tile')).toHaveCount(16);
+    await expect(page.locator('.solved-lobe')).toHaveCount(0);
+
     // Open Lab and run a live custom sentence forward pass
     await page.locator('#lab-btn').click();
     await page.locator('#lab-input').fill('the best ice cream flavor is [MASK].');
