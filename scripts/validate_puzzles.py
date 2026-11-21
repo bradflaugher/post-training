@@ -25,16 +25,16 @@ def main() -> int:
         return 1
 
     data = json.loads(PUZZLES_PATH.read_text(encoding="utf-8"))
-    assert data.get("version") in (2, 3), f"Unexpected version: {data.get('version')}"
+    assert data.get("version") == 4, f"Unexpected version: {data.get('version')}"
     assert data.get("modelId") == "Xenova/albert-base-v2"
     assert data.get("dtype") == "fp16"
     assert data.get("maskToken") == "[MASK]"
-    assert isinstance(data.get("pairCosSim"), dict) and len(data["pairCosSim"]) >= 40
-    assert isinstance(data.get("poolLogits"), dict) and len(data["poolLogits"]) >= 40
-    assert isinstance(data.get("wordVecs"), dict) and len(data["wordVecs"]) >= 400
+    assert isinstance(data.get("pairCosSim"), dict) and len(data["pairCosSim"]) >= 148
+    assert isinstance(data.get("poolLogits"), dict) and len(data["poolLogits"]) >= 148
+    assert isinstance(data.get("wordVecs"), dict) and len(data["wordVecs"]) >= 1350
 
     categories = data.get("categories", {})
-    assert len(categories) >= 40, f"Expected >= 40 categories, got {len(categories)}"
+    assert len(categories) >= 148, f"Expected >= 148 categories, got {len(categories)}"
 
     seen_words = set()
     for cid, cat in categories.items():
@@ -54,7 +54,7 @@ def main() -> int:
             assert isinstance(we["tokenId"], int) and we["tokenId"] > 0
 
     puzzles = data.get("puzzles", [])
-    assert len(puzzles) >= 64, f"Expected >= 64 fallback puzzles, got {len(puzzles)}"
+    assert len(puzzles) >= 256, f"Expected >= 256 fallback puzzles, got {len(puzzles)}"
     for p in puzzles:
         cats = p["categories"]
         assert len(cats) == 4 and len(set(cats)) == 4

@@ -177,7 +177,7 @@
   <h2>No cookies — only local storage</h2>
   <p>POST-TRAINING sets no cookies. It uses your browser's <code>localStorage</code> and <code>sessionStorage</code> strictly on your device to remember:</p>
   <ul>
-    <li><code>post-training-save</code>: your surgical case progress, solved lobes, streak, and preferred operating mode (Live LLM Surgery vs. Pre-Dissected Ward, audio mute, and blood/gore intensity).</li>
+    <li><code>post-training-save</code>: your current seed, streak, surgeon's record (cases played, XP, daily-case results, unlocked field notes), and preferred operating mode (Live LLM Surgery vs. Pre-Dissected Ward, audio mute, and blood/gore intensity).</li>
     <li><code>post-training-loading</code> &amp; <code>post-training-crash-count</code>: session-only sentinels that detect if a low-memory mobile browser tab was terminated while loading the ONNX model, automatically switching to <strong>Pre-Dissected Ward</strong> mode so your browser never gets stuck in a reload loop.</li>
   </ul>
   <p>In addition, your browser uses standard HTTP caching and IndexedDB so the ~22 MB ONNX model weights only need to download once. You can wipe all stored data and caches at any time using the <strong>WIPE MEMORY / RESET</strong> button in the Surgical Manual dialog or via your browser settings.</p>
