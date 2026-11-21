@@ -327,7 +327,14 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await clamp(page, lobes[ids[0]]);
     await page.locator('#submit-btn').click();
     await expect(page.locator('.solved-lobe')).toHaveCount(1);
-    await page.reload();
+    // A detour through another unfiled date must not wipe this attempt either
+    await page.goto('/index.html?daily=2024-01-02');
+    const detour = await readLobes(page);
+    const detourIds = Object.keys(detour);
+    await clamp(page, [...detour[detourIds[0]].slice(0, 3), detour[detourIds[1]][0]]);
+    await page.locator('#submit-btn').click();
+    await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
+    await page.goto('/index.html?daily=2024-01-01');
     await expect(page.locator('.token-tile')).toHaveCount(12);
     await expect(page.locator('.solved-lobe')).toHaveCount(1);
     await expect(page.locator('.volt-pip.lost')).toHaveCount(1);
@@ -468,6 +475,20 @@ test.describe('POST-TRAINING — Neural Vivisection Word Game', () => {
     await page.locator('#lab-input').fill('the best ice cream flavor is [MASK].');
     await page.locator('#lab-run-btn').click();
     await expect(page.locator('#lab-vocab-results .lab-row').first()).toBeVisible();
+
+    // Four identical sentences admit no unique split: the Lab refuses instead of dealing an unfair board
+    const defaultProbes: string[] = [];
+    for (const id of ['#custom-p1', '#custom-p2', '#custom-p3', '#custom-p4']) {
+      defaultProbes.push(await page.locator(id).inputValue());
+      await page.locator(id).fill('the best ice cream flavor is [MASK].');
+    }
+    await page.locator('#synthesize-custom-btn').click();
+    await expect(page.locator('#lab-board-results')).toContainText('No board dealt');
+    await expect(page.locator('#lab-dialog')).toBeVisible();
+    await expect(page.locator('#case-title')).not.toContainText('CUSTOM VIVISECTION');
+    for (const [i, id] of ['#custom-p1', '#custom-p2', '#custom-p3', '#custom-p4'].entries()) {
+      await page.locator(id).fill(defaultProbes[i]);
+    }
 
     // Synthesize a live 4x4 board from the 4 custom sentences in the Lab
     await page.locator('#synthesize-custom-btn').click();

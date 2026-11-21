@@ -1813,7 +1813,7 @@
     dailyBest: 0,
     dailyLast: '',
     dailyDone: {}, // 'YYYY-MM-DD' -> 1 (won) | 0 (flatlined)
-    dailyProgress: null, // the one unfiled Daily Case in flight, so a refresh cannot hand back spent charges
+    dailyProgress: {}, // 'YYYY-MM-DD' -> snapshot of an unfiled Daily Case, so no refresh or detour hands back spent charges
   };
 
   function rankForXp(xp) {
@@ -1929,21 +1929,23 @@
           if (typeof v === 'number' && Number.isFinite(v) && v >= 0) stats[key] = Math.floor(v);
         }
         if (typeof data.stats.dailyLast === 'string') stats.dailyLast = data.stats.dailyLast;
-        const prog = data.stats.dailyProgress;
-        if (prog && typeof prog === 'object' && typeof prog.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(prog.date)) {
-          const strList = v => (Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, 64) : []);
-          stats.dailyProgress = {
-            date: prog.date,
-            current: prog.current === true,
-            mistakes: Math.max(0, Math.min(MAX_MISTAKES - 1, Math.floor(Number(prog.mistakes) || 0))),
-            solved: strList(prog.solved),
-            tried: strList(prog.tried),
-            biopsied: strList(prog.biopsied),
-            guessLog: Array.isArray(prog.guessLog)
-              ? prog.guessLog.filter(r => Array.isArray(r) && r.length === 4 && r.every(n => Number.isInteger(n) && n >= 0 && n < 4)).slice(0, 16)
-              : [],
-            firstSolvedTier: Math.max(0, Math.min(4, Math.floor(Number(prog.firstSolvedTier) || 0))),
-          };
+        const strList = v => (Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, 64) : []);
+        const progMap = data.stats.dailyProgress;
+        if (progMap && typeof progMap === 'object') {
+          for (const [day, prog] of Object.entries(progMap)) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !prog || typeof prog !== 'object') continue;
+            stats.dailyProgress[day] = {
+              current: prog.current === true,
+              mistakes: Math.max(0, Math.min(MAX_MISTAKES - 1, Math.floor(Number(prog.mistakes) || 0))),
+              solved: strList(prog.solved),
+              tried: strList(prog.tried),
+              biopsied: strList(prog.biopsied),
+              guessLog: Array.isArray(prog.guessLog)
+                ? prog.guessLog.filter(r => Array.isArray(r) && r.length === 4 && r.every(n => Number.isInteger(n) && n >= 0 && n < 4)).slice(0, 16)
+                : [],
+              firstSolvedTier: Math.max(0, Math.min(4, Math.floor(Number(prog.firstSolvedTier) || 0))),
+            };
+          }
         }
         if (data.stats.dailyDone && typeof data.stats.dailyDone === 'object') {
           for (const [day, res] of Object.entries(data.stats.dailyDone)) {
@@ -3034,8 +3036,7 @@
   function saveDailyProgress() {
     const c = currentCase;
     if (!c || !c.daily || c.scored || Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily)) return;
-    stats.dailyProgress = {
-      date: c.daily,
+    stats.dailyProgress[c.daily] = {
       current: c.dailyCurrent === true,
       mistakes: mistakesMade,
       solved: solvedLobeIds.slice(),
@@ -3047,11 +3048,13 @@
     writeSaveState();
   }
 
-  // Resume that snapshot when the same unfiled Daily Case is dealt again (refresh, reopen, or navigating back)
+  // Resume that date's snapshot whenever the unfiled Daily Case is dealt again (refresh, reopen, or after a detour)
   function restoreDailyProgress() {
     const c = currentCase;
-    const prog = stats.dailyProgress;
-    if (!c || !c.daily || !prog || prog.date !== c.daily) return false;
+    const prog = c && c.daily && Object.prototype.hasOwnProperty.call(stats.dailyProgress, c.daily)
+      ? stats.dailyProgress[c.daily]
+      : null;
+    if (!prog) return false;
     if (Object.prototype.hasOwnProperty.call(stats.dailyDone, c.daily)) return false;
     const lobeIds = c.lobes.map(l => l.id);
     const words = new Set(c.tokens.map(t => t.word));
@@ -3500,7 +3503,7 @@
     }
     if (c.daily) {
       stats.dailyDone[c.daily] = won ? 1 : 0;
-      stats.dailyProgress = null;
+      delete stats.dailyProgress[c.daily];
       if (c.dailyCurrent) {
         // Measured from the case's own date, so a case finished after midnight still chains to the next day
         const y = new Date(`${c.daily}T12:00:00`);
@@ -3893,12 +3896,10 @@
     const promptWords = new Set(
       prompts.join(' ').toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean)
     );
-    const chosenGlobal = new Set();
-    const lobes = [];
-
+    // Rank each sentence's candidates by own logit + contrast margin over the other three sentences
+    const candLists = [];
     for (let i = 0; i < 4; i++) {
       const logitsI = passes[i].logits;
-      // Find top 250 tokens on prompt i first for speed, then rank by contrast margin over prompts j != i
       const topCands = [];
       for (let tid = 0; tid < logitsI.length; tid++) {
         if (logitsI[tid] < 4.5) continue;
@@ -3906,29 +3907,63 @@
         if (!rawTok || !rawTok.startsWith('▁')) continue;
         const word = rawTok.slice(1).toLowerCase();
         if (!/^[a-z]{3,14}$/.test(word)) continue;
-        if (STOP_WORDS.has(word) || promptWords.has(word) || chosenGlobal.has(word)) continue;
+        if (STOP_WORDS.has(word) || promptWords.has(word)) continue;
 
+        const lobeVals = [0, 1, 2, 3].map(k => passes[k].logits[tid]);
         let maxOther = -Infinity;
         for (let j = 0; j < 4; j++) {
-          if (j !== i && passes[j].logits[tid] > maxOther) {
-            maxOther = passes[j].logits[tid];
-          }
+          if (j !== i && lobeVals[j] > maxOther) maxOther = lobeVals[j];
         }
-        const margin = logitsI[tid] - maxOther;
-        topCands.push({ word, tokenId: tid, tokenStr: rawTok, ownLogit: logitsI[tid], margin });
+        topCands.push({ word, tokenId: tid, tokenStr: rawTok, ownLogit: logitsI[tid], lobeVals, margin: logitsI[tid] - maxOther });
       }
       topCands.sort((a, b) => (b.ownLogit * 0.6 + b.margin * 0.4) - (a.ownLogit * 0.6 + a.margin * 0.4));
-      const picked4 = topCands.slice(0, 4);
-      picked4.forEach(w => chosenGlobal.add(w.word));
-
-      lobes.push({
-        id: `custom_${i + 1}`,
-        label: `CUSTOM PROBE 0${i + 1}`,
-        lobe: `USER CORTEX // PROBE 0${i + 1}`,
-        prompt: prompts[i],
-        words: picked4,
-      });
+      candLists.push(topCands.slice(0, 40));
     }
+
+    // Deal the best 4 per sentence, then evict tokens until no second 4/4/4/4 split fits the logits — the same
+    // one-solution guarantee as procedural cases. If the sentences overlap too much to allow one, deal nothing.
+    const banned = new Set();
+    const dealCustom = () => {
+      const taken = new Set();
+      return candLists.map(list => {
+        const picked = [];
+        for (const cand of list) {
+          if (picked.length === 4) break;
+          if (banned.has(cand) || taken.has(cand.word)) continue;
+          picked.push(cand);
+          taken.add(cand.word);
+        }
+        return picked;
+      });
+    };
+    let customChosen = dealCustom();
+    let customFair = false;
+    for (let round = 0; round < 48 && customChosen.every(list => list.length === 4); round++) {
+      const cycle = findAlternatePartition(findBoardCrossers(customChosen));
+      if (!cycle) {
+        customFair = true;
+        break;
+      }
+      cycle.sort((a, b) => b.excess - a.excess);
+      banned.add(cycle[0].item);
+      customChosen = dealCustom();
+    }
+    if (myGen !== buildGeneration) return;
+    if (!customFair) {
+      setTelemetry('🧠 THOSE 4 SENTENCES OVERLAP TOO MUCH — THE MODEL CANNOT SPLIT THEIR TOKENS INTO ONE UNIQUE 4×4 SOLUTION. REWRITE A PROBE SO EACH SENTENCE WANTS DIFFERENT WORDS.');
+      const refusal = document.createElement('div');
+      refusal.textContent = 'No board dealt: those 4 sentences want overlapping words, so no single 4×4 solution exists. Rewrite a probe so each sentence predicts different tokens.';
+      labBoardResults.replaceChildren(refusal);
+      playSound('hemorrhage');
+      return;
+    }
+    const lobes = customChosen.map((picked4, i) => ({
+      id: `custom_${i + 1}`,
+      label: `CUSTOM PROBE 0${i + 1}`,
+      lobe: `USER CORTEX // PROBE 0${i + 1}`,
+      prompt: prompts[i],
+      words: picked4,
+    }));
 
     const wordLogitMap = [new Map(), new Map(), new Map(), new Map()];
     for (let i = 0; i < 4; i++) {
