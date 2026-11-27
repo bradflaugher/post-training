@@ -4265,12 +4265,11 @@
   });
 
   function canFullscreen() {
-    const standalone = Boolean(
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    const alreadyNativeFs = Boolean(
       (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
       window.navigator.standalone === true
     );
-    if (standalone) return false;
+    if (alreadyNativeFs) return false;
     const el = document.documentElement;
     if (!el.requestFullscreen && !el.webkitRequestFullscreen) return false;
     if (typeof document.fullscreenEnabled === 'boolean') return document.fullscreenEnabled;
@@ -4302,8 +4301,13 @@
         if (exit) Promise.resolve(exit.call(document)).catch(() => {});
       } else {
         const el = document.documentElement;
-        const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) Promise.resolve(req.call(el)).catch(() => {});
+        if (el.requestFullscreen) {
+          Promise.resolve(el.requestFullscreen({ navigationUI: 'hide' }))
+            .catch(() => el.requestFullscreen())
+            .catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+          Promise.resolve(el.webkitRequestFullscreen()).catch(() => {});
+        }
       }
     } catch {}
   }
