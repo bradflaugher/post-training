@@ -1267,6 +1267,7 @@
       <button type="button" class="icon-btn" id="lab-btn" aria-label="Open Lobotomy Lab" title="Open Live Lobotomy Lab (L)">🔬</button>
       <button type="button" class="icon-btn" id="new-case-btn" aria-label="New Surgical Case" title="Roll a fresh neural vivisection case (N)">↻ <span class="hdr-btn-label">NEW</span></button>
       <button type="button" class="icon-btn" id="audio-btn" aria-label="Toggle surgical synth sound" title="Toggle synth audio (M)">🔊</button>
+      <button type="button" class="icon-btn" id="fullscreen-btn" aria-label="Toggle fullscreen" aria-pressed="false" title="Toggle fullscreen (F)" style="display:none">⛶</button>
       <button type="button" class="icon-btn" id="help-btn" aria-label="Surgical Manual and Settings" title="Surgical Manual &amp; Seed Picker (?)">?</button>
     </div>
   </header>
@@ -1489,6 +1490,7 @@
   const labBtn = $('lab-btn');
   const newCaseBtn = $('new-case-btn');
   const audioBtn = $('audio-btn');
+  const fullscreenBtn = $('fullscreen-btn');
   const helpBtn = $('help-btn');
   const errorBanner = $('error-banner');
   const errorText = $('error-text');
@@ -4262,6 +4264,55 @@
     applyPreferencesUI();
   });
 
+  function canFullscreen() {
+    const standalone = Boolean(
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
+      window.navigator.standalone === true
+    );
+    if (standalone) return false;
+    const el = document.documentElement;
+    if (!el.requestFullscreen && !el.webkitRequestFullscreen) return false;
+    if (typeof document.fullscreenEnabled === 'boolean') return document.fullscreenEnabled;
+    if (typeof document.webkitFullscreenEnabled === 'boolean') return document.webkitFullscreenEnabled;
+    return true;
+  }
+
+  function isFullscreen() {
+    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function syncFullscreenUI() {
+    if (!fullscreenBtn) return;
+    const supported = canFullscreen();
+    fullscreenBtn.style.display = supported ? '' : 'none';
+    if (!supported) return;
+    const active = isFullscreen();
+    fullscreenBtn.textContent = active ? '⤢' : '⛶';
+    fullscreenBtn.setAttribute('aria-pressed', String(active));
+    fullscreenBtn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
+    fullscreenBtn.title = active ? 'Exit fullscreen (F)' : 'Toggle fullscreen (F)';
+  }
+
+  function toggleFullscreen() {
+    if (!canFullscreen()) return;
+    try {
+      if (isFullscreen()) {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+      } else {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) Promise.resolve(req.call(el)).catch(() => {});
+      }
+    } catch {}
+  }
+
+  if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', syncFullscreenUI);
+  document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
+  syncFullscreenUI();
+
   footerCalmBtn.addEventListener('click', () => {
     calmScreen = !calmScreen;
     writeSaveState();
@@ -4427,6 +4478,9 @@
     } else if (e.key === 'l' || e.key === 'L') {
       e.preventDefault();
       openLab();
+    } else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      toggleFullscreen();
     } else if (e.key === '?') {
       e.preventDefault();
       openHelp();
